@@ -6,13 +6,13 @@ import com.coronacarecard.mapper.BusinessEntityMapper;
 import com.coronacarecard.model.Business;
 import com.coronacarecard.model.BusinessSearchResult;
 import com.coronacarecard.service.GooglePlaceService;
-import com.google.maps.FindPlaceFromTextRequest;
 import com.google.maps.GeoApiContext;
 import com.google.maps.PlaceDetailsRequest;
 import com.google.maps.PlacesApi;
-import com.google.maps.model.FindPlaceFromText;
+import com.google.maps.TextSearchRequest;
 import com.google.maps.model.LatLng;
 import com.google.maps.model.PlaceDetails;
+import com.google.maps.model.PlacesSearchResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,20 +57,18 @@ public class GooglePlaceServiceImpl implements GooglePlaceService {
 
     @Override
     public List<BusinessSearchResult> search(String searchText, Optional<Double> lat, Optional<Double> lng) throws InternalException {
-        FindPlaceFromTextRequest request = PlacesApi.findPlaceFromText(context, searchText,
-                FindPlaceFromTextRequest.InputType.TEXT_QUERY);
 
-        request.fields(FindPlaceFromTextRequest.FieldMask.FORMATTED_ADDRESS, FindPlaceFromTextRequest.FieldMask.GEOMETRY,
-                FindPlaceFromTextRequest.FieldMask.NAME, FindPlaceFromTextRequest.FieldMask.PLACE_ID);
+        TextSearchRequest request;
 
-        if(lat.isPresent() && lng.isPresent()) {
-            FindPlaceFromTextRequest.LocationBiasPoint locationBiasPoint =
-                    new FindPlaceFromTextRequest.LocationBiasPoint(new LatLng(lat.get(), lng.get()));
-            request.locationBias(locationBiasPoint);
+
+        if (lat.isPresent() && lng.isPresent()) {
+            request = PlacesApi.textSearchQuery(context, searchText, new LatLng(lat.get(), lng.get()));
+        } else {
+            request = PlacesApi.textSearchQuery(context, searchText);
         }
 
         //TODO make this async
-        FindPlaceFromText result;
+        PlacesSearchResponse result;
         try {
             result = request.await();
             // Handle successful request.
@@ -78,8 +76,8 @@ public class GooglePlaceServiceImpl implements GooglePlaceService {
             log.error(e);
             throw new InternalException("Unable to search place");
         }
-        return Arrays.stream(result.candidates).map(t->mapper.toSearchResult(t)).collect(Collectors.toList());
-        
+        return Arrays.stream(result.results).map(t -> mapper.toSearchResult(t)).collect(Collectors.toList());
+
     }
 
 }

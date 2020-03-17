@@ -13,9 +13,9 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.List;
+import java.util.Optional;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes = {BusinessEntityMapperImpl.class, GooglePlaceServiceImpl.class})
@@ -38,7 +38,13 @@ public class GooglePlaceServiceTest {
 
     @Test
     public void search() throws InternalException {
-        List<BusinessSearchResult> result = service.search("What the pho", null, null);
+        List<BusinessSearchResult> result = service.search("What the pho", Optional.empty(), Optional.empty());
         assertEquals(ID, result.get(0).getId());
+    }
+
+    @Test
+    public void searchMultiple() throws InternalException {
+        List<BusinessSearchResult> result = service.search("pho", Optional.empty(), Optional.empty());
+        assertTrue(result.size()> 1);
     }
 }
