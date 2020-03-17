@@ -3,12 +3,17 @@ package com.coronacarecard.mapper.impl;
 import com.coronacarecard.dao.entity.Business;
 import com.coronacarecard.dao.entity.Contact;
 import com.coronacarecard.mapper.BusinessEntityMapper;
+import com.coronacarecard.mapper.validation.ValidateCondition;
+import com.coronacarecard.mapper.validation.impl.NotNegativeValidation;
+import com.coronacarecard.mapper.validation.impl.PageNumberLessThanTotalValidation;
 import com.coronacarecard.model.BusinessSearchResult;
 import com.coronacarecard.model.PagedBusinessSearchResult;
 import com.google.maps.model.PlaceDetails;
 import com.google.maps.model.PlacesSearchResult;
+import lombok.SneakyThrows;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -74,9 +79,22 @@ public class BusinessEntityMapperImpl implements BusinessEntityMapper {
 
     }
 
+    @SneakyThrows
     @Override
     public PagedBusinessSearchResult toPagedSearchResult(List<BusinessSearchResult> items,
                                                          int pageNumber, int pageSize, int totalPages) {
+
+        // Validate the input values to ensure they don't break the paging logic
+        // 1. pageNumber cannot be less than 0
+        // 2. pageNumber cannot be greater than totalPages
+
+        List<ValidateCondition> conditions = new ArrayList<ValidateCondition>();
+        conditions.add(new NotNegativeValidation(pageNumber));
+        conditions.add(new PageNumberLessThanTotalValidation(pageNumber, totalPages));
+        for(ValidateCondition condition : conditions) {
+            condition.validate();
+        }
+
         return PagedBusinessSearchResult.builder()
                 .items(items)
                 .pageNumber(pageNumber)
