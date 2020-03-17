@@ -15,12 +15,35 @@ import java.util.List;
 public class BusinessEntityMapperImpl implements BusinessEntityMapper {
     @Override
     public Business toDAO(com.coronacarecard.model.Business business) {
-        return null;
+
+        return Business.builder()
+                .id(business.getId())
+                .name(business.getName())
+                .latitude(business.getLatitude())
+                .longitude(business.getLongitude())
+                .address(business.getAddress())
+                .photoUrl(business.getPhotoUrl())
+                .contact(Contact.builder()
+                        .id(business.getContact().getId())
+                        .Website(business.getContact().getWebsite())
+                        .internationalPhoneNumber(business.getContact().getInternationalPhoneNumber())
+                        .formattedPhoneNumber(business.getContact().getFormattedPhoneNumber())
+                        .build())
+                .build();
     }
 
     @Override
     public com.coronacarecard.model.Business toModel(Business business) {
-        return null;
+
+        return com.coronacarecard.model.Business.builder()
+                .id(business.getId())
+                .name(business.getName())
+                .photoUrl(business.getPhotoUrl())
+                .longitude(business.getLongitude())
+                .latitude(business.getLatitude())
+                .address(business.getAddress())
+                .contact(business.getContact()) // TODO Should we create a Contact Model instead of using DAO?
+                .build();
     }
 
     @Override
