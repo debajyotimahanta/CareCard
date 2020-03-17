@@ -2,6 +2,8 @@ package com.coronacarecard.mapper.impl;
 
 import com.coronacarecard.dao.entity.Contact;
 import com.coronacarecard.model.Business;
+import com.coronacarecard.model.BusinessSearchResult;
+import com.google.maps.model.PlacesSearchResult;
 import org.junit.Test;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -170,6 +172,46 @@ public class BusinessEntityMapperImplTest {
                 () -> assertNull(result.getContact().getWebsite()),
                 () -> assertNull(result.getContact().getFormattedPhoneNumber()),
                 () -> assertNull(result.getContact().getInternationalPhoneNumber())
+        );
+    }
+
+    @Test
+    @DisplayName("Test values of Places Search result mapped to Business Search Result")
+    public  void checkMappingPlacesSearchResultToModel(){
+        // Arrange
+        PlacesSearchResult dao = new PlacesSearchResult();
+        dao.placeId = "PlaceId12345";
+        dao.name = "Winter Wonder Inc";
+        dao.formattedAddress = "123 Main St, Chicago";
+        BusinessEntityMapperImpl target = new BusinessEntityMapperImpl();
+
+        // Act
+        BusinessSearchResult result = target.toSearchResult(dao);
+
+        // Assert
+        assertAll("Value matches",
+                () -> assertTrue(result.getId().equals(dao.placeId)),
+                () -> assertTrue(result.getName().equals(dao.name)),
+                () -> assertTrue(result.getAddress().equals(dao.formattedAddress))
+        );
+    }
+
+    @Test
+    @DisplayName("Test Null value propagation from Place Search Result to Model")
+    public  void checkNullValuePropagationFromPlaceSearchResultTModel(){
+        // Arrange
+        PlacesSearchResult dao = new PlacesSearchResult();
+        dao.placeId = dao.name = dao.formattedAddress = null;
+        BusinessEntityMapperImpl target = new BusinessEntityMapperImpl();
+
+        // Act
+        BusinessSearchResult result = target.toSearchResult(dao);
+
+        // Assert
+        assertAll("Value matches",
+                () -> assertNull(result.getId()),
+                () -> assertNull(result.getName()),
+                () -> assertNull(result.getAddress())
         );
     }
 }
