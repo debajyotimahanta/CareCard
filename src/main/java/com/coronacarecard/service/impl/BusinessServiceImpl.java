@@ -6,13 +6,21 @@ import com.coronacarecard.exceptions.InternalException;
 import com.coronacarecard.mapper.BusinessEntityMapper;
 import com.coronacarecard.model.Business;
 import com.coronacarecard.model.BusinessSearchResult;
+import com.coronacarecard.model.PagedBusinessSearchResult;
 import com.coronacarecard.service.BusinessService;
 import com.coronacarecard.service.GooglePlaceService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
+@Service
 public class BusinessServiceImpl implements BusinessService {
 
     @Autowired
@@ -40,7 +48,21 @@ public class BusinessServiceImpl implements BusinessService {
     }
 
     @Override
-    public List<BusinessSearchResult> search(String searchText, Double lat, Double lng) throws InternalException {
+    public List<BusinessSearchResult> externalSearch(String searchText, Optional<Double> lat, Optional<Double> lng) throws InternalException {
         return googlePlaceService.search(searchText, lat, lng);
+    }
+
+    @Override
+    public PagedBusinessSearchResult search(String searchText, int pageNumber, int pageSize) {
+        Sort sort = Sort.by(Sort.Direction.DESC, "id");
+        Pageable pageable = PageRequest.of(pageNumber , pageSize, sort);
+        Page<com.coronacarecard.dao.entity.Business> response = businessRepository.findByName(searchText, pageable);
+
+        return businessEntityMapper.toPagedSearchResult(
+                response.get().map(p-> businessEntityMapper.toSearchResult(p)).collect(Collectors.toList()),
+                response.getPageable().getPageNumber(),
+                response.getPageable().getPageSize(),
+                response.getTotalPages()
+                );
     }
 }

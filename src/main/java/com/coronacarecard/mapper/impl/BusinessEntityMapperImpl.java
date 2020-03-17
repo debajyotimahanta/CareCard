@@ -4,9 +4,12 @@ import com.coronacarecard.dao.entity.Business;
 import com.coronacarecard.dao.entity.Contact;
 import com.coronacarecard.mapper.BusinessEntityMapper;
 import com.coronacarecard.model.BusinessSearchResult;
+import com.coronacarecard.model.PagedBusinessSearchResult;
 import com.google.maps.model.PlaceDetails;
 import com.google.maps.model.PlacesSearchResult;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 @Component
 public class BusinessEntityMapperImpl implements BusinessEntityMapper {
@@ -46,5 +49,25 @@ public class BusinessEntityMapperImpl implements BusinessEntityMapper {
                         .build())
                 .build();
 
+    }
+
+    @Override
+    public PagedBusinessSearchResult toPagedSearchResult(List<BusinessSearchResult> items,
+                                                         int pageNumber, int pageSize, int totalPages) {
+        return PagedBusinessSearchResult.builder()
+                .items(items)
+                .pageNumber(pageNumber)
+                .pageSize(pageSize)
+                .totalPages(totalPages)
+                .build();
+    }
+
+    @Override
+    public BusinessSearchResult toSearchResult(Business item) {
+        return BusinessSearchResult.builder()
+                .address(item.getAddress())
+                .name(item.getName())
+                .id(item.getId())
+                .build();
     }
 }

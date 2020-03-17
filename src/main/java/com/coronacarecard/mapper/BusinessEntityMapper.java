@@ -2,8 +2,12 @@ package com.coronacarecard.mapper;
 
 
 import com.coronacarecard.dao.entity.Business;
+import com.coronacarecard.model.BusinessSearchResult;
+import com.coronacarecard.model.PagedBusinessSearchResult;
 import com.google.maps.model.PlaceDetails;
 import com.google.maps.model.PlacesSearchResult;
+
+import java.util.List;
 
 public interface BusinessEntityMapper {
 
@@ -11,7 +15,12 @@ public interface BusinessEntityMapper {
 
     com.coronacarecard.model.Business toModel(Business business);
 
-    com.coronacarecard.model.BusinessSearchResult toSearchResult(PlacesSearchResult result);
+    BusinessSearchResult toSearchResult(PlacesSearchResult result);
 
     com.coronacarecard.model.Business toModel(PlaceDetails place);
+
+    PagedBusinessSearchResult toPagedSearchResult(List<BusinessSearchResult> collect,
+                                                  int pageNumber, int pageSize, int totalPages);
+
+    BusinessSearchResult toSearchResult(Business p);
 }

@@ -2,7 +2,6 @@ package com.coronacarecard.service.impl;
 
 import com.coronacarecard.exceptions.BusinessNotFoundException;
 import com.coronacarecard.exceptions.InternalException;
-import com.coronacarecard.mapper.BusinessEntityMapper;
 import com.coronacarecard.mapper.impl.BusinessEntityMapperImpl;
 import com.coronacarecard.model.Business;
 import com.coronacarecard.model.BusinessSearchResult;
@@ -24,10 +23,6 @@ public class GooglePlaceServiceTest {
     public static final String ID = "ChIJicMwN4lskFQR9brCQh07Xyo";
     @Autowired
     GooglePlaceService service;
-
-    @Autowired
-    private BusinessEntityMapper mapper;
-
 
     @Test
     public void getBusiness() throws BusinessNotFoundException, InternalException {

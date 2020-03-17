@@ -20,7 +20,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -56,16 +56,16 @@ public class GooglePlaceServiceImpl implements GooglePlaceService {
     }
 
     @Override
-    public List<BusinessSearchResult> search(String searchText, Double lat, Double lng) throws InternalException {
+    public List<BusinessSearchResult> search(String searchText, Optional<Double> lat, Optional<Double> lng) throws InternalException {
         FindPlaceFromTextRequest request = PlacesApi.findPlaceFromText(context, searchText,
                 FindPlaceFromTextRequest.InputType.TEXT_QUERY);
 
         request.fields(FindPlaceFromTextRequest.FieldMask.FORMATTED_ADDRESS, FindPlaceFromTextRequest.FieldMask.GEOMETRY,
                 FindPlaceFromTextRequest.FieldMask.NAME, FindPlaceFromTextRequest.FieldMask.PLACE_ID);
 
-        if(!Objects.isNull(lat) && !Objects.isNull(lng)) {
+        if(lat.isPresent() && lng.isPresent()) {
             FindPlaceFromTextRequest.LocationBiasPoint locationBiasPoint =
-                    new FindPlaceFromTextRequest.LocationBiasPoint(new LatLng(lat, lng));
+                    new FindPlaceFromTextRequest.LocationBiasPoint(new LatLng(lat.get(), lng.get()));
             request.locationBias(locationBiasPoint);
         }
 

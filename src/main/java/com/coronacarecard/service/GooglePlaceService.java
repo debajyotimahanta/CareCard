@@ -6,10 +6,11 @@ import com.coronacarecard.model.Business;
 import com.coronacarecard.model.BusinessSearchResult;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface GooglePlaceService {
 
     Business getBusiness(String id) throws BusinessNotFoundException, InternalException;
 
-    List<BusinessSearchResult> search(String searchText, Double lat, Double lng) throws InternalException;
+    List<BusinessSearchResult> search(String searchText, Optional<Double> lat, Optional<Double> lng) throws InternalException;
 }
