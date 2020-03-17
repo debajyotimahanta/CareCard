@@ -31,8 +31,7 @@ public class RepositoryTest {
         RepoUtil.createEntry(businessRepository,  INTERNATIONAL_PHONE_NUMBER,id, "Food for Friends");
         Optional<Business> createdBusiness = businessRepository.findById(id);
         assertTrue(createdBusiness.isPresent());
-        Contact contact = createdBusiness.get().getContact();
-        assertEquals(INTERNATIONAL_PHONE_NUMBER, contact.getFormattedPhoneNumber());
+        assertEquals(INTERNATIONAL_PHONE_NUMBER, createdBusiness.get().getInternationalPhoneNumber());
 
     }
 

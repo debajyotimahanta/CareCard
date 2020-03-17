@@ -35,8 +35,8 @@ public class BusinessServiceImpl implements BusinessService {
     @Override
     public Business create(String id) throws BusinessNotFoundException, InternalException {
 
-        Optional<com.coronacarecard.dao.entity.Business> existingBusiness = businessRepository.findById(id);
-        if(existingBusiness.isPresent()) {
+        Optional<com.coronacarecard.dao.entity.Business> existingBusiness = Optional.empty();
+        if (existingBusiness.isPresent()) {
             return businessEntityMapper.toModel(existingBusiness.get());
         }
 
@@ -55,14 +55,14 @@ public class BusinessServiceImpl implements BusinessService {
     @Override
     public PagedBusinessSearchResult search(String searchText, int pageNumber, int pageSize) {
         Sort sort = Sort.by(Sort.Direction.DESC, "id");
-        Pageable pageable = PageRequest.of(pageNumber , pageSize, sort);
+        Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, sort);
         Page<com.coronacarecard.dao.entity.Business> response = businessRepository.findByName(searchText, pageable);
 
         return businessEntityMapper.toPagedSearchResult(
-                response.get().map(p-> businessEntityMapper.toSearchResult(p)).collect(Collectors.toList()),
+                response.get().map(p -> businessEntityMapper.toSearchResult(p)).collect(Collectors.toList()),
                 response.getPageable().getPageNumber(),
                 response.getPageable().getPageSize(),
                 response.getTotalPages()
-                );
+        );
     }
 }

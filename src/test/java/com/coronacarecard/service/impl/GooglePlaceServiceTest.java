@@ -31,8 +31,8 @@ public class GooglePlaceServiceTest {
         assertEquals(ID, business.getId());
         assertEquals("10680 NE 8th St, Bellevue, WA 98004, USA", business.getAddress());
         assertEquals("What The Pho", business.getName());
-        assertEquals("(425) 462-5600", business.getContact().getFormattedPhoneNumber());
-        assertEquals("+1 425-462-5600", business.getContact().getInternationalPhoneNumber());
+        assertEquals("(425) 462-5600", business.getFormattedPhoneNumber());
+        assertEquals("+1 425-462-5600", business.getInternationalPhoneNumber());
         assertEquals(ID, business.getPhotoUrl());
     }
 
