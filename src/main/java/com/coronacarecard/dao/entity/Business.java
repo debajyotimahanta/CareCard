@@ -8,6 +8,7 @@ import javax.persistence.Table;
 @lombok.NoArgsConstructor
 @lombok.AllArgsConstructor
 @lombok.Getter
+@lombok.Setter
 @lombok.ToString
 @Entity
 @Table(name = "businesses")

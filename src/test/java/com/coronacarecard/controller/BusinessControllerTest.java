@@ -37,7 +37,6 @@ public class BusinessControllerTest {
             .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
             .registerModule(new JavaTimeModule());
-    private static final String whatThePhoId = "ChIJicMwN4lskFQR9brCQh07Xyo";
 
     @Autowired
     private BusinessRepository businessRepository;
@@ -95,6 +94,7 @@ public class BusinessControllerTest {
 
     @Test
     public void import_for_external_system() throws Exception {
+        final String whatThePhoId = "ChIJicMwN4lskFQR9brCQh07Xyo";
         Optional<Business> beforeImport = businessRepository.findById(whatThePhoId);
         assertFalse(beforeImport.isPresent());
         MvcResult response = mockMvc.perform(MockMvcRequestBuilders.get("/business/import?googleplaceid="+whatThePhoId)
@@ -104,8 +104,52 @@ public class BusinessControllerTest {
         Optional<Business> afterImport = businessRepository.findById(whatThePhoId);
         assertTrue(afterImport.isPresent());
         assertEquals("10680 NE 8th St, Bellevue, WA 98004, USA", afterImport.get().getAddress());
+    }
 
+    @Test
+    public void import_existing_business() throws Exception {
+        final String bambooVillageId = "ChIJYeSlblAUkFQRTxEWGp0HG-k";
+        mockMvc.perform(MockMvcRequestBuilders.get("/business/import?googleplaceid="+bambooVillageId)
+                .contentType("application/json"))
+                .andExpect(status().isOk())
+                .andReturn();
+        Optional<Business> initialImport = businessRepository.findById(bambooVillageId);
+        assertTrue(initialImport.isPresent());
+        Business importedBusiness = initialImport.get();
+        assertEquals("4900 Stone Way N, Seattle, WA 98103, USA", importedBusiness.getAddress());
+        importedBusiness.setAddress("DUMMY");
+        businessRepository.save(importedBusiness);
+        assertEquals("DUMMY", initialImport.get().getAddress());
+        mockMvc.perform(MockMvcRequestBuilders.get("/business/import?googleplaceid="+bambooVillageId)
+                .contentType("application/json"))
+                .andExpect(status().isOk())
+                .andReturn();
+        Optional<Business> afterImport = businessRepository.findById(bambooVillageId);
+        assertTrue(afterImport.isPresent());
+        assertEquals("DUMMY", afterImport.get().getAddress());
+    }
 
+    @Test
+    public void update_existing_business() throws Exception {
+        final String meowtropolitanId = "ChIJr1VNXVEUkFQRx8VSwHmQayg";
+        mockMvc.perform(MockMvcRequestBuilders.get("/business/import?googleplaceid="+meowtropolitanId)
+                .contentType("application/json"))
+                .andExpect(status().isOk())
+                .andReturn();
+        Optional<Business> initialImport = businessRepository.findById(meowtropolitanId);
+        assertTrue(initialImport.isPresent());
+        Business importedBusiness = initialImport.get();
+        assertEquals("1225 N 45th St, Seattle, WA 98103, USA", importedBusiness.getAddress());
+        importedBusiness.setAddress("DUMMY");
+        businessRepository.save(importedBusiness);
+        assertEquals("DUMMY", initialImport.get().getAddress());
+        mockMvc.perform(MockMvcRequestBuilders.get("/business/update?googleplaceid="+meowtropolitanId)
+                .contentType("application/json"))
+                .andExpect(status().isOk())
+                .andReturn();
+        Optional<Business> afterImport = businessRepository.findById(meowtropolitanId);
+        assertTrue(afterImport.isPresent());
+        assertEquals("1225 N 45th St, Seattle, WA 98103, USA", afterImport.get().getAddress());
     }
 
     public static <T> T parseResponse(MvcResult result, Class<T> responseClass)

@@ -23,7 +23,13 @@ public class BusinessController {
     @GetMapping("business/import")
     public Business importFromGoogle(@RequestParam(value = "googleplaceid") String googlePlaceId)
             throws BusinessNotFoundException, InternalException {
-        return businessService.create(googlePlaceId);
+        return businessService.getOrCreate(googlePlaceId);
+    }
+
+    @GetMapping("business/update")
+    public Business updateFromGoogle(@RequestParam(value = "googleplaceid") String googlePlaceId)
+            throws BusinessNotFoundException, InternalException {
+        return businessService.createOrUpdate(googlePlaceId);
     }
 
     @GetMapping("business/searchexternal")
