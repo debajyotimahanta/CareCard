@@ -1,7 +1,6 @@
 package com.coronacarecard.mapper.impl;
 
 import com.coronacarecard.dao.entity.Business;
-import com.coronacarecard.dao.entity.Contact;
 import com.coronacarecard.mapper.BusinessEntityMapper;
 import com.coronacarecard.model.BusinessSearchResult;
 import com.coronacarecard.model.PagedBusinessSearchResult;
@@ -23,12 +22,9 @@ public class BusinessEntityMapperImpl implements BusinessEntityMapper {
                 .longitude(business.getLongitude())
                 .address(business.getAddress())
                 .photoUrl(business.getPhotoUrl())
-                .contact(Contact.builder()
-                        .id(business.getContact().getId())
-                        .Website(business.getContact().getWebsite())
-                        .internationalPhoneNumber(business.getContact().getInternationalPhoneNumber())
-                        .formattedPhoneNumber(business.getContact().getFormattedPhoneNumber())
-                        .build())
+                .Website(business.getWebsite())
+                .internationalPhoneNumber(business.getInternationalPhoneNumber())
+                .formattedPhoneNumber(business.getFormattedPhoneNumber())
                 .build();
     }
 
@@ -42,7 +38,9 @@ public class BusinessEntityMapperImpl implements BusinessEntityMapper {
                 .longitude(business.getLongitude())
                 .latitude(business.getLatitude())
                 .address(business.getAddress())
-                .contact(business.getContact()) // TODO Should we create a Contact Model instead of using DAO?
+                .Website(business.getWebsite())
+                .internationalPhoneNumber(business.getInternationalPhoneNumber())
+                .formattedPhoneNumber(business.getFormattedPhoneNumber())
                 .build();
     }
 
@@ -66,10 +64,8 @@ public class BusinessEntityMapperImpl implements BusinessEntityMapper {
                 .address(place.formattedAddress)
                 //TODO Figure out photo
                 //.photoUrl()
-                .contact(Contact.builder()
-                        .internationalPhoneNumber(place.internationalPhoneNumber)
-                        .formattedPhoneNumber(place.formattedPhoneNumber)
-                        .build())
+                .internationalPhoneNumber(place.internationalPhoneNumber)
+                .formattedPhoneNumber(place.formattedPhoneNumber)
                 .build();
 
     }

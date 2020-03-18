@@ -1,7 +1,5 @@
 package com.coronacarecard.model;
 
-import com.coronacarecard.dao.entity.Contact;
-
 @lombok.Builder
 @lombok.NoArgsConstructor
 @lombok.AllArgsConstructor
@@ -14,5 +12,7 @@ public class Business {
     private String name;
     private String address;
     private String photoUrl;
-    private Contact contact;
+    private String formattedPhoneNumber;
+    private String internationalPhoneNumber;
+    private String Website;
 }

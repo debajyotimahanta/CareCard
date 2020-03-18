@@ -82,14 +82,14 @@ public class BusinessControllerTest {
 
     @Test
     public void search_for_external_system() throws Exception {
-        MvcResult response = mockMvc.perform(MockMvcRequestBuilders.get("/business/searchexternal?searchtext=what the pho")
+        MvcResult response = mockMvc.perform(MockMvcRequestBuilders.get("/business/searchexternal?searchtext=What the Pho! 98021")
                 .contentType("application/json"))
                 .andExpect(status().isOk())
                 .andReturn();
         BusinessSearchResult[] result = parseResponse(response, BusinessSearchResult[].class);
         assertEquals(1, result.length);
-        assertEquals("What The Pho", result[0].getName());
-        assertEquals(whatThePhoId, result[0].getId());
+        assertEquals("What the Pho!", result[0].getName());
+        assertEquals("ChIJKV8LiAcPkFQRgaK8WZdjnuY", result[0].getId());
 
     }
 
@@ -103,7 +103,7 @@ public class BusinessControllerTest {
                 .andReturn();
         Optional<Business> afterImport = businessRepository.findById(whatThePhoId);
         assertTrue(afterImport.isPresent());
-        assertEquals("", afterImport.get().getAddress());
+        assertEquals("10680 NE 8th St, Bellevue, WA 98004, USA", afterImport.get().getAddress());
 
 
     }

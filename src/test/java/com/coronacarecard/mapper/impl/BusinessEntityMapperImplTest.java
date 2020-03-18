@@ -1,6 +1,5 @@
 package com.coronacarecard.mapper.impl;
 
-import com.coronacarecard.dao.entity.Contact;
 import com.coronacarecard.model.Business;
 import com.coronacarecard.model.BusinessSearchResult;
 import com.google.maps.model.PlacesSearchResult;
@@ -34,11 +33,9 @@ public class BusinessEntityMapperImplTest {
                 .id("ABCD1234")
                 .name("Winter Wonders Inc.")
                 .address("123 Main St, Chicago")
-                .contact(Contact.builder()
-                        .id(Long.parseLong("1234567890"))
-                        .formattedPhoneNumber("123-456-7890")
-                        .internationalPhoneNumber("+1-123-456-7890")
-                        .Website("www.carecard.org").build())
+                .formattedPhoneNumber("123-456-7890")
+                .internationalPhoneNumber("+1-123-456-7890")
+                .Website("www.carecard.org")
                 .latitude(Double.parseDouble("12345.6789"))
                 .longitude(Double.parseDouble("23456.789"))
                 .photoUrl("http://profile.photo.io/sam")
@@ -55,10 +52,9 @@ public class BusinessEntityMapperImplTest {
                 () -> assertTrue(result.getAddress().equals(model.getAddress())),
                 () -> assertTrue(result.getLatitude().equals(model.getLatitude())),
                 () -> assertTrue(result.getLongitude().equals(model.getLongitude())),
-                () -> assertTrue(result.getContact().getId().equals(model.getContact().getId())),
-                () -> assertTrue(result.getContact().getWebsite().equals(model.getContact().getWebsite())),
-                () -> assertTrue(result.getContact().getFormattedPhoneNumber().equals(model.getContact().getFormattedPhoneNumber())),
-                () -> assertTrue(result.getContact().getInternationalPhoneNumber().equals(model.getContact().getInternationalPhoneNumber()))
+                () -> assertTrue(result.getWebsite().equals(model.getWebsite())),
+                () -> assertTrue(result.getFormattedPhoneNumber().equals(model.getFormattedPhoneNumber())),
+                () -> assertTrue(result.getInternationalPhoneNumber().equals(model.getInternationalPhoneNumber()))
         );
     }
 
@@ -70,11 +66,9 @@ public class BusinessEntityMapperImplTest {
                 .id(null)
                 .name(null)
                 .address(null)
-                .contact(Contact.builder()
-                        .id(null)
-                        .formattedPhoneNumber(null)
-                        .internationalPhoneNumber(null)
-                        .Website(null).build())
+                .formattedPhoneNumber(null)
+                .internationalPhoneNumber(null)
+                .Website(null)
                 .latitude(null)
                 .longitude(null)
                 .photoUrl(null)
@@ -92,11 +86,9 @@ public class BusinessEntityMapperImplTest {
                 () -> assertNull(result.getAddress()),
                 () -> assertNull(result.getLatitude()),
                 () -> assertNull(result.getLongitude()),
-                () -> assertNotNull(result.getContact()),
-                () -> assertNull(result.getContact().getId()),
-                () -> assertNull(result.getContact().getWebsite()),
-                () -> assertNull(result.getContact().getFormattedPhoneNumber()),
-                () -> assertNull(result.getContact().getInternationalPhoneNumber())
+                () -> assertNull(result.getWebsite()),
+                () -> assertNull(result.getFormattedPhoneNumber()),
+                () -> assertNull(result.getInternationalPhoneNumber())
         );
     }
 
@@ -109,11 +101,9 @@ public class BusinessEntityMapperImplTest {
                 .id("ABCD1234")
                 .name("Winter Wonders Inc.")
                 .address("123 Main St, Chicago")
-                .contact(Contact.builder()
-                        .id(Long.parseLong("1234567890"))
-                        .formattedPhoneNumber("123-456-7890")
-                        .internationalPhoneNumber("+1-123-456-7890")
-                        .Website("www.carecard.org").build())
+                .formattedPhoneNumber("123-456-7890")
+                .internationalPhoneNumber("+1-123-456-7890")
+                .Website("www.carecard.org")
                 .latitude(Double.parseDouble("12345.6789"))
                 .longitude(Double.parseDouble("23456.789"))
                 .photoUrl("http://profile.photo.io/sam")
@@ -130,10 +120,9 @@ public class BusinessEntityMapperImplTest {
                 () -> assertTrue(result.getAddress().equals(dao.getAddress())),
                 () -> assertTrue(result.getLatitude().equals(dao.getLatitude())),
                 () -> assertTrue(result.getLongitude().equals(dao.getLongitude())),
-                () -> assertTrue(result.getContact().getId().equals(dao.getContact().getId())),
-                () -> assertTrue(result.getContact().getWebsite().equals(dao.getContact().getWebsite())),
-                () -> assertTrue(result.getContact().getFormattedPhoneNumber().equals(dao.getContact().getFormattedPhoneNumber())),
-                () -> assertTrue(result.getContact().getInternationalPhoneNumber().equals(dao.getContact().getInternationalPhoneNumber()))
+                () -> assertTrue(result.getWebsite().equals(dao.getWebsite())),
+                () -> assertTrue(result.getFormattedPhoneNumber().equals(dao.getFormattedPhoneNumber())),
+                () -> assertTrue(result.getInternationalPhoneNumber().equals(dao.getInternationalPhoneNumber()))
         );
     }
 
@@ -145,11 +134,9 @@ public class BusinessEntityMapperImplTest {
                 .id(null)
                 .name(null)
                 .address(null)
-                .contact(Contact.builder()
-                        .id(null)
-                        .formattedPhoneNumber(null)
-                        .internationalPhoneNumber(null)
-                        .Website(null).build())
+                .formattedPhoneNumber(null)
+                .internationalPhoneNumber(null)
+                .Website(null)
                 .latitude(null)
                 .longitude(null)
                 .photoUrl(null)
@@ -167,11 +154,9 @@ public class BusinessEntityMapperImplTest {
                 () -> assertNull(result.getAddress()),
                 () -> assertNull(result.getLatitude()),
                 () -> assertNull(result.getLongitude()),
-                () -> assertNotNull(result.getContact()),
-                () -> assertNull(result.getContact().getId()),
-                () -> assertNull(result.getContact().getWebsite()),
-                () -> assertNull(result.getContact().getFormattedPhoneNumber()),
-                () -> assertNull(result.getContact().getInternationalPhoneNumber())
+                () -> assertNull(result.getWebsite()),
+                () -> assertNull(result.getFormattedPhoneNumber()),
+                () -> assertNull(result.getInternationalPhoneNumber())
         );
     }
 

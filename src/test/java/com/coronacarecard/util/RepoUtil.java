@@ -2,7 +2,6 @@ package com.coronacarecard.util;
 
 import com.coronacarecard.dao.BusinessRepository;
 import com.coronacarecard.dao.entity.Business;
-import com.coronacarecard.dao.entity.Contact;
 
 public class RepoUtil {
     public static void createEntry(BusinessRepository businessRepository,
@@ -13,10 +12,8 @@ public class RepoUtil {
                 .latitude(50.821282)
                 .longitude(-0.140887)
                 .id(id)
-                .contact(Contact.builder()
-                        .formattedPhoneNumber("773732223")
-                        .internationalPhoneNumber(phoneNumber)
-                        .build())
+                .formattedPhoneNumber("773732223")
+                .internationalPhoneNumber(phoneNumber)
                 .build());
     }
 }

@@ -1,10 +1,7 @@
 package com.coronacarecard.dao.entity;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 @lombok.Builder(toBuilder=true)
@@ -25,7 +22,7 @@ public class Business {
     private String address;
     private String photoUrl;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "contact_id", referencedColumnName = "id")
-    private Contact contact;
+    private String formattedPhoneNumber;
+    private String internationalPhoneNumber;
+    private String Website;
 }
