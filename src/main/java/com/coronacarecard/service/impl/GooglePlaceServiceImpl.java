@@ -79,5 +79,4 @@ public class GooglePlaceServiceImpl implements GooglePlaceService {
         return Arrays.stream(result.results).map(t -> mapper.toSearchResult(t)).collect(Collectors.toList());
 
     }
-
 }
