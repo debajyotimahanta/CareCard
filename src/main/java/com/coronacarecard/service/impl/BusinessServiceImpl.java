@@ -7,6 +7,8 @@ import com.coronacarecard.mapper.BusinessEntityMapper;
 import com.coronacarecard.model.Business;
 import com.coronacarecard.model.BusinessSearchResult;
 import com.coronacarecard.model.PagedBusinessSearchResult;
+import com.coronacarecard.notifications.NotificationSender;
+import com.coronacarecard.notifications.NotificationType;
 import com.coronacarecard.service.BusinessService;
 import com.coronacarecard.service.GooglePlaceService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +34,9 @@ public class BusinessServiceImpl implements BusinessService {
     @Autowired
     private BusinessEntityMapper businessEntityMapper;
 
+    @Autowired
+    private NotificationSender<Business> notificationSender;
+
     @Override
     public Business getOrCreate(String id) throws BusinessNotFoundException, InternalException {
 
@@ -40,14 +45,14 @@ public class BusinessServiceImpl implements BusinessService {
             return businessEntityMapper.toModel(existingBusiness.get());
         }
 
-        Business business = createOrUpdate(id);
-        // TODO Add create notification hook
+        final Business business = createOrUpdate(id);
+        notificationSender.sendNotification(NotificationType.NEW_BUSINESS_REGISTERED, business);
         return business;
     }
 
     @Override
     public Business createOrUpdate(String id) throws BusinessNotFoundException, InternalException {
-        Business business = googlePlaceService.getBusiness(id);
+        final Business business = googlePlaceService.getBusiness(id);
         com.coronacarecard.dao.entity.Business businessDAO = businessEntityMapper.toDAO(business);
         Optional<com.coronacarecard.dao.entity.Business> existingBusiness = businessRepository.findByExternalId(id);
         if(existingBusiness.isPresent()) {
@@ -64,8 +69,7 @@ public class BusinessServiceImpl implements BusinessService {
 
     @Override
     public PagedBusinessSearchResult search(String searchText, int pageNumber, int pageSize) {
-        Sort sort = Sort.by(Sort.Direction.DESC, "id");
-        Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, sort);
+        Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.by(Sort.Direction.DESC, "id"));
         Page<com.coronacarecard.dao.entity.Business> response = businessRepository.findByName(searchText, pageable);
 
         return businessEntityMapper.toPagedSearchResult(
