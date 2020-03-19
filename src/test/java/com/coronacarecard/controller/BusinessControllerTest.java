@@ -33,6 +33,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureTestDatabase
 @AutoConfigureMockMvc
 public class BusinessControllerTest {
+    private static int seed = 0;
     private static final ObjectMapper MAPPER = new ObjectMapper()
             .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
@@ -49,11 +50,14 @@ public class BusinessControllerTest {
 
     @Before
     public void init() {
-        String idPreix = "78255b5db1ca027c669ca49e9576d7a26b40f7a";
-        for (int i = 0; i < 10; i++) {
-            RepoUtil.createEntry(businessRepository,  "773773773",
-                    idPreix + i, "RandomName" + i);
+        if(seed == 0) {
+            String idPreix = "78255b5db1ca027c669ca49e9576d7a26b40f7a";
+            for (int i = 0; i < 10; i++) {
+                RepoUtil.createEntry(businessRepository, "773773773",
+                        idPreix + i, "RandomName" + i);
 
+            }
+            seed++;
         }
     }
 
@@ -97,7 +101,7 @@ public class BusinessControllerTest {
         final String whatThePhoId = "ChIJicMwN4lskFQR9brCQh07Xyo";
         Optional<Business> beforeImport = businessRepository.findByExternalId(whatThePhoId);
         assertFalse(beforeImport.isPresent());
-        MvcResult response = mockMvc.perform(MockMvcRequestBuilders.get("/business/import?googleplaceid="+whatThePhoId)
+        MvcResult response = mockMvc.perform(MockMvcRequestBuilders.get("/business/import?googleplaceid=" + whatThePhoId)
                 .contentType("application/json"))
                 .andExpect(status().isOk())
                 .andReturn();
@@ -109,7 +113,7 @@ public class BusinessControllerTest {
     @Test
     public void import_existing_business() throws Exception {
         final String bambooVillageId = "ChIJYeSlblAUkFQRTxEWGp0HG-k";
-        mockMvc.perform(MockMvcRequestBuilders.get("/business/import?googleplaceid="+bambooVillageId)
+        mockMvc.perform(MockMvcRequestBuilders.get("/business/import?googleplaceid=" + bambooVillageId)
                 .contentType("application/json"))
                 .andExpect(status().isOk())
                 .andReturn();
@@ -120,7 +124,7 @@ public class BusinessControllerTest {
         importedBusiness = importedBusiness.toBuilder().address("DUMMY").build();
         businessRepository.save(importedBusiness);
         assertEquals("DUMMY", importedBusiness.getAddress());
-        mockMvc.perform(MockMvcRequestBuilders.get("/business/import?googleplaceid="+bambooVillageId)
+        mockMvc.perform(MockMvcRequestBuilders.get("/business/import?googleplaceid=" + bambooVillageId)
                 .contentType("application/json"))
                 .andExpect(status().isOk())
                 .andReturn();
@@ -132,7 +136,7 @@ public class BusinessControllerTest {
     @Test
     public void update_existing_business() throws Exception {
         final String meowtropolitanId = "ChIJr1VNXVEUkFQRx8VSwHmQayg";
-        mockMvc.perform(MockMvcRequestBuilders.get("/business/import?googleplaceid="+meowtropolitanId)
+        mockMvc.perform(MockMvcRequestBuilders.get("/business/import?googleplaceid=" + meowtropolitanId)
                 .contentType("application/json"))
                 .andExpect(status().isOk())
                 .andReturn();
@@ -143,7 +147,7 @@ public class BusinessControllerTest {
         importedBusiness = importedBusiness.toBuilder().address("DUMMY").build();
         businessRepository.save(importedBusiness);
         assertEquals("DUMMY", importedBusiness.getAddress());
-        mockMvc.perform(MockMvcRequestBuilders.get("/business/update?googleplaceid="+meowtropolitanId)
+        mockMvc.perform(MockMvcRequestBuilders.get("/business/update?googleplaceid=" + meowtropolitanId)
                 .contentType("application/json"))
                 .andExpect(status().isOk())
                 .andReturn();
