@@ -6,6 +6,7 @@ import com.coronacarecard.mapper.impl.BusinessEntityMapperImpl;
 import com.coronacarecard.model.Business;
 import com.coronacarecard.model.BusinessSearchResult;
 import com.coronacarecard.service.GooglePlaceService;
+import com.google.maps.ImageResult;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,5 +47,19 @@ public class GooglePlaceServiceTest {
     public void searchMultiple() throws InternalException {
         List<BusinessSearchResult> result = service.search("pho", Optional.empty(), Optional.empty());
         assertTrue(result.size()> 1);
+    }
+
+    @Test
+    public void getPhoto() throws InternalException {
+        // Arrange
+        String photoReference = "CnRvAAAAwMpdHeWlXl-lH0vp7lez4znKPIWSWvgvZFISdKx45AwJVP1Qp37YOrH7sqHMJ8C-vBDC546decipPHchJhHZL94RcTUfPa1jWzo-rSHaTlbNtjh-N68RkcToUCuY9v2HNpo5mziqkir37WU8FJEqVBIQ4k938TI3e7bf8xq-uwDZcxoUbO_ZJzPxremiQurAYzCTwRhE_V0";
+
+        // Act
+        ImageResult result = service.getPhoto(photoReference,
+                Optional.of(Integer.parseInt("400")),
+                Optional.empty());
+
+        // Assert
+        assertNotNull(result);
     }
 }

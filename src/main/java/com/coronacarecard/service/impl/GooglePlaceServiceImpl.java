@@ -6,10 +6,8 @@ import com.coronacarecard.mapper.BusinessEntityMapper;
 import com.coronacarecard.model.Business;
 import com.coronacarecard.model.BusinessSearchResult;
 import com.coronacarecard.service.GooglePlaceService;
-import com.google.maps.GeoApiContext;
-import com.google.maps.PlaceDetailsRequest;
-import com.google.maps.PlacesApi;
-import com.google.maps.TextSearchRequest;
+import com.google.maps.*;
+import com.google.maps.errors.ApiException;
 import com.google.maps.model.LatLng;
 import com.google.maps.model.PlaceDetails;
 import com.google.maps.model.PlacesSearchResponse;
@@ -18,6 +16,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -78,5 +77,27 @@ public class GooglePlaceServiceImpl implements GooglePlaceService {
         }
         return Arrays.stream(result.results).map(t -> mapper.toSearchResult(t)).collect(Collectors.toList());
 
+    }
+
+    @Override
+    public ImageResult getPhoto(String photoReference, Optional<Integer> maxHeight, Optional<Integer> maxWidth) throws InternalException {
+        // TODO Implement the method
+        PhotoRequest request = PlacesApi.photo(context, photoReference);
+        request.photoReference(photoReference);
+        if(maxHeight.isPresent()) request.maxHeight(maxHeight.get().intValue());
+        if(maxWidth.isPresent()) request.maxWidth(maxWidth.get().intValue());
+
+        ImageResult result = null;
+        try {
+             result = request.await();
+        } catch (ApiException e) {
+            throw new InternalException(e.getMessage());
+        } catch (InterruptedException e) {
+            throw new InternalException(e.getMessage());
+        } catch (IOException e) {
+            throw new InternalException(e.getMessage());
+        }
+
+        return result;
     }
 }
