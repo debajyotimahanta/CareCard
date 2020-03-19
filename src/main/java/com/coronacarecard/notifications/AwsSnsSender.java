@@ -23,30 +23,34 @@ public class AwsSnsSender<T extends Serializable> implements NotificationSender<
 
     private final ObjectMapper objectSerializer;
 
-    private final Map<NotificationType, String> topicArns = Maps.newHashMap();
+    private final Map<NotificationType, String> topicArns;
 
     public AwsSnsSender(final SnsClient snsClient) {
         this.snsClient = snsClient;
         this.objectSerializer = new ObjectMapper();
-        for (NotificationType type : NotificationType.values()) {
-            topicArns.put(type,
-                    snsClient.createTopic(
-                            CreateTopicRequest.builder()
-                                    .name(type.toString())
-                                    .build())
-                            .topicArn());
-        }
+        this.topicArns = Maps.newHashMap();
     }
 
     @Override
     public void sendNotification(final NotificationType type, final T payload) {
         snsClient.publish(
                 PublishRequest.builder()
-                .topicArn(topicArns.get(type))
+                .topicArn(getTopicArn(type))
                 .subject(payload.getClass().getSimpleName())
                 .message(getMessage(payload))
                 .build()
         );
+    }
+
+    private String getTopicArn(final NotificationType type) {
+        if (!topicArns.containsKey(type)) {
+            topicArns.put(type, snsClient.createTopic(
+                    CreateTopicRequest.builder()
+                            .name(type.toString())
+                            .build())
+                    .topicArn());
+        }
+        return topicArns.get(type);
     }
 
     @SneakyThrows
