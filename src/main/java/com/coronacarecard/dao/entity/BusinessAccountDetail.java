@@ -1,7 +1,6 @@
 package com.coronacarecard.dao.entity;
 
 import javax.persistence.*;
-import java.util.Date;
 
 @lombok.Builder(toBuilder = true)
 @lombok.NoArgsConstructor
@@ -10,7 +9,7 @@ import java.util.Date;
 @lombok.ToString
 @Entity
 @Table(
-        name = "giftcards",
+        name = "businessaccountdetails",
         indexes = {
                 @Index(
                         name = "idx_ext_ref_id",
@@ -19,19 +18,10 @@ import java.util.Date;
                 )
         }
 )
-public class GiftCard {
+public class BusinessAccountDetail {
     @Id
     @GeneratedValue
-    private Long id;
-    private Date created;
-    private Integer amount;
+    public Long id;
     private String externalRefId;
 
-    @ManyToOne
-    @JoinColumn(name="USER_ID", nullable=false)
-    private User user;
-
-    @ManyToOne
-    @JoinColumn(name="BUSINESS_ID", nullable=false)
-    public Business customer;
 }

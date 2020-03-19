@@ -1,6 +1,6 @@
 package com.coronacarecard.model;
 
-@lombok.Builder
+@lombok.Builder(toBuilder = true)
 @lombok.NoArgsConstructor
 @lombok.AllArgsConstructor
 @lombok.Getter

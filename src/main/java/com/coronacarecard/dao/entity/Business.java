@@ -6,19 +6,19 @@ import org.springframework.context.annotation.Lazy;
 import javax.persistence.*;
 import java.util.List;
 
-@lombok.Builder(toBuilder=true)
+@lombok.Builder(toBuilder = true)
 @lombok.NoArgsConstructor
 @lombok.AllArgsConstructor
 @lombok.Getter
-@lombok.Setter
 @lombok.ToString
 @Entity
 @Table(
         name = "businesses",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"externalRefId"}),
         indexes = {
                 @Index(
                         name = "idx_ext_ref_id",
-                        columnList = "external_ref_id",
+                        columnList = "externalRefId",
                         unique = true
                 ),
                 @Index(
@@ -30,7 +30,7 @@ import java.util.List;
 public class Business {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     private String externalRefId;
     private Double latitude;
@@ -47,9 +47,11 @@ public class Business {
 
 
     @OneToOne
-    @JoinColumn(name = "account_id", referencedColumnName = "id")
-    private BusinessAccountDetails account;
+    @JoinColumn(name = "id", referencedColumnName = "id")
+    private BusinessAccountDetail account;
 
     @Lazy
+    @OneToMany
+    @JoinColumn(name = "BUSINESS_ID")
     private List<GiftCard> purchasedCards;
 }

@@ -88,20 +88,20 @@ public class BusinessControllerTest {
         BusinessSearchResult[] result = parseResponse(response, BusinessSearchResult[].class);
         assertEquals(1, result.length);
         assertEquals("What the Pho!", result[0].getName());
-        assertEquals("ChIJKV8LiAcPkFQRgaK8WZdjnuY", result[0].getId());
+        assertEquals("ChIJKV8LiAcPkFQRgaK8WZdjnuY", result[0].getExternalRefId());
 
     }
 
     @Test
     public void import_for_external_system() throws Exception {
         final String whatThePhoId = "ChIJicMwN4lskFQR9brCQh07Xyo";
-        Optional<Business> beforeImport = businessRepository.findById(whatThePhoId);
+        Optional<Business> beforeImport = businessRepository.findByExternalId(whatThePhoId);
         assertFalse(beforeImport.isPresent());
         MvcResult response = mockMvc.perform(MockMvcRequestBuilders.get("/business/import?googleplaceid="+whatThePhoId)
                 .contentType("application/json"))
                 .andExpect(status().isOk())
                 .andReturn();
-        Optional<Business> afterImport = businessRepository.findById(whatThePhoId);
+        Optional<Business> afterImport = businessRepository.findByExternalId(whatThePhoId);
         assertTrue(afterImport.isPresent());
         assertEquals("10680 NE 8th St, Bellevue, WA 98004, USA", afterImport.get().getAddress());
     }
@@ -113,18 +113,18 @@ public class BusinessControllerTest {
                 .contentType("application/json"))
                 .andExpect(status().isOk())
                 .andReturn();
-        Optional<Business> initialImport = businessRepository.findById(bambooVillageId);
+        Optional<Business> initialImport = businessRepository.findByExternalId(bambooVillageId);
         assertTrue(initialImport.isPresent());
         Business importedBusiness = initialImport.get();
         assertEquals("4900 Stone Way N, Seattle, WA 98103, USA", importedBusiness.getAddress());
-        importedBusiness.setAddress("DUMMY");
+        importedBusiness = importedBusiness.toBuilder().address("DUMMY").build();
         businessRepository.save(importedBusiness);
-        assertEquals("DUMMY", initialImport.get().getAddress());
+        assertEquals("DUMMY", importedBusiness.getAddress());
         mockMvc.perform(MockMvcRequestBuilders.get("/business/import?googleplaceid="+bambooVillageId)
                 .contentType("application/json"))
                 .andExpect(status().isOk())
                 .andReturn();
-        Optional<Business> afterImport = businessRepository.findById(bambooVillageId);
+        Optional<Business> afterImport = businessRepository.findByExternalId(bambooVillageId);
         assertTrue(afterImport.isPresent());
         assertEquals("DUMMY", afterImport.get().getAddress());
     }
@@ -136,18 +136,18 @@ public class BusinessControllerTest {
                 .contentType("application/json"))
                 .andExpect(status().isOk())
                 .andReturn();
-        Optional<Business> initialImport = businessRepository.findById(meowtropolitanId);
+        Optional<Business> initialImport = businessRepository.findByExternalId(meowtropolitanId);
         assertTrue(initialImport.isPresent());
-        Business importedBusiness = initialImport.get();
+        Business importedBusiness = businessRepository.findById(initialImport.get().getId()).get();
         assertEquals("1225 N 45th St, Seattle, WA 98103, USA", importedBusiness.getAddress());
-        importedBusiness.setAddress("DUMMY");
+        importedBusiness = importedBusiness.toBuilder().address("DUMMY").build();
         businessRepository.save(importedBusiness);
-        assertEquals("DUMMY", initialImport.get().getAddress());
+        assertEquals("DUMMY", importedBusiness.getAddress());
         mockMvc.perform(MockMvcRequestBuilders.get("/business/update?googleplaceid="+meowtropolitanId)
                 .contentType("application/json"))
                 .andExpect(status().isOk())
                 .andReturn();
-        Optional<Business> afterImport = businessRepository.findById(meowtropolitanId);
+        Optional<Business> afterImport = businessRepository.findByExternalId(meowtropolitanId);
         assertTrue(afterImport.isPresent());
         assertEquals("1225 N 45th St, Seattle, WA 98103, USA", afterImport.get().getAddress());
     }

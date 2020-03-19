@@ -28,7 +28,8 @@ public class BusinessEntityMapperImplTest {
     public  void checkMappingBusinessModelToDAO(){
         // Arrange
         Business model = Business.builder()
-                .id("ABCD1234")
+                .id(1234L)
+                .externalRefId("ABCD1234")
                 .name("Winter Wonders Inc.")
                 .address("123 Main St, Chicago")
                 .formattedPhoneNumber("123-456-7890")
@@ -46,6 +47,7 @@ public class BusinessEntityMapperImplTest {
         // Assert
         assertAll("Value matches",
                 () -> assertTrue(result.getId().equals(model.getId())),
+                () -> assertTrue(result.getExternalRefId().equals(model.getExternalRefId())),
                 () -> assertTrue(result.getName().equals(model.getName())),
                 () -> assertTrue(result.getAddress().equals(model.getAddress())),
                 () -> assertTrue(result.getLatitude().equals(model.getLatitude())),
@@ -96,7 +98,8 @@ public class BusinessEntityMapperImplTest {
     public  void checkMappingBusinessDAOToModel(){
         // Arrange
         com.coronacarecard.dao.entity.Business dao = com.coronacarecard.dao.entity.Business.builder()
-                .id("ABCD1234")
+                .id(1234L)
+                .externalRefId("ABCD1234")
                 .name("Winter Wonders Inc.")
                 .address("123 Main St, Chicago")
                 .formattedPhoneNumber("123-456-7890")
@@ -114,6 +117,7 @@ public class BusinessEntityMapperImplTest {
         // Assert
         assertAll("Value matches",
                 () -> assertTrue(result.getId().equals(dao.getId())),
+                () -> assertTrue(result.getExternalRefId().equals(dao.getExternalRefId())),
                 () -> assertTrue(result.getName().equals(dao.getName())),
                 () -> assertTrue(result.getAddress().equals(dao.getAddress())),
                 () -> assertTrue(result.getLatitude().equals(dao.getLatitude())),
