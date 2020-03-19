@@ -6,7 +6,8 @@ package com.coronacarecard.model;
 @lombok.Getter
 @lombok.ToString
 public class Business {
-    private String id;
+    private Long id;
+    private String externalRefId;
     private Double latitude;
     private Double longitude;
     private String name;

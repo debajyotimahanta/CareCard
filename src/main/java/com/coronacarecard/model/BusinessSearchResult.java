@@ -8,5 +8,8 @@ package com.coronacarecard.model;
 public class BusinessSearchResult {
     private String name;
     private String address;
-    private String id;
+    private Long id;
+    private String externalRefId;
+    private Double latitude;
+    private Double longitude;
 }
