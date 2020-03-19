@@ -7,5 +7,5 @@ package com.coronacarecard.model;
 @lombok.ToString
 public class Photo {
     private String photoReference;
-    private String photo;
+    private String photoUrl;
 }

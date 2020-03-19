@@ -11,7 +11,7 @@ public class Business {
     private Double longitude;
     private String name;
     private String address;
-    private String photoUrl;
+    private Photo  photo;
     private String formattedPhoneNumber;
     private String internationalPhoneNumber;
     private String Website;

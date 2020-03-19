@@ -2,6 +2,7 @@ package com.coronacarecard.mapper.impl;
 
 import com.coronacarecard.model.Business;
 import com.coronacarecard.model.BusinessSearchResult;
+import com.coronacarecard.model.Photo;
 import com.google.maps.model.PlacesSearchResult;
 import org.junit.Test;
 import org.junit.jupiter.api.AfterEach;
@@ -38,7 +39,10 @@ public class BusinessEntityMapperImplTest {
                 .Website("www.carecard.org")
                 .latitude(Double.parseDouble("12345.6789"))
                 .longitude(Double.parseDouble("23456.789"))
-                .photoUrl("http://profile.photo.io/sam")
+                .photo(Photo.builder()
+                        .photoReference("CnRtAAAATLZNl354RwP_9UKbQ_5Psy40texXePv4oAlgP4qNEkdIrkyse7rPXYGd9D_Uj1rVsQdWT4oRz4QrYAJNpFX7rzqqMlZw2h2E2y5IKMUZ7ouD_SlcHxYq1yL4KbKUv3qtWgTK0A6QbGh87GB3sscrHRIQiG2RrmU_jF4tENr9wGS_YxoUSSDrYjWmrNfeEHSGSc3FyhNLlBU")
+                        .photoUrl("https://lh3.googleusercontent.com/-qXSKhZUMPUs/T_AwIsUMSQI/AAAAAAAAB6o/AFnN5wOBZCg/s1600-h400/googlePhotowalk7.jpg")
+                        .build())
                 .build();
         BusinessEntityMapperImpl target = new BusinessEntityMapperImpl();
 
@@ -71,7 +75,7 @@ public class BusinessEntityMapperImplTest {
                 .Website(null)
                 .latitude(null)
                 .longitude(null)
-                .photoUrl(null)
+                .photo(null)
                 .build();
         BusinessEntityMapperImpl target = new BusinessEntityMapperImpl();
 
@@ -106,7 +110,7 @@ public class BusinessEntityMapperImplTest {
                 .Website("www.carecard.org")
                 .latitude(Double.parseDouble("12345.6789"))
                 .longitude(Double.parseDouble("23456.789"))
-                .photoUrl("http://profile.photo.io/sam")
+                .photoReference("CnRtAAAATLZNl354RwP_9UKbQ_5Psy40texXePv4oAlgP4qNEkdIrkyse7rPXYGd9D_Uj1rVsQdWT4oRz4QrYAJNpFX7rzqqMlZw2h2E2y5IKMUZ7ouD_SlcHxYq1yL4KbKUv3qtWgTK0A6QbGh87GB3sscrHRIQiG2RrmU_jF4tENr9wGS_YxoUSSDrYjWmrNfeEHSGSc3FyhNLlBU")
                 .build();
         BusinessEntityMapperImpl target = new BusinessEntityMapperImpl();
 

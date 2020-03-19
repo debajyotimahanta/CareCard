@@ -4,6 +4,7 @@ import com.coronacarecard.dao.entity.Business;
 import com.coronacarecard.mapper.BusinessEntityMapper;
 import com.coronacarecard.model.BusinessSearchResult;
 import com.coronacarecard.model.PagedBusinessSearchResult;
+import com.coronacarecard.model.Photo;
 import com.google.maps.model.PlaceDetails;
 import com.google.maps.model.PlacesSearchResult;
 import org.springframework.stereotype.Component;
@@ -14,6 +15,8 @@ import java.util.List;
 public class BusinessEntityMapperImpl implements BusinessEntityMapper {
     @Override
     public Business toDAO(com.coronacarecard.model.Business business) {
+        String photoUrl = business.getPhoto() != null ? business.getPhoto().getPhotoUrl() : null;
+        String photoReference = business.getPhoto() != null ? business.getPhoto().getPhotoReference() : null;
 
         return Business.builder()
                 .id(business.getId())
@@ -21,7 +24,8 @@ public class BusinessEntityMapperImpl implements BusinessEntityMapper {
                 .latitude(business.getLatitude())
                 .longitude(business.getLongitude())
                 .address(business.getAddress())
-                .photoUrl(business.getPhotoUrl())
+                .photoReference(photoReference)
+                .photoUrl(photoUrl)
                 .Website(business.getWebsite())
                 .internationalPhoneNumber(business.getInternationalPhoneNumber())
                 .formattedPhoneNumber(business.getFormattedPhoneNumber())
@@ -34,7 +38,10 @@ public class BusinessEntityMapperImpl implements BusinessEntityMapper {
         return com.coronacarecard.model.Business.builder()
                 .id(business.getId())
                 .name(business.getName())
-                .photoUrl(business.getPhotoUrl())
+                .photo(Photo.builder()
+                        .photoUrl(business.getPhotoUrl())
+                        .photoReference(business.getPhotoReference())
+                        .build())
                 .longitude(business.getLongitude())
                 .latitude(business.getLatitude())
                 .address(business.getAddress())

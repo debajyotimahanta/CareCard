@@ -33,7 +33,7 @@ public class GooglePlaceServiceTest {
         assertEquals("What The Pho", business.getName());
         assertEquals("(425) 462-5600", business.getFormattedPhoneNumber());
         assertEquals("+1 425-462-5600", business.getInternationalPhoneNumber());
-        assertEquals(ID, business.getPhotoUrl());
+        assertEquals(ID, business.getPhoto());
     }
 
     @Test

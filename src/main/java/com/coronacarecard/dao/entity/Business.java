@@ -21,7 +21,7 @@ public class Business {
     private String name;
     private String address;
     private String photoUrl;
-
+    private String photoReference;
     private String formattedPhoneNumber;
     private String internationalPhoneNumber;
     private String Website;
