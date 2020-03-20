@@ -39,13 +39,12 @@ public class BusinessServiceImpl implements BusinessService {
 
     @Override
     public Business getOrCreate(String id) throws BusinessNotFoundException, InternalException {
-
         Optional<com.coronacarecard.dao.entity.Business> existingBusiness = businessRepository.findByExternalId(id);
         if (existingBusiness.isPresent()) {
             return businessEntityMapper.toModel(existingBusiness.get());
         }
 
-        return createOrUpdate(id);
+        return createOrUpdate(id, true);
     }
 
     @Override
@@ -61,9 +60,15 @@ public class BusinessServiceImpl implements BusinessService {
 
     @Override
     public Business createOrUpdate(String id) throws BusinessNotFoundException, InternalException {
+        return createOrUpdate(id, false);
+    }
+
+    private Business createOrUpdate(String id, boolean skipDbLoad) throws BusinessNotFoundException, InternalException {
         final Business business = googlePlaceService.getBusiness(id);
         com.coronacarecard.dao.entity.Business businessDAO = businessEntityMapper.toDAO(business);
-        Optional<com.coronacarecard.dao.entity.Business> existingBusiness = businessRepository.findByExternalId(id);
+        Optional<com.coronacarecard.dao.entity.Business> existingBusiness =
+                skipDbLoad ? Optional.empty() : businessRepository.findByExternalId(id);
+
         if (existingBusiness.isPresent()) {
             businessDAO = businessDAO.toBuilder().id(existingBusiness.get().getId()).build();
         } else {
