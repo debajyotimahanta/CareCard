@@ -3,6 +3,8 @@ package com.coronacarecard.notifications;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Maps;
 import lombok.SneakyThrows;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.services.sns.SnsClient;
@@ -18,6 +20,7 @@ import java.util.Map;
  */
 @Component
 public class AwsSnsSender<T extends Serializable> implements NotificationSender<T> {
+    private static Log log = LogFactory.getLog(AwsSnsSender.class);
     @Autowired
     private final SnsClient snsClient;
 
@@ -33,13 +36,19 @@ public class AwsSnsSender<T extends Serializable> implements NotificationSender<
 
     @Override
     public void sendNotification(final NotificationType type, final T payload) {
-        snsClient.publish(
-                PublishRequest.builder()
-                .topicArn(getTopicArn(type))
-                .subject(payload.getClass().getSimpleName())
-                .message(getMessage(payload))
-                .build()
-        );
+        try {
+            snsClient.publish(
+                    PublishRequest.builder()
+                            .topicArn(getTopicArn(type))
+                            .subject(payload.getClass().getSimpleName())
+                            .message(getMessage(payload))
+                            .build()
+            );
+        } catch (Exception ex) {
+            log.error(ex);
+            // TODO (biswa):dont fail silently do something but first make it work in desktop
+        }
+
     }
 
     private String getTopicArn(final NotificationType type) {
