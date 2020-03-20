@@ -11,7 +11,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,11 +49,6 @@ public class BusinessControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @BeforeClass
-    public static void setUp() {
-        System.setProperty("aws.region", "us-west-2");
-    }
-
     @Before
     public void init() {
         if (seed == 0) {
@@ -70,7 +64,7 @@ public class BusinessControllerTest {
 
     @Test
     public void search_for_existing() throws Exception {
-        MvcResult response = mockMvc.perform(MockMvcRequestBuilders.get("/api/business/search?count=5&page=1&searchtext=RandomName")
+        MvcResult response = mockMvc.perform(MockMvcRequestBuilders.get("/business/search?count=5&page=1&searchtext=RandomName")
                 .contentType("application/json"))
                 .andExpect(status().isOk())
                 .andReturn();

@@ -1,24 +1,29 @@
 package com.coronacarecard.notifications;
 
+import cloud.localstack.LocalstackTestRunner;
+import cloud.localstack.TestUtils;
+import cloud.localstack.docker.annotation.LocalstackDockerProperties;
 import com.coronacarecard.model.Business;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
-import software.amazon.awssdk.services.sns.SnsClient;
 
 import java.util.UUID;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest
+@RunWith(LocalstackTestRunner.class)
+@LocalstackDockerProperties(services = {"sns"})
 public class AwsSnsSenderTest {
-    @Autowired
-    private SnsClient snsClient;
+    private AwsSnsSender<Business> awsSnsSender;
+
+    @Before
+    public void setUp() {
+        awsSnsSender = new AwsSnsSender<>();
+        awsSnsSender.setSnsClient(TestUtils.getClientSNS());
+    }
 
     @Test
     public void sendNotificationTest() {
-        new AwsSnsSender<>(snsClient).sendNotification(NotificationType.NEW_BUSINESS_REGISTERED,
+        awsSnsSender.sendNotification(NotificationType.NEW_BUSINESS_REGISTERED,
                 Business.builder().name(UUID.randomUUID().toString()).build());
     }
 
