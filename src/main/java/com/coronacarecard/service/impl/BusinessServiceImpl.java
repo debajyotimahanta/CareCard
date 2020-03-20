@@ -49,6 +49,17 @@ public class BusinessServiceImpl implements BusinessService {
     }
 
     @Override
+    public Business getBusiness(String externalId) throws BusinessNotFoundException {
+        Optional<com.coronacarecard.dao.entity.Business> existingBusiness =
+                businessRepository.findByExternalId(externalId);
+        if (!existingBusiness.isPresent()) {
+            throw new BusinessNotFoundException();
+        }
+
+        return businessEntityMapper.toModel(existingBusiness.get());
+    }
+
+    @Override
     public Business createOrUpdate(String id) throws BusinessNotFoundException, InternalException {
         final Business business = googlePlaceService.getBusiness(id);
         com.coronacarecard.dao.entity.Business businessDAO = businessEntityMapper.toDAO(business);

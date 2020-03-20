@@ -7,32 +7,37 @@ import com.coronacarecard.model.BusinessSearchResult;
 import com.coronacarecard.model.PagedBusinessSearchResult;
 import com.coronacarecard.service.BusinessService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
 
 @RestController
+@RequestMapping("business")
 public class BusinessController {
 
     @Autowired
     private BusinessService businessService;
 
-    @GetMapping("business/import")
+    @GetMapping("/import")
     public Business importFromGoogle(@RequestParam(value = "googleplaceid") String googlePlaceId)
             throws BusinessNotFoundException, InternalException {
         return businessService.getOrCreate(googlePlaceId);
     }
 
-    @GetMapping("business/update")
+    @RequestMapping(value = "/{externalId}", method = RequestMethod.GET)
+    public Business getBusiness(@PathVariable String externalId) throws
+            BusinessNotFoundException, InternalException {
+        return businessService.getBusiness(externalId);
+    }
+
+    @GetMapping("/update")
     public Business updateFromGoogle(@RequestParam(value = "googleplaceid") String googlePlaceId)
             throws BusinessNotFoundException, InternalException {
         return businessService.createOrUpdate(googlePlaceId);
     }
 
-    @GetMapping("business/searchexternal")
+    @GetMapping("/searchexternal")
     public List<BusinessSearchResult> searchExternal(@RequestParam(value = "searchtext") String searchText,
                                              @RequestParam(value = "latitude") Optional<Double> latitude,
                                              @RequestParam(value = "longitude") Optional<Double> longitude)
@@ -43,7 +48,7 @@ public class BusinessController {
                 longitude);
     }
 
-    @GetMapping("business/search")
+    @GetMapping("/search")
     public PagedBusinessSearchResult search(@RequestParam(value = "searchtext") String searchText,
                                             @RequestParam(value = "page", defaultValue = "1") Integer page ,
                                             @RequestParam(value = "count", defaultValue = "10") Integer count) {

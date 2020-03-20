@@ -11,12 +11,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -48,13 +50,18 @@ public class BusinessControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
+    @BeforeClass
+    public static void setUp() {
+        System.setProperty("aws.region", "us-west-2");
+    }
+
     @Before
     public void init() {
-        if(seed == 0) {
-            String idPreix = "78255b5db1ca027c669ca49e9576d7a26b40f7a";
+        if (seed == 0) {
+            String idPrefix = "78255b5db1ca027c669ca49e9576d7a26b40f7a";
             for (int i = 0; i < 10; i++) {
                 RepoUtil.createEntry(businessRepository, "773773773",
-                        idPreix + i, "RandomName" + i);
+                        idPrefix + i, "RandomName" + i);
 
             }
             seed++;
@@ -63,7 +70,7 @@ public class BusinessControllerTest {
 
     @Test
     public void search_for_existing() throws Exception {
-        MvcResult response = mockMvc.perform(MockMvcRequestBuilders.get("/business/search?count=5&page=1&searchtext=RandomName")
+        MvcResult response = mockMvc.perform(MockMvcRequestBuilders.get("/api/business/search?count=5&page=1&searchtext=RandomName")
                 .contentType("application/json"))
                 .andExpect(status().isOk())
                 .andReturn();
@@ -161,5 +168,34 @@ public class BusinessControllerTest {
         String contentAsString = result.getResponse().getContentAsString();
         return MAPPER.readValue(contentAsString, responseClass);
     }
+
+    @Test
+    public void get_business_with_external_id() throws Exception {
+        Business existingBusiness = businessRepository.findAll(PageRequest.of(1, 5)).get().findFirst().get();
+        MvcResult response = mockMvc.perform(
+                MockMvcRequestBuilders
+                        .get("/business/" + existingBusiness.getExternalRefId())
+                        .contentType("application/json"))
+                .andExpect(status().isOk())
+                .andReturn();
+        Business result = parseResponse(response, Business.class);
+
+        assertEquals(existingBusiness.getId(), result.getId());
+        assertEquals(existingBusiness.getExternalRefId(), result.getExternalRefId());
+
+    }
+
+    @Test
+    public void get_business_with_non_existent_id() throws Exception {
+        mockMvc.perform(
+                MockMvcRequestBuilders
+                        .get("/business/this_id_will_never_be_there" )
+                        .contentType("application/json"))
+                .andExpect(status().isNotFound());
+
+
+    }
+
+
 
 }
