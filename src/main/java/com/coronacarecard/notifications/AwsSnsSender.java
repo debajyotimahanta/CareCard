@@ -51,9 +51,14 @@ public class AwsSnsSender<T extends Serializable> implements NotificationSender<
 
     private String getTopicArn(final NotificationType type) {
         if (!topicArns.containsKey(type)) {
-            topicArns.put(type, snsClient.createTopic(new CreateTopicRequest()
-                            .withName(type.toString()))
-                    .getTopicArn());
+            try {
+                topicArns.put(type, snsClient.createTopic(
+                        new CreateTopicRequest()
+                                .withName(type.toString()))
+                        .getTopicArn());
+            } catch (Exception ex) {
+                log.error("For local testing, spin up a stack using https://github.com/localstack/localstack", ex);
+            }
         }
         return topicArns.get(type);
     }
