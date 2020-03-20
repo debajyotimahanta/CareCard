@@ -45,9 +45,7 @@ public class BusinessServiceImpl implements BusinessService {
             return businessEntityMapper.toModel(existingBusiness.get());
         }
 
-        final Business business = createOrUpdate(id);
-        notificationSender.sendNotification(NotificationType.NEW_BUSINESS_REGISTERED, business);
-        return business;
+        return createOrUpdate(id);
     }
 
     @Override
@@ -55,8 +53,10 @@ public class BusinessServiceImpl implements BusinessService {
         final Business business = googlePlaceService.getBusiness(id);
         com.coronacarecard.dao.entity.Business businessDAO = businessEntityMapper.toDAO(business);
         Optional<com.coronacarecard.dao.entity.Business> existingBusiness = businessRepository.findByExternalId(id);
-        if(existingBusiness.isPresent()) {
+        if (existingBusiness.isPresent()) {
             businessDAO = businessDAO.toBuilder().id(existingBusiness.get().getId()).build();
+        } else {
+            notificationSender.sendNotification(NotificationType.NEW_BUSINESS_REGISTERED, business);
         }
         com.coronacarecard.dao.entity.Business savedBusinessDAO = businessRepository.save(businessDAO);
         return business.toBuilder().id(savedBusinessDAO.getId()).build();
