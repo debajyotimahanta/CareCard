@@ -14,8 +14,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.Optional;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 @RunWith(SpringRunner.class)
 @DataJpaTest
@@ -29,8 +28,10 @@ public class RepositoryTest {
     public void createBusiness() {
         String id = "78255b5db1ca027c669ca49e9576d7a26b40f7f9";
         RepoUtil.createEntry(businessRepository,  INTERNATIONAL_PHONE_NUMBER,id, "Food for Friends");
-        Optional<Business> createdBusiness = businessRepository.findById(id);
+        Optional<Business> createdBusiness = businessRepository.findByExternalId(id);
         assertTrue(createdBusiness.isPresent());
+        assertNotNull(createdBusiness.get().getId());
+        assertEquals(id, createdBusiness.get().getExternalRefId());
         assertEquals(INTERNATIONAL_PHONE_NUMBER, createdBusiness.get().getInternationalPhoneNumber());
 
     }

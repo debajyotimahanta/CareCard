@@ -3,6 +3,8 @@ package com.coronacarecard.mapper.impl;
 import com.coronacarecard.model.Business;
 import com.coronacarecard.model.BusinessSearchResult;
 import com.coronacarecard.model.Photo;
+import com.google.maps.model.Geometry;
+import com.google.maps.model.LatLng;
 import com.google.maps.model.PlacesSearchResult;
 import org.junit.Test;
 import org.junit.jupiter.api.AfterEach;
@@ -31,7 +33,8 @@ public class BusinessEntityMapperImplTest {
     public  void checkMappingBusinessModelToDAO(){
         // Arrange
         Business model = Business.builder()
-                .id("ABCD1234")
+                .id(1234L)
+                .externalRefId("ABCD1234")
                 .name("Winter Wonders Inc.")
                 .address("123 Main St, Chicago")
                 .formattedPhoneNumber("123-456-7890")
@@ -52,6 +55,7 @@ public class BusinessEntityMapperImplTest {
         // Assert
         assertAll("Value matches",
                 () -> assertTrue(result.getId().equals(model.getId())),
+                () -> assertTrue(result.getExternalRefId().equals(model.getExternalRefId())),
                 () -> assertTrue(result.getName().equals(model.getName())),
                 () -> assertTrue(result.getAddress().equals(model.getAddress())),
                 () -> assertTrue(result.getLatitude().equals(model.getLatitude())),
@@ -102,7 +106,8 @@ public class BusinessEntityMapperImplTest {
     public  void checkMappingBusinessDAOToModel(){
         // Arrange
         com.coronacarecard.dao.entity.Business dao = com.coronacarecard.dao.entity.Business.builder()
-                .id("ABCD1234")
+                .id(1234L)
+                .externalRefId("ABCD1234")
                 .name("Winter Wonders Inc.")
                 .address("123 Main St, Chicago")
                 .formattedPhoneNumber("123-456-7890")
@@ -120,6 +125,7 @@ public class BusinessEntityMapperImplTest {
         // Assert
         assertAll("Value matches",
                 () -> assertTrue(result.getId().equals(dao.getId())),
+                () -> assertTrue(result.getExternalRefId().equals(dao.getExternalRefId())),
                 () -> assertTrue(result.getName().equals(dao.getName())),
                 () -> assertTrue(result.getAddress().equals(dao.getAddress())),
                 () -> assertTrue(result.getLatitude().equals(dao.getLatitude())),
@@ -168,10 +174,16 @@ public class BusinessEntityMapperImplTest {
     @DisplayName("Test values of Places Search result mapped to Business Search Result")
     public  void checkMappingPlacesSearchResultToModel(){
         // Arrange
+        Geometry geometry = new Geometry();
+        geometry.location = new LatLng();
+        geometry.location.lat = 12347.212;
+        geometry.location.lng = 4892.212;
+
         PlacesSearchResult dao = new PlacesSearchResult();
         dao.placeId = "PlaceId12345";
         dao.name = "Winter Wonder Inc";
         dao.formattedAddress = "123 Main St, Chicago";
+        dao.geometry = geometry;
         BusinessEntityMapperImpl target = new BusinessEntityMapperImpl();
 
         // Act
@@ -179,7 +191,7 @@ public class BusinessEntityMapperImplTest {
 
         // Assert
         assertAll("Value matches",
-                () -> assertTrue(result.getId().equals(dao.placeId)),
+                () -> assertTrue(result.getExternalRefId().equals(dao.placeId)),
                 () -> assertTrue(result.getName().equals(dao.name)),
                 () -> assertTrue(result.getAddress().equals(dao.formattedAddress))
         );
@@ -189,8 +201,14 @@ public class BusinessEntityMapperImplTest {
     @DisplayName("Test Null value propagation from Place Search Result to Model")
     public  void checkNullValuePropagationFromPlaceSearchResultTModel(){
         // Arrange
+        Geometry geometry = new Geometry();
+        geometry.location = new LatLng();
+        geometry.location.lat = 12347.212;
+        geometry.location.lng = 4892.212;
+
         PlacesSearchResult dao = new PlacesSearchResult();
         dao.placeId = dao.name = dao.formattedAddress = null;
+        dao.geometry = geometry;
         BusinessEntityMapperImpl target = new BusinessEntityMapperImpl();
 
         // Act
@@ -198,7 +216,7 @@ public class BusinessEntityMapperImplTest {
 
         // Assert
         assertAll("Value matches",
-                () -> assertNull(result.getId()),
+                () -> assertNull(result.getExternalRefId()),
                 () -> assertNull(result.getName()),
                 () -> assertNull(result.getAddress())
         );

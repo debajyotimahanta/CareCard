@@ -22,6 +22,7 @@ public class BusinessEntityMapperImpl implements BusinessEntityMapper {
 
         return Business.builder()
                 .id(business.getId())
+                .externalRefId(business.getExternalRefId())
                 .name(business.getName())
                 .latitude(business.getLatitude())
                 .longitude(business.getLongitude())
@@ -40,6 +41,7 @@ public class BusinessEntityMapperImpl implements BusinessEntityMapper {
 
         return com.coronacarecard.model.Business.builder()
                 .id(business.getId())
+                .externalRefId(business.getExternalRefId())
                 .name(business.getName())
                 .photo(Photo.builder()
                         .photoUrl(business.getPhotoUrl())
@@ -60,7 +62,9 @@ public class BusinessEntityMapperImpl implements BusinessEntityMapper {
         return BusinessSearchResult.builder()
                 .address(result.formattedAddress)
                 .name(result.name)
-                .id(result.placeId)
+                .externalRefId(result.placeId)
+                .latitude(result.geometry.location.lat)
+                .longitude(result.geometry.location.lng)
                 .build();
     }
 
@@ -69,7 +73,7 @@ public class BusinessEntityMapperImpl implements BusinessEntityMapper {
         // Get the photo reference of the first photo for the business place from Google.
         return com.coronacarecard.model.Business.builder()
                 .longitude(place.geometry.location.lng)
-                .id(place.placeId)
+                .externalRefId(place.placeId)
                 .latitude(place.geometry.location.lat)
                 .name(place.name)
                 .address(place.formattedAddress)
@@ -102,6 +106,9 @@ public class BusinessEntityMapperImpl implements BusinessEntityMapper {
                 .address(item.getAddress())
                 .name(item.getName())
                 .id(item.getId())
+                .externalRefId(item.getExternalRefId())
+                .latitude(item.getLatitude())
+                .longitude(item.getLongitude())
                 .build();
     }
 

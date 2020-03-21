@@ -24,7 +24,7 @@ public class BusinessServiceImplTest {
 
     @Test
     public void create() throws BusinessNotFoundException, InternalException {
-        Business result = businessService.create("ChIJKV8LiAcPkFQRgaK8WZdjnuY");
+        Business result = businessService.getOrCreate("ChIJKV8LiAcPkFQRgaK8WZdjnuY");
         assertEquals("What the Pho!", result.getName());
         assertNotNull(result.getPhoto());
         assertNotNull(result.getPhoto().getPhotoReference());
@@ -32,5 +32,11 @@ public class BusinessServiceImplTest {
         assertNotNull(result.getPhoto().getHeight());
         assertNotNull(result.getPhoto().getWidth());
         assertNotNull(result.getPhoto().getPhotoUrl());
+    }
+
+    @Test
+    public void update() throws BusinessNotFoundException, InternalException {
+        Business result = businessService.createOrUpdate("ChIJr1VNXVEUkFQRx8VSwHmQayg");
+        assertEquals("Seattle Meowtropolitan", result.getName());
     }
 }
