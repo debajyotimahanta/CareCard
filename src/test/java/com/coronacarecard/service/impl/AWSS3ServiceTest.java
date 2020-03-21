@@ -43,4 +43,22 @@ class AWSS3ServiceTest {
         // Assert
         assertNotNull(result);
     }
+
+//    @Test
+//    void getObjectUrl() {
+//        // Arrange
+//        String imageName = "myimage.jpg";
+//        AWSS3Service target = new AWSS3ServiceImpl();
+//        String result = null;
+//
+//        // Act
+//        try {
+//            result = target.getObjectUrl(imageName);
+//        }catch(InternalException exp) {
+//            assertFalse(true);
+//        }
+//
+//        // Assert
+//        assertNotNull(result);
+//    }
 }

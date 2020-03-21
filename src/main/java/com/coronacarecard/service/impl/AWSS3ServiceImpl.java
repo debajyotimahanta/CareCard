@@ -41,7 +41,7 @@ public class AWSS3ServiceImpl implements AWSS3Service {
 
 
             PutObjectRequest request = new PutObjectRequest(bucketName,
-                    fileObjKeyName,
+                    imageName,
                     dataStream,
                     metadata);
 
@@ -57,6 +57,11 @@ public class AWSS3ServiceImpl implements AWSS3Service {
 
         return result;
     }
+
+//    @Override
+//    public String getObjectUrl(String imageName) throws InternalException {
+//        return null;
+//    }
 
     private AmazonS3 getAWSClient() {
 
