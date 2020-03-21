@@ -1,6 +1,5 @@
 package com.coronacarecard.service.impl;
 
-import com.amazonaws.services.s3.model.PutObjectResult;
 import com.coronacarecard.dao.BusinessRepository;
 import com.coronacarecard.exceptions.BusinessNotFoundException;
 import com.coronacarecard.exceptions.InternalException;
@@ -8,10 +7,10 @@ import com.coronacarecard.mapper.BusinessEntityMapper;
 import com.coronacarecard.model.Business;
 import com.coronacarecard.model.BusinessSearchResult;
 import com.coronacarecard.model.PagedBusinessSearchResult;
-import com.coronacarecard.service.AWSS3Service;
 import com.coronacarecard.notifications.NotificationSender;
 import com.coronacarecard.notifications.NotificationType;
 import com.coronacarecard.service.BusinessService;
+import com.coronacarecard.service.CloudStorageService;
 import com.coronacarecard.service.GooglePlaceService;
 import com.google.maps.ImageResult;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +37,7 @@ public class BusinessServiceImpl implements BusinessService {
     private BusinessEntityMapper businessEntityMapper;
 
     @Autowired
-    private AWSS3Service awss3Service;
+    private CloudStorageService cloudStorageService;
 
     private static final String AWS_BUCKET_NAME  = "hjqurnwjjwhb";
 //    private static final int    PHOTO_MAX_HEIGHT = 400; // value in pixel
@@ -75,11 +74,11 @@ public class BusinessServiceImpl implements BusinessService {
     }
 
     private Business createOrUpdate(String id, boolean skipDbLoad) throws BusinessNotFoundException, InternalException {
-        final Business business = googlePlaceService.getBusiness(id);
+        Business business = googlePlaceService.getBusiness(id);
 
         if (business.getPhoto() != null && business.getPhoto().getPhotoReference() != null) {
             // Get the image from Google Places and Store in Amazon S3
-            storeDefaultBusinessImage(business);
+            business = storeDefaultBusinessImage(business);
         }
 
         com.coronacarecard.dao.entity.Business businessDAO = businessEntityMapper.toDAO(business);
@@ -114,7 +113,7 @@ public class BusinessServiceImpl implements BusinessService {
         );
     }
 
-    private void storeDefaultBusinessImage(Business business) throws InternalException {
+    private Business storeDefaultBusinessImage(Business business) throws InternalException {
         ImageResult photo = googlePlaceService.getPhoto(business.getPhoto().getPhotoReference(),
                 Optional.of(business.getPhoto().getHeight()),
                 Optional.of(business.getPhoto().getWidth()));
@@ -124,14 +123,17 @@ public class BusinessServiceImpl implements BusinessService {
                 .append(imageExtension)
                 .toString();
         // Store image
-        awss3Service.uploadImage(AWS_BUCKET_NAME,
+        cloudStorageService.uploadImage(AWS_BUCKET_NAME,
                 imageName,
                 photo.imageData,
                 Optional.of(photo.contentType));
 
         // Get the image url
-        String s3PhotoUrl = awss3Service.getObjectUrl(AWS_BUCKET_NAME, imageName);
-        business.getPhoto().setPhotoUrl(s3PhotoUrl);
+        String s3PhotoUrl = cloudStorageService.getObjectUrl(AWS_BUCKET_NAME, imageName);
+
+        return business.toBuilder().photo(business.getPhoto().toBuilder()
+                .photoUrl(s3PhotoUrl)
+                .build()).build();
     }
 
     private String getImageExtensionFromContentType(String contentType) {

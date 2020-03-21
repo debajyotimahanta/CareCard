@@ -6,8 +6,8 @@ import com.coronacarecard.exceptions.InternalException;
 
 import java.util.Optional;
 
-public interface AWSS3Service {
-    Bucket createBucket(String bucketName) throws InternalException;
+public interface CloudStorageService {
+    Bucket createFolder(String bucketName) throws InternalException;
     PutObjectResult uploadImage(String bucketName, String imageName, byte[] image, Optional<String> contentType) throws InternalException;
     String getObjectUrl(String bucketName, String imageName) throws InternalException;
 }

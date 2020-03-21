@@ -15,6 +15,11 @@ import java.util.List;
 public class BusinessEntityMapperImpl implements BusinessEntityMapper {
     @Override
     public Business toDAO(com.coronacarecard.model.Business business) {
+        return toDAOBuilder(business).build();
+    }
+
+    @Override
+    public Business.BusinessBuilder toDAOBuilder(com.coronacarecard.model.Business business) {
         String photoUrl       = business.getPhoto() != null ? business.getPhoto().getPhotoUrl() : null;
         String photoReference = business.getPhoto() != null ? business.getPhoto().getPhotoReference() : null;
         String photoAttribution = business.getPhoto() != null && business.getPhoto().getPhotoAttributions() != null
@@ -32,8 +37,7 @@ public class BusinessEntityMapperImpl implements BusinessEntityMapper {
                 .photoAttributions(photoAttribution)
                 .Website(business.getWebsite())
                 .internationalPhoneNumber(business.getInternationalPhoneNumber())
-                .formattedPhoneNumber(business.getFormattedPhoneNumber())
-                .build();
+                .formattedPhoneNumber(business.getFormattedPhoneNumber());
     }
 
     @Override
@@ -46,6 +50,8 @@ public class BusinessEntityMapperImpl implements BusinessEntityMapper {
                 .photo(Photo.builder()
                         .photoUrl(business.getPhotoUrl())
                         .photoReference(business.getPhotoReference())
+                        .photoAttributions(new String[]{business.getPhotoAttributions()})
+                        // TODO (arun) add height and width
                         .build())
                 .longitude(business.getLongitude())
                 .latitude(business.getLatitude())

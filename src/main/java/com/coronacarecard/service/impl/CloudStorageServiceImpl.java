@@ -6,7 +6,7 @@ import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.*;
 import com.coronacarecard.exceptions.InternalException;
-import com.coronacarecard.service.AWSS3Service;
+import com.coronacarecard.service.CloudStorageService;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayInputStream;
@@ -15,14 +15,14 @@ import java.io.InputStream;
 import java.util.Optional;
 
 @Service
-public class AWSS3ServiceImpl implements AWSS3Service {
+public class CloudStorageServiceImpl implements CloudStorageService {
 
     private static final String AWS_ACCESS_KEY        = "";
     private static final String AWS_ACCESS_SECRET_KEY = "";
 
     @Override
-    public Bucket createBucket(String bucketName) throws InternalException {
-        // TODO Implement this method
+    public Bucket createFolder(String bucketName) throws InternalException {
+        // TODO (arun) Implement this method
         return null;
     }
 
@@ -63,21 +63,6 @@ public class AWSS3ServiceImpl implements AWSS3Service {
         AmazonS3Client client = getAWSClient();
         return client.getResourceUrl(bucketName, imageName);
     }
-
-//    private AmazonS3Client getAWSClient() {
-//
-//        BasicAWSCredentials awsCreds = new BasicAWSCredentials(AWS_ACCESS_KEY,
-//                AWS_ACCESS_SECRET_KEY);
-//
-//        // Using AmazonS3Client over AmazonS3 interface because AmazonS3Client exposes
-//        // method to get object url.
-//        AmazonS3Client client = (AmazonS3Client) AmazonS3ClientBuilder.standard()
-//                .withRegion(Regions.US_EAST_2)
-//                .withCredentials(new AWSStaticCredentialsProvider(awsCreds))
-//                .build();
-//
-//        return client;
-//    }
 
     private AmazonS3Client getAWSClient() {
 

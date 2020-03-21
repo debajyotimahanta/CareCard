@@ -13,6 +13,8 @@ public interface BusinessEntityMapper {
 
     Business toDAO(com.coronacarecard.model.Business business);
 
+    Business.BusinessBuilder toDAOBuilder(com.coronacarecard.model.Business business);
+
     com.coronacarecard.model.Business toModel(Business business);
 
     BusinessSearchResult toSearchResult(PlacesSearchResult result);

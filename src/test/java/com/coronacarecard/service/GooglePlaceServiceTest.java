@@ -1,11 +1,11 @@
-package com.coronacarecard.service.impl;
+package com.coronacarecard.service;
 
 import com.coronacarecard.exceptions.BusinessNotFoundException;
 import com.coronacarecard.exceptions.InternalException;
 import com.coronacarecard.mapper.impl.BusinessEntityMapperImpl;
 import com.coronacarecard.model.Business;
 import com.coronacarecard.model.BusinessSearchResult;
-import com.coronacarecard.service.GooglePlaceService;
+import com.coronacarecard.service.impl.GooglePlaceServiceImpl;
 import com.google.maps.ImageResult;
 import org.junit.Test;
 import org.junit.runner.RunWith;

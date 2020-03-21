@@ -1,10 +1,8 @@
 package com.coronacarecard.dao.entity;
 
 import com.coronacarecard.model.BusinessState;
-import org.springframework.context.annotation.Lazy;
 
 import javax.persistence.*;
-import java.util.List;
 
 @lombok.Builder(toBuilder = true)
 @lombok.NoArgsConstructor
@@ -37,6 +35,7 @@ public class Business {
     private Double longitude;
     private String name;
     private String address;
+    private String description;
     private String photoUrl;
     private String photoReference;
     private String photoAttributions;
@@ -52,8 +51,6 @@ public class Business {
     @JoinColumn(name = "id", referencedColumnName = "id")
     private BusinessAccountDetail account;
 
-    @Lazy
-    @OneToMany
-    @JoinColumn(name = "BUSINESS_ID")
-    private List<GiftCard> purchasedCards;
+    @OneToOne
+    private User owner;
 }

@@ -20,7 +20,7 @@ import javax.persistence.*;
 )
 public class BusinessAccountDetail {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.AUTO)
     public Long id;
     private String externalRefId;
 

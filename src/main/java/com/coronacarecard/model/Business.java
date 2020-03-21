@@ -8,6 +8,7 @@ import java.io.Serializable;
 @lombok.Getter
 @lombok.Setter
 @lombok.ToString
+@lombok.EqualsAndHashCode
 public class Business implements Serializable {
     private Long id;
     private String externalRefId;
@@ -16,7 +17,9 @@ public class Business implements Serializable {
     private String name;
     private String address;
     private Photo  photo;
+    private String description;
     private String formattedPhoneNumber;
     private String internationalPhoneNumber;
     private String Website;
+    private boolean isActive;
 }

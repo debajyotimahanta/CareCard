@@ -1,40 +1,35 @@
 package com.coronacarecard.dao.entity;
 
-import org.springframework.context.annotation.Lazy;
-
 import javax.persistence.*;
-import java.util.List;
 
-@lombok.Builder(toBuilder=true)
+@lombok.Builder
 @lombok.NoArgsConstructor
 @lombok.AllArgsConstructor
 @lombok.Getter
 @lombok.ToString
 @Entity
-@Table(
-        name = "users",
-        indexes = {
-                @Index(
-                        name = "idx_email",
-                        columnList = "email",
-                        unique = true
-                ),
-                @Index(
-                        name = "idx_phone_number",
-                        columnList = "phoneNumber",
-                        unique = true
-                )
-        }
-)
 public class User {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+
+    @Column(name = "email", nullable = false)
     private String email;
+
+    @Column(name = "phoneNumber", nullable = false)
     private String phoneNumber;
 
-    @Lazy
-    @OneToMany
-    @JoinColumn(name="USER_ID")
-    private List<GiftCard> cards;
+    @Transient
+    private String password;
+
+    @Column(name = "enabled")
+    private boolean enabled;
+
+    @Column(name = "confirmation_token")
+    private String confirmationToken;
+
+    @OneToOne
+    private Business business;
+
+
 }
