@@ -29,6 +29,8 @@ public class BusinessServiceImplTest {
         assertNotNull(result.getPhoto());
         assertNotNull(result.getPhoto().getPhotoReference());
         assertNotNull(result.getPhoto().getPhotoAttributions());
+        assertNotNull(result.getPhoto().getHeight());
+        assertNotNull(result.getPhoto().getWidth());
         assertNotNull(result.getPhoto().getPhotoUrl());
     }
 }

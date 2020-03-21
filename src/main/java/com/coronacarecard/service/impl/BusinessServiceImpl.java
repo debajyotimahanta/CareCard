@@ -39,8 +39,8 @@ public class BusinessServiceImpl implements BusinessService {
     private AWSS3Service awss3Service;
 
     private static final String AWS_BUCKET_NAME  = "hjqurnwjjwhb";
-    private static final int    PHOTO_MAX_HEIGHT = 400; // value in pixel
-    private static final int    PHOTO_MAX_WIDTH  = 450; // value in pixel
+//    private static final int    PHOTO_MAX_HEIGHT = 400; // value in pixel
+//    private static final int    PHOTO_MAX_WIDTH  = 450; // value in pixel
 
     @Override
     public Business create(String id) throws BusinessNotFoundException, InternalException {
@@ -84,8 +84,8 @@ public class BusinessServiceImpl implements BusinessService {
 
     private void storeDefaultBusinessImage(Business business) throws InternalException {
         ImageResult photo = googlePlaceService.getPhoto(business.getPhoto().getPhotoReference(),
-                Optional.of(PHOTO_MAX_HEIGHT),
-                Optional.of(PHOTO_MAX_WIDTH));
+                Optional.of(business.getPhoto().getHeight()),
+                Optional.of(business.getPhoto().getWidth()));
         String imageExtension = getImageExtensionFromContentType(photo.contentType);
         String imageName = new StringBuilder("")
                 .append(business.getPhoto().getPhotoReference())

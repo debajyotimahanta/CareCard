@@ -76,6 +76,8 @@ public class BusinessEntityMapperImpl implements BusinessEntityMapper {
                 .photo(Photo.builder()
                         .photoReference(place.photos[0].photoReference)
                         .photoAttributions(place.photos[0].htmlAttributions)
+                        .height(place.photos[0].height)
+                        .width(place.photos[0].width)
                         .build())
                 .internationalPhoneNumber(place.internationalPhoneNumber)
                 .formattedPhoneNumber(place.formattedPhoneNumber)

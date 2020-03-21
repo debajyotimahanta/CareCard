@@ -11,4 +11,6 @@ public class Photo {
     private String photoUrl;
     // Google subjects that images sources should have relevant attribution displayed to users
     private String[] photoAttributions;
+    private int height;
+    private int width;
 }
