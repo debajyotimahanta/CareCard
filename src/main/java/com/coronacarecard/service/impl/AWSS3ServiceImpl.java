@@ -28,14 +28,14 @@ public class AWSS3ServiceImpl implements AWSS3Service {
     }
 
     @Override
-    public PutObjectResult uploadImage(String bucketName, String imageName, byte[] image, Optional<String> contentType) throws InternalException {
+    public PutObjectResult uploadImage(String bucketName, String imageName, byte[] image, Optional<String> contentType)
+            throws InternalException {
         PutObjectResult result = null;
         AmazonS3Client  client = getAWSClient();
 
         try (InputStream dataStream = new ByteArrayInputStream(image);) {
             // Set Object Metadata like content-type and file name
             ObjectMetadata metadata = new ObjectMetadata();
-//            metadata.setContentType("image/jpeg");
             metadata.setContentType(contentType.isPresent() ? contentType.get() : "image/jpeg");
             metadata.addUserMetadata("x-amz-meta-title", imageName);
             metadata.setContentLength(image.length);

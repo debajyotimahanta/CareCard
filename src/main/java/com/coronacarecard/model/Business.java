@@ -4,6 +4,7 @@ package com.coronacarecard.model;
 @lombok.NoArgsConstructor
 @lombok.AllArgsConstructor
 @lombok.Getter
+@lombok.Setter
 @lombok.ToString
 public class Business {
     private String id;

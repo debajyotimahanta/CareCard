@@ -15,8 +15,10 @@ import java.util.List;
 public class BusinessEntityMapperImpl implements BusinessEntityMapper {
     @Override
     public Business toDAO(com.coronacarecard.model.Business business) {
-        String photoUrl = business.getPhoto() != null ? business.getPhoto().getPhotoUrl() : null;
+        String photoUrl       = business.getPhoto() != null ? business.getPhoto().getPhotoUrl() : null;
         String photoReference = business.getPhoto() != null ? business.getPhoto().getPhotoReference() : null;
+        String photoAttribution = business.getPhoto() != null && business.getPhoto().getPhotoAttributions() != null
+                ? business.getPhoto().getPhotoAttributions()[0] : null;
 
         return Business.builder()
                 .id(business.getId())
@@ -26,6 +28,7 @@ public class BusinessEntityMapperImpl implements BusinessEntityMapper {
                 .address(business.getAddress())
                 .photoReference(photoReference)
                 .photoUrl(photoUrl)
+                .photoAttributions(photoAttribution)
                 .Website(business.getWebsite())
                 .internationalPhoneNumber(business.getInternationalPhoneNumber())
                 .formattedPhoneNumber(business.getFormattedPhoneNumber())
@@ -63,14 +66,17 @@ public class BusinessEntityMapperImpl implements BusinessEntityMapper {
 
     @Override
     public com.coronacarecard.model.Business toModel(PlaceDetails place) {
+        // Get the photo reference of the first photo for the business place from Google.
         return com.coronacarecard.model.Business.builder()
                 .longitude(place.geometry.location.lng)
                 .id(place.placeId)
                 .latitude(place.geometry.location.lat)
                 .name(place.name)
                 .address(place.formattedAddress)
-                //TODO Figure out photo
-                //.photoUrl()
+                .photo(Photo.builder()
+                        .photoReference(place.photos[0].photoReference)
+                        .photoAttributions(place.photos[0].htmlAttributions)
+                        .build())
                 .internationalPhoneNumber(place.internationalPhoneNumber)
                 .formattedPhoneNumber(place.formattedPhoneNumber)
                 .build();
@@ -95,5 +101,19 @@ public class BusinessEntityMapperImpl implements BusinessEntityMapper {
                 .name(item.getName())
                 .id(item.getId())
                 .build();
+    }
+
+    private String getPhotoReferenceIfNotNull(com.google.maps.model.Photo[] photos) {
+        if (photos != null && photos.length > 0) {
+            return photos[0].photoReference;
+        }
+        return null;
+    }
+
+    private String[] getPhotoAttributionsIfNotNull(com.google.maps.model.Photo[] photos) {
+        if (photos != null && photos.length > 0) {
+            return photos[0].htmlAttributions;
+        }
+        return null;
     }
 }

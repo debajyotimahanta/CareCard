@@ -4,8 +4,11 @@ package com.coronacarecard.model;
 @lombok.NoArgsConstructor
 @lombok.AllArgsConstructor
 @lombok.Getter
+@lombok.Setter
 @lombok.ToString
 public class Photo {
     private String photoReference;
     private String photoUrl;
+    // Google subjects that images sources should have relevant attribution displayed to users
+    private String[] photoAttributions;
 }

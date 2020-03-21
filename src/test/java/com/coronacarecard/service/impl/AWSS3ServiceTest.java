@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -44,7 +45,7 @@ class AWSS3ServiceTest {
         // Act
         try {
             values = new FileInputStream(imageFile).readAllBytes();
-            result = target.uploadImage(bucketName, imageName, values);
+            result = target.uploadImage(bucketName, imageName, values, Optional.empty());
         }catch(InternalException exp) {
             assertFalse(true);
         } catch (FileNotFoundException e) {

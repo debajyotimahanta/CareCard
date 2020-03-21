@@ -12,6 +12,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 @RunWith(SpringRunner.class)
 @AutoConfigureTestDatabase
 @SpringBootTest
@@ -24,5 +26,9 @@ public class BusinessServiceImplTest {
     public void create() throws BusinessNotFoundException, InternalException {
         Business result = businessService.create("ChIJKV8LiAcPkFQRgaK8WZdjnuY");
         assertEquals("What the Pho!", result.getName());
+        assertNotNull(result.getPhoto());
+        assertNotNull(result.getPhoto().getPhotoReference());
+        assertNotNull(result.getPhoto().getPhotoAttributions());
+        assertNotNull(result.getPhoto().getPhotoUrl());
     }
 }

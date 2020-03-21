@@ -97,7 +97,6 @@ public class GooglePlaceServiceImpl implements GooglePlaceService {
         } catch (IOException e) {
             throw new InternalException(e.getMessage());
         }
-
         return result;
     }
 }
