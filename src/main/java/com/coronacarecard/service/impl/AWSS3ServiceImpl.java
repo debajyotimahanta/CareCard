@@ -1,6 +1,5 @@
 package com.coronacarecard.service.impl;
 
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3Client;
@@ -18,8 +17,8 @@ import java.util.Optional;
 @Service
 public class AWSS3ServiceImpl implements AWSS3Service {
 
-    private static final String AWS_ACCESS_KEY        = "AKIAQECDVEZ5V4CES3KO";
-    private static final String AWS_ACCESS_SECRET_KEY = "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";
+    private static final String AWS_ACCESS_KEY        = "";
+    private static final String AWS_ACCESS_SECRET_KEY = "";
 
     @Override
     public Bucket createBucket(String bucketName) throws InternalException {
@@ -65,6 +64,21 @@ public class AWSS3ServiceImpl implements AWSS3Service {
         return client.getResourceUrl(bucketName, imageName);
     }
 
+//    private AmazonS3Client getAWSClient() {
+//
+//        BasicAWSCredentials awsCreds = new BasicAWSCredentials(AWS_ACCESS_KEY,
+//                AWS_ACCESS_SECRET_KEY);
+//
+//        // Using AmazonS3Client over AmazonS3 interface because AmazonS3Client exposes
+//        // method to get object url.
+//        AmazonS3Client client = (AmazonS3Client) AmazonS3ClientBuilder.standard()
+//                .withRegion(Regions.US_EAST_2)
+//                .withCredentials(new AWSStaticCredentialsProvider(awsCreds))
+//                .build();
+//
+//        return client;
+//    }
+
     private AmazonS3Client getAWSClient() {
 
         BasicAWSCredentials awsCreds = new BasicAWSCredentials(AWS_ACCESS_KEY,
@@ -74,7 +88,6 @@ public class AWSS3ServiceImpl implements AWSS3Service {
         // method to get object url.
         AmazonS3Client client = (AmazonS3Client) AmazonS3ClientBuilder.standard()
                 .withRegion(Regions.US_EAST_2)
-                .withCredentials(new AWSStaticCredentialsProvider(awsCreds))
                 .build();
 
         return client;
