@@ -10,7 +10,13 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import static org.junit.jupiter.api.Assertions.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @RunWith(SpringRunner.class)
 @AutoConfigureTestDatabase
@@ -28,15 +34,22 @@ class AWSS3ServiceTest {
     @Test
     void uploadImage() {
         // Arrange
+        File imageFile = new File("/home/amukherjee/Pictures/Test.jpg");
+        byte[] values = null;
         String imageName = "myimage.jpg";
-        byte[] values = {1, 2, 3, 4, 5};
+        String bucketName = "hjqurnwjjwhb";
         AWSS3Service target = new AWSS3ServiceImpl();
         PutObjectResult result = null;
 
         // Act
         try {
-            result = target.uploadImage(imageName, values);
+            values = new FileInputStream(imageFile).readAllBytes();
+            result = target.uploadImage(bucketName, imageName, values);
         }catch(InternalException exp) {
+            assertFalse(true);
+        } catch (FileNotFoundException e) {
+            assertFalse(true);
+        } catch (IOException e) {
             assertFalse(true);
         }
 
@@ -44,21 +57,22 @@ class AWSS3ServiceTest {
         assertNotNull(result);
     }
 
-//    @Test
-//    void getObjectUrl() {
-//        // Arrange
-//        String imageName = "myimage.jpg";
-//        AWSS3Service target = new AWSS3ServiceImpl();
-//        String result = null;
-//
-//        // Act
-//        try {
-//            result = target.getObjectUrl(imageName);
-//        }catch(InternalException exp) {
-//            assertFalse(true);
-//        }
-//
-//        // Assert
-//        assertNotNull(result);
-//    }
+    @Test
+    void getObjectUrl() {
+        // Arrange
+        String imageName = "myimage.jpg";
+        String bucketName = "hjqurnwjjwhb";
+        AWSS3Service target = new AWSS3ServiceImpl();
+        String result = null;
+
+        // Act
+        try {
+            result = target.getObjectUrl(bucketName, imageName);
+        }catch(InternalException exp) {
+            assertFalse(true);
+        }
+
+        // Assert
+        assertNotNull(result);
+    }
 }
