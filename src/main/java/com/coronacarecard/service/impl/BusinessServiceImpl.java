@@ -7,6 +7,8 @@ import com.coronacarecard.mapper.BusinessEntityMapper;
 import com.coronacarecard.model.Business;
 import com.coronacarecard.model.BusinessSearchResult;
 import com.coronacarecard.model.PagedBusinessSearchResult;
+import com.coronacarecard.notifications.NotificationSender;
+import com.coronacarecard.notifications.NotificationType;
 import com.coronacarecard.service.BusinessService;
 import com.coronacarecard.service.GooglePlaceService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,19 +34,48 @@ public class BusinessServiceImpl implements BusinessService {
     @Autowired
     private BusinessEntityMapper businessEntityMapper;
 
-    @Override
-    public Business create(String id) throws BusinessNotFoundException, InternalException {
+    @Autowired
+    private NotificationSender<Business> notificationSender;
 
-        Optional<com.coronacarecard.dao.entity.Business> existingBusiness = Optional.empty();
+    @Override
+    public Business getOrCreate(String id) throws BusinessNotFoundException, InternalException {
+        Optional<com.coronacarecard.dao.entity.Business> existingBusiness = businessRepository.findByExternalId(id);
         if (existingBusiness.isPresent()) {
             return businessEntityMapper.toModel(existingBusiness.get());
         }
 
-        Business business = googlePlaceService.getBusiness(id);
-        com.coronacarecard.dao.entity.Business businessDAO = businessEntityMapper.toDAO(business);
-        businessRepository.save(businessDAO);
-        return business;
+        return createOrUpdate(id, true);
+    }
 
+    @Override
+    public Business getBusiness(String externalId) throws BusinessNotFoundException {
+        Optional<com.coronacarecard.dao.entity.Business> existingBusiness =
+                businessRepository.findByExternalId(externalId);
+        if (!existingBusiness.isPresent()) {
+            throw new BusinessNotFoundException();
+        }
+
+        return businessEntityMapper.toModel(existingBusiness.get());
+    }
+
+    @Override
+    public Business createOrUpdate(String id) throws BusinessNotFoundException, InternalException {
+        return createOrUpdate(id, false);
+    }
+
+    private Business createOrUpdate(String id, boolean skipDbLoad) throws BusinessNotFoundException, InternalException {
+        final Business business = googlePlaceService.getBusiness(id);
+        com.coronacarecard.dao.entity.Business businessDAO = businessEntityMapper.toDAO(business);
+        Optional<com.coronacarecard.dao.entity.Business> existingBusiness =
+                skipDbLoad ? Optional.empty() : businessRepository.findByExternalId(id);
+
+        if (existingBusiness.isPresent()) {
+            businessDAO = businessDAO.toBuilder().id(existingBusiness.get().getId()).build();
+        } else {
+            notificationSender.sendNotification(NotificationType.NEW_BUSINESS_REGISTERED, business);
+        }
+        com.coronacarecard.dao.entity.Business savedBusinessDAO = businessRepository.save(businessDAO);
+        return business.toBuilder().id(savedBusinessDAO.getId()).build();
     }
 
     @Override
@@ -54,8 +85,7 @@ public class BusinessServiceImpl implements BusinessService {
 
     @Override
     public PagedBusinessSearchResult search(String searchText, int pageNumber, int pageSize) {
-        Sort sort = Sort.by(Sort.Direction.DESC, "id");
-        Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, sort);
+        Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.by(Sort.Direction.DESC, "id"));
         Page<com.coronacarecard.dao.entity.Business> response = businessRepository.findByName(searchText, pageable);
 
         return businessEntityMapper.toPagedSearchResult(

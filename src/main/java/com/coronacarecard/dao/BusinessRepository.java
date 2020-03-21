@@ -7,8 +7,13 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 
-public interface BusinessRepository extends PagingAndSortingRepository<Business, String>, JpaSpecificationExecutor<Business> {
+import java.util.Optional;
+
+public interface BusinessRepository extends PagingAndSortingRepository<Business, Long>, JpaSpecificationExecutor<Business> {
 
     @Query("Select b from Business b where b.name LIKE  %?1% order by b.id")
     Page<Business> findByName(String name, Pageable pageable);
+
+    @Query("Select b from Business b where b.externalRefId =  ?1")
+    Optional<Business> findByExternalId(String id);
 }

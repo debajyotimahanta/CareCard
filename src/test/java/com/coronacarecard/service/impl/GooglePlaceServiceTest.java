@@ -28,18 +28,18 @@ public class GooglePlaceServiceTest {
     public void getBusiness() throws BusinessNotFoundException, InternalException {
         Business business = service.getBusiness(ID);
         assertNotNull(business);
-        assertEquals(ID, business.getId());
+        assertEquals(ID, business.getExternalRefId());
         assertEquals("10680 NE 8th St, Bellevue, WA 98004, USA", business.getAddress());
         assertEquals("What The Pho", business.getName());
         assertEquals("(425) 462-5600", business.getFormattedPhoneNumber());
         assertEquals("+1 425-462-5600", business.getInternationalPhoneNumber());
-        assertEquals(ID, business.getPhotoUrl());
+        assertNull(business.getPhotoUrl());
     }
 
     @Test
     public void search() throws InternalException {
         List<BusinessSearchResult> result = service.search("What the pho", Optional.empty(), Optional.empty());
-        assertEquals(ID, result.get(0).getId());
+        assertEquals(ID, result.get(0).getExternalRefId());
     }
 
     @Test

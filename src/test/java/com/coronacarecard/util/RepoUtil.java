@@ -11,7 +11,7 @@ public class RepoUtil {
                 .name(name)
                 .latitude(50.821282)
                 .longitude(-0.140887)
-                .id(id)
+                .externalRefId(id)
                 .formattedPhoneNumber("773732223")
                 .internationalPhoneNumber(phoneNumber)
                 .build());
