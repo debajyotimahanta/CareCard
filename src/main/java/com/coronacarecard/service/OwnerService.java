@@ -4,6 +4,7 @@ import com.coronacarecard.exceptions.BusinessAlreadyClaimedException;
 import com.coronacarecard.exceptions.BusinessNotFoundException;
 import com.coronacarecard.exceptions.InternalException;
 import com.coronacarecard.model.Business;
+import com.coronacarecard.model.BusinessRegistrationRequest;
 
 public interface OwnerService {
 
@@ -20,12 +21,11 @@ public interface OwnerService {
      * 5. Send SNS Notification saying a business as been claimed with business id
      * 6. Return business which will have the business id
      * Next step would be to associate business with strip profile
-     * @param externalId
-     * @param email
-     * @param phone
+     * @param request
      * @return
      */
-    Business claimBusiness(String externalId, String email, String phone) throws BusinessAlreadyClaimedException, InternalException, BusinessNotFoundException;
+    Business claimBusiness(BusinessRegistrationRequest request)
+            throws BusinessAlreadyClaimedException, InternalException, BusinessNotFoundException;
 
     /**
      * This method is called by external payment system (Stripe for now) to register user.

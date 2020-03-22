@@ -7,5 +7,5 @@ package com.coronacarecard.model;
 @lombok.ToString
 public class ClaimResult {
     public Business business;
-    public String encryptedState;
+    public String claimToken;
 }

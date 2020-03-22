@@ -57,3 +57,4 @@ dependencies {
 }
 
 apply plugin: SpringBootPlugin
+apply from: rootProject.file('gradle/install-git-hooks.gradle')

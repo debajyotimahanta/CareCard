@@ -41,6 +41,7 @@ public class BusinessEntityMapperImplTest {
                 .internationalPhoneNumber("+1-123-456-7890")
                 .Website("www.carecard.org")
                 .latitude(Double.parseDouble("12345.6789"))
+                .description("desc")
                 .longitude(Double.parseDouble("23456.789"))
                 .photo(Photo.builder()
                         .photoReference("CnRtAAAATLZNl354RwP_9UKbQ_5Psy40texXePv4oAlgP4qNEkdIrkyse7rPXYGd9D_Uj1rVsQdWT4oRz4QrYAJNpFX7rzqqMlZw2h2E2y5IKMUZ7ouD_SlcHxYq1yL4KbKUv3qtWgTK0A6QbGh87GB3sscrHRIQiG2RrmU_jF4tENr9wGS_YxoUSSDrYjWmrNfeEHSGSc3FyhNLlBU")
@@ -59,6 +60,7 @@ public class BusinessEntityMapperImplTest {
                 () -> assertTrue(result.getName().equals(model.getName())),
                 () -> assertTrue(result.getAddress().equals(model.getAddress())),
                 () -> assertTrue(result.getLatitude().equals(model.getLatitude())),
+                () -> assertTrue(result.getDescription().equals(model.getDescription())),
                 () -> assertTrue(result.getLongitude().equals(model.getLongitude())),
                 () -> assertTrue(result.getWebsite().equals(model.getWebsite())),
                 () -> assertTrue(result.getFormattedPhoneNumber().equals(model.getFormattedPhoneNumber())),
@@ -112,6 +114,7 @@ public class BusinessEntityMapperImplTest {
                 .address("123 Main St, Chicago")
                 .formattedPhoneNumber("123-456-7890")
                 .internationalPhoneNumber("+1-123-456-7890")
+                .description("desc")
                 .Website("www.carecard.org")
                 .latitude(Double.parseDouble("12345.6789"))
                 .longitude(Double.parseDouble("23456.789"))
@@ -130,6 +133,7 @@ public class BusinessEntityMapperImplTest {
                 () -> assertTrue(result.getAddress().equals(dao.getAddress())),
                 () -> assertTrue(result.getLatitude().equals(dao.getLatitude())),
                 () -> assertTrue(result.getLongitude().equals(dao.getLongitude())),
+                () -> assertTrue(result.getDescription().equals(dao.getDescription())),
                 () -> assertTrue(result.getWebsite().equals(dao.getWebsite())),
                 () -> assertTrue(result.getFormattedPhoneNumber().equals(dao.getFormattedPhoneNumber())),
                 () -> assertTrue(result.getInternationalPhoneNumber().equals(dao.getInternationalPhoneNumber()))

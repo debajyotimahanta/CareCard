@@ -29,11 +29,10 @@ public class OwnerController {
     public ClaimResult register(@RequestBody BusinessRegistrationRequest businessRegistrationRequest)
             throws BusinessNotFoundException, InternalException, BusinessAlreadyClaimedException {
 
-        Business claimedBusiness = ownerService.claimBusiness(businessRegistrationRequest.getBusinessId(),
-                businessRegistrationRequest.getEmail(), businessRegistrationRequest.getPhone());
+        Business claimedBusiness = ownerService.claimBusiness(businessRegistrationRequest);
         return ClaimResult.builder()
                 .business(claimedBusiness)
-                .encryptedState(cryptoService.encryptBusiness(claimedBusiness))
+                .claimToken(cryptoService.encryptBusiness(claimedBusiness))
                 .build();
 
     }

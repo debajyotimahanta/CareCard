@@ -9,4 +9,6 @@ public class BusinessRegistrationRequest {
     private String businessId;
     private String email;
     private String phone;
+    private String description;
+    
 }

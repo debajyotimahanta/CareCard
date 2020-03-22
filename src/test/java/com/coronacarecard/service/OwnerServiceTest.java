@@ -7,6 +7,7 @@ import com.coronacarecard.dao.entity.User;
 import com.coronacarecard.exceptions.BusinessAlreadyClaimedException;
 import com.coronacarecard.exceptions.BusinessNotFoundException;
 import com.coronacarecard.exceptions.InternalException;
+import com.coronacarecard.model.BusinessRegistrationRequest;
 import com.coronacarecard.model.BusinessState;
 import com.coronacarecard.notifications.NotificationSender;
 import com.coronacarecard.notifications.NotificationType;
@@ -33,6 +34,7 @@ import static org.mockito.Mockito.verify;
 @SpringBootTest
 public class OwnerServiceTest {
 
+    public static final String DESC = "Hello world";
     @MockBean
     private NotificationSender<com.coronacarecard.model.Business> notificationSender;
 
@@ -82,17 +84,29 @@ public class OwnerServiceTest {
         userRepository.deleteAll();
     }
 
+    private BusinessRegistrationRequest getReq(String businessId, String email, String phone) {
+        return BusinessRegistrationRequest.builder()
+                .phone(phone)
+                .email(email)
+                .businessId(businessId)
+                .description(DESC)
+                .build();
+    }
+
     @Test(expected = BusinessAlreadyClaimedException.class)
     public void error_if_business_already_exists_and_claimed() throws BusinessAlreadyClaimedException,
             InternalException, BusinessNotFoundException {
-        ownerService.claimBusiness(existingBusinessId, "test@gmail.com", "773");
+        ownerService.claimBusiness(getReq(existingBusinessId, "test@gmail.com", "773"));
 
     }
+
+
 
     @Test
     public void existing_business_claimed_by_same_name_user_phone() throws BusinessAlreadyClaimedException,
             InternalException, BusinessNotFoundException {
-        com.coronacarecard.model.Business claimedBusiness = ownerService.claimBusiness(existingBusinessId, EMAIL, PHONE);
+        com.coronacarecard.model.Business claimedBusiness = ownerService
+                .claimBusiness(getReq(existingBusinessId, EMAIL, PHONE));
         //TODO (arun) once width tha height is populate please uncomment
         //assertEquals(existingBusiness, claimedBusiness);
     }
@@ -101,7 +115,7 @@ public class OwnerServiceTest {
     public void error_claim_draft_business_by_different_details_and_notify()
             throws BusinessAlreadyClaimedException, InternalException, BusinessNotFoundException {
         setState(BusinessState.Draft);
-        ownerService.claimBusiness(existingBusinessId, "test@gmail.com", "773");
+        ownerService.claimBusiness(getReq(existingBusinessId, "test@gmail.com", "773"));
     }
 
     private void setState(BusinessState state) {
@@ -123,7 +137,7 @@ public class OwnerServiceTest {
                 .build();
         businessRepository.save(existingBusinessDAO);
 
-        ownerService.claimBusiness(placeId, "test@gmail.com", "773");
+        ownerService.claimBusiness(getReq(placeId, "test@gmail.com", "773"));
     }
 
     @Test
@@ -131,14 +145,15 @@ public class OwnerServiceTest {
             throws InternalException, BusinessNotFoundException, BusinessAlreadyClaimedException {
         Optional<Business> beforeClaim = businessRepository.findByExternalId(newBusinessId);
         assertFalse(beforeClaim.isPresent());
-        com.coronacarecard.model.Business result = ownerService.claimBusiness(newBusinessId
-                , "x" + EMAIL, PHONE);
+        com.coronacarecard.model.Business result = ownerService.claimBusiness(getReq(newBusinessId
+                , "x" + EMAIL, PHONE));
         assertEquals(newBusinessId, result.getExternalRefId());
         Optional<Business> afterClaim = businessRepository.findByExternalId(newBusinessId);
         assertTrue(afterClaim.isPresent());
         User user = userRepository.findByEmail("x" + EMAIL);
         assertNotNull(user);
         assertEquals(PHONE, user.getPhoneNumber());
+        assertEquals(DESC, afterClaim.get().getDescription());
         ArgumentCaptor<com.coronacarecard.model.Business> peopleCaptor
                 = ArgumentCaptor.forClass(com.coronacarecard.model.Business.class);
         verify(notificationSender).sendNotification(eq(NotificationType.BUSINESS_CLAIMED), peopleCaptor.capture());

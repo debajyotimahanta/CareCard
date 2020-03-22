@@ -8,6 +8,7 @@ import com.coronacarecard.exceptions.BusinessNotFoundException;
 import com.coronacarecard.exceptions.InternalException;
 import com.coronacarecard.mapper.BusinessEntityMapper;
 import com.coronacarecard.model.Business;
+import com.coronacarecard.model.BusinessRegistrationRequest;
 import com.coronacarecard.model.BusinessState;
 import com.coronacarecard.notifications.NotificationSender;
 import com.coronacarecard.notifications.NotificationType;
@@ -42,8 +43,11 @@ public class OwnerServiceImpl implements OwnerService {
 
     @Override
     @Transactional
-    public Business claimBusiness(String externalId, String email, String phone) throws
+    public Business claimBusiness(BusinessRegistrationRequest request) throws
             BusinessAlreadyClaimedException, InternalException, BusinessNotFoundException {
+        String externalId = request.getBusinessId();
+        String email = request.getEmail();
+        String phone = request.getPhone();
         Optional<com.coronacarecard.dao.entity.Business> businessDAO =
                 businessRepository.findByExternalId(externalId);
         if (businessDAO.isPresent()
@@ -75,6 +79,7 @@ public class OwnerServiceImpl implements OwnerService {
             businessDAO = Optional.of(businessRepository.save(
                     businessEntityMapper.toDAOBuilder(business)
                             .state(BusinessState.Pending)
+                            .description(request.getDescription())
                             .owner(owner).build()));
 
 

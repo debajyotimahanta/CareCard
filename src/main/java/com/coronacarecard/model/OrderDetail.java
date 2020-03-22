@@ -9,6 +9,8 @@ public class OrderDetail {
     private Double total;
     // TODO this is not optimal eventually different business will have different payment system how will we handel that
     private PaymentSystem paymentSystem;
+    private Double contribution;
+    private Currency current;
 
     class OrderLine  {
         private Long businessId;
