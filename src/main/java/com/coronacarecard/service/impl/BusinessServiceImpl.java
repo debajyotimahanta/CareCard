@@ -53,14 +53,12 @@ public class BusinessServiceImpl implements BusinessService {
             return businessEntityMapper.toModel(existingBusiness.get());
         }
 
-        Business business = googlePlaceService.getBusiness(id);
-        return createOrUpdate(id, true);
+        return createOrUpdate(id, existingBusiness);
     }
 
     @Override
     public Business getBusiness(String externalId) throws BusinessNotFoundException {
-        Optional<com.coronacarecard.dao.entity.Business> existingBusiness =
-                businessRepository.findByExternalId(externalId);
+        Optional<com.coronacarecard.dao.entity.Business> existingBusiness = businessRepository.findByExternalId(externalId);
         if (!existingBusiness.isPresent()) {
             throw new BusinessNotFoundException();
         }
@@ -70,11 +68,12 @@ public class BusinessServiceImpl implements BusinessService {
 
     @Override
     public Business createOrUpdate(String id) throws BusinessNotFoundException, InternalException {
-        return createOrUpdate(id, false);
+        return createOrUpdate(id, Optional.empty());
     }
 
-    private Business createOrUpdate(String id, boolean skipDbLoad) throws BusinessNotFoundException, InternalException {
-        Business business = googlePlaceService.getBusiness(id);
+    private Business createOrUpdate(String id, Optional<com.coronacarecard.dao.entity.Business> existingBusiness)
+            throws BusinessNotFoundException, InternalException {
+        final Business business = googlePlaceService.getBusiness(id);
 
         if (business.getPhoto() != null && business.getPhoto().getPhotoReference() != null) {
             // Get the image from Google Places and Store in Amazon S3
@@ -82,9 +81,6 @@ public class BusinessServiceImpl implements BusinessService {
         }
 
         com.coronacarecard.dao.entity.Business businessDAO = businessEntityMapper.toDAO(business);
-        Optional<com.coronacarecard.dao.entity.Business> existingBusiness =
-                skipDbLoad ? Optional.empty() : businessRepository.findByExternalId(id);
-
         if (existingBusiness.isPresent()) {
             businessDAO = businessDAO.toBuilder().id(existingBusiness.get().getId()).build();
         } else {
@@ -95,7 +91,8 @@ public class BusinessServiceImpl implements BusinessService {
     }
 
     @Override
-    public List<BusinessSearchResult> externalSearch(String searchText, Optional<Double> lat, Optional<Double> lng) throws InternalException {
+    public List<BusinessSearchResult> externalSearch(String searchText, Optional<Double> lat, Optional<Double> lng)
+            throws InternalException {
         return googlePlaceService.search(searchText, lat, lng);
     }
 

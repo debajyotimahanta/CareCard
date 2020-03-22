@@ -1,5 +1,6 @@
 package com.coronacarecard.notifications;
 
+import com.amazonaws.SdkClientException;
 import com.amazonaws.services.sns.AmazonSNS;
 import com.amazonaws.services.sns.model.CreateTopicRequest;
 import com.amazonaws.services.sns.model.PublishRequest;
@@ -43,7 +44,7 @@ public class AwsSnsSender<T extends Serializable> implements NotificationSender<
                             .withSubject(payload.getClass().getSimpleName())
                             .withMessage(getMessage(payload))
             );
-        } catch (Exception ex) {
+        } catch (SdkClientException ex) {
             log.error("For local testing, spin up a stack using https://github.com/localstack/localstack", ex);
         }
 
@@ -56,7 +57,7 @@ public class AwsSnsSender<T extends Serializable> implements NotificationSender<
                         new CreateTopicRequest()
                                 .withName(type.toString()))
                         .getTopicArn());
-            } catch (Exception ex) {
+            } catch (SdkClientException ex) {
                 log.error("For local testing, spin up a stack using https://github.com/localstack/localstack", ex);
             }
         }
