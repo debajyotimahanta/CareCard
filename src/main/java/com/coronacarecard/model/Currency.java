@@ -1,4 +1,4 @@
 package com.coronacarecard.model;
 
-public class OwnerDetails {
+public enum Currency {
 }
