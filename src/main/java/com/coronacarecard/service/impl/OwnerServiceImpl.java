@@ -5,10 +5,7 @@ import com.coronacarecard.dao.UserRepository;
 import com.coronacarecard.dao.entity.User;
 import com.coronacarecard.exceptions.*;
 import com.coronacarecard.mapper.BusinessEntityMapper;
-import com.coronacarecard.model.Business;
-import com.coronacarecard.model.BusinessRegistrationRequest;
-import com.coronacarecard.model.BusinessState;
-import com.coronacarecard.model.PaymentSystem;
+import com.coronacarecard.model.*;
 import com.coronacarecard.notifications.NotificationSender;
 import com.coronacarecard.notifications.NotificationType;
 import com.coronacarecard.service.GooglePlaceService;
@@ -40,6 +37,9 @@ public class OwnerServiceImpl implements OwnerService {
 
     @Autowired
     private NotificationSender<Business> notificationSender;
+
+    @Autowired
+    private NotificationSender<BusinessApprovalDetails> approvalNotificationSender;
 
     @Autowired
     private PaymentService paymentService;
@@ -136,7 +136,15 @@ public class OwnerServiceImpl implements OwnerService {
             log.info("Business is claimed now, will wait for owner to enter payment details");
             businessDAO = businessRepository.save(businessDAO.toBuilder().state(BusinessState.Pending).build());
         }
+        String url = paymentService.generateOnBoardingUrl(paymentSystem, businessDAO);
+        approvalNotificationSender.sendNotification(
+                NotificationType.BUSINESS_APPROVED,
+                BusinessApprovalDetails.builder()
+                        .business(businessEntityMapper.toModel(businessDAO))
+                        .registrationUrl(url)
+                .build()
+        );
+        return url;
 
-        return paymentService.generateOnBoardingUrl(paymentSystem, businessDAO);
     }
 }

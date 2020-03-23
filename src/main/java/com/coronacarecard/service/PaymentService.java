@@ -31,7 +31,7 @@ public interface PaymentService {
     void confirmTransaction(PaymentSystem paymentSystem, String transactionId);
 
     /**
-     * Generate onboarding URL for the given payment system and business.
+     * Generate onboarding URL for the given payment system and business
      * @param paymentSystem
      * @param businessDAO
      * @return

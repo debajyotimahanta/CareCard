@@ -5,6 +5,7 @@ import com.coronacarecard.dao.UserRepository;
 import com.coronacarecard.dao.entity.Business;
 import com.coronacarecard.dao.entity.User;
 import com.coronacarecard.exceptions.*;
+import com.coronacarecard.model.BusinessApprovalDetails;
 import com.coronacarecard.model.BusinessRegistrationRequest;
 import com.coronacarecard.model.BusinessState;
 import com.coronacarecard.model.PaymentSystem;
@@ -34,8 +35,12 @@ import static org.mockito.Mockito.verify;
 public class OwnerServiceTest {
 
     public static final String DESC = "Hello world";
+
     @MockBean
     private NotificationSender<com.coronacarecard.model.Business> notificationSender;
+
+    @MockBean
+    private NotificationSender<BusinessApprovalDetails> approvalNotificationSender;
 
     @MockBean
     private CloudStorageService cloudStorageService;
@@ -153,10 +158,11 @@ public class OwnerServiceTest {
         assertNotNull(user);
         assertEquals(PHONE, user.getPhoneNumber());
         assertEquals(DESC, afterClaim.get().getDescription());
-        ArgumentCaptor<com.coronacarecard.model.Business> peopleCaptor
+        ArgumentCaptor<com.coronacarecard.model.Business> businessArgumentCaptor
                 = ArgumentCaptor.forClass(com.coronacarecard.model.Business.class);
-        verify(notificationSender).sendNotification(eq(NotificationType.BUSINESS_CLAIMED), peopleCaptor.capture());
-        assertEquals(result, peopleCaptor.getValue());
+        verify(notificationSender).sendNotification(eq(NotificationType.BUSINESS_CLAIMED),
+                businessArgumentCaptor.capture());
+        assertEquals(result, businessArgumentCaptor.getValue());
 
     }
 
@@ -174,14 +180,14 @@ public class OwnerServiceTest {
         com.coronacarecard.model.Business createdBusines = ownerService.claimBusiness(getReq(newBusinessId, EMAIL, PHONE));
         String onboardURL = ownerService.approveClaim(PaymentSystem.STRIPE, createdBusines.getId());
         assertEquals("TODO", onboardURL);
+        ArgumentCaptor<BusinessApprovalDetails> approvalDetails
+                = ArgumentCaptor.forClass(BusinessApprovalDetails.class);
+        verify(approvalNotificationSender).sendNotification(eq(NotificationType.BUSINESS_APPROVED),
+                approvalDetails.capture());
+        assertEquals(onboardURL, approvalDetails.getValue().getRegistrationUrl());
+        assertEquals(createdBusines, approvalDetails.getValue().getBusiness());
         Business storedBusiness = businessRepository.findById(createdBusines.getId()).get();
         assertEquals(BusinessState.Pending, storedBusiness.getState());
-
-    }
-
-    @Test
-    public void approve_already_claimed() {
-
     }
 
     @Test
