@@ -18,6 +18,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import java.util.Arrays;
 import java.util.Optional;
 
 import static org.junit.Assert.*;
@@ -45,7 +46,7 @@ public class RepositoryTest {
 
         String email = "g@g.com";
         userRepository.save(User.builder()
-                .business(createdBusiness.get())
+                .business(Arrays.asList(createdBusiness.get()))
                 .email(email)
                 .phoneNumber("77777777")
                 .build());
@@ -53,7 +54,7 @@ public class RepositoryTest {
         User result = userRepository.findByEmail(email);
         assertNotNull(result);
         assertNotNull(result.getBusiness());
-        assertEquals(createdBusiness.get().getExternalRefId(), result.getBusiness().getExternalRefId());
+        assertEquals(createdBusiness.get().getExternalRefId(), result.getBusiness().get(0).getExternalRefId());
 
         Optional<Business> afterOwner = businessRepository.findByExternalId(id);
         assertNotNull(afterOwner.get());

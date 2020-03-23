@@ -1,6 +1,7 @@
 package com.coronacarecard.dao.entity;
 
 import javax.persistence.*;
+import java.util.List;
 
 @lombok.Builder
 @lombok.NoArgsConstructor
@@ -8,6 +9,7 @@ import javax.persistence.*;
 @lombok.Getter
 @lombok.ToString
 @Entity
+@Table(name = "users")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -28,8 +30,12 @@ public class User {
     @Column(name = "confirmation_token")
     private String confirmationToken;
 
+    @OneToMany(fetch=FetchType.EAGER, mappedBy = "owner")
+    private List<Business> business;
+
     @OneToOne
-    private Business business;
+    @JoinColumn(name = "id", referencedColumnName = "id")
+    private BusinessAccountDetail account;
 
 
 }

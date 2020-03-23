@@ -46,11 +46,6 @@ public class Business {
     @Enumerated(EnumType.STRING)
     private BusinessState state;
 
-
-    @OneToOne
-    @JoinColumn(name = "id", referencedColumnName = "id")
-    private BusinessAccountDetail account;
-
-    @OneToOne
+    @ManyToOne
     private User owner;
 }

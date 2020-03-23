@@ -66,14 +66,15 @@ public class BusinessServiceImpl implements BusinessService {
         return businessEntityMapper.toModel(existingBusiness.get());
     }
 
+    // TODO (deba) this is too complicated refactor it.
     @Override
     public Business createOrUpdate(String id) throws BusinessNotFoundException, InternalException {
-        return createOrUpdate(id, Optional.empty());
+        return createOrUpdate(id, businessRepository.findByExternalId(id));
     }
 
     private Business createOrUpdate(String id, Optional<com.coronacarecard.dao.entity.Business> existingBusiness)
             throws BusinessNotFoundException, InternalException {
-        final Business business = googlePlaceService.getBusiness(id);
+        Business business = googlePlaceService.getBusiness(id);
 
         if (business.getPhoto() != null && business.getPhoto().getPhotoReference() != null) {
             // Get the image from Google Places and Store in Amazon S3

@@ -2,9 +2,12 @@ package com.coronacarecard.service;
 
 import com.coronacarecard.exceptions.BusinessAlreadyClaimedException;
 import com.coronacarecard.exceptions.BusinessNotFoundException;
+import com.coronacarecard.exceptions.CustomerException;
 import com.coronacarecard.exceptions.InternalException;
 import com.coronacarecard.model.Business;
 import com.coronacarecard.model.BusinessRegistrationRequest;
+import com.coronacarecard.model.PaymentSystem;
+import org.springframework.transaction.annotation.Transactional;
 
 public interface OwnerService {
 
@@ -44,4 +47,11 @@ public interface OwnerService {
      * @return
      */
     void registerOwner(String encryptedDetails, String externalRefId);
+
+    /**
+     * Admin uses this method to mark the business as claimed. IT returns the payment system URL, that the
+     * business will use to onboard.
+     */
+    @Transactional
+    String approveClaim(PaymentSystem paymentSystem, Long id) throws CustomerException;
 }

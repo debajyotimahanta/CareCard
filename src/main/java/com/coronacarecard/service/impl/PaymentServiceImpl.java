@@ -1,5 +1,6 @@
 package com.coronacarecard.service.impl;
 
+import com.coronacarecard.dao.entity.Business;
 import com.coronacarecard.model.CheckoutResponse;
 import com.coronacarecard.model.PaymentSystem;
 import com.coronacarecard.service.PaymentService;
@@ -20,5 +21,10 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     public void confirmTransaction(PaymentSystem paymentSystem, String transactionId) {
 
+    }
+
+    @Override
+    public String generateOnBoardingUrl(PaymentSystem paymentSystem, Business businessDAO) {
+        return "TODO";
     }
 }

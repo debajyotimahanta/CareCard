@@ -4,11 +4,10 @@ import com.coronacarecard.dao.BusinessRepository;
 import com.coronacarecard.dao.UserRepository;
 import com.coronacarecard.dao.entity.Business;
 import com.coronacarecard.dao.entity.User;
-import com.coronacarecard.exceptions.BusinessAlreadyClaimedException;
-import com.coronacarecard.exceptions.BusinessNotFoundException;
-import com.coronacarecard.exceptions.InternalException;
+import com.coronacarecard.exceptions.*;
 import com.coronacarecard.model.BusinessRegistrationRequest;
 import com.coronacarecard.model.BusinessState;
+import com.coronacarecard.model.PaymentSystem;
 import com.coronacarecard.notifications.NotificationSender;
 import com.coronacarecard.notifications.NotificationType;
 import org.junit.After;
@@ -101,7 +100,6 @@ public class OwnerServiceTest {
     }
 
 
-
     @Test
     public void existing_business_claimed_by_same_name_user_phone() throws BusinessAlreadyClaimedException,
             InternalException, BusinessNotFoundException {
@@ -150,6 +148,7 @@ public class OwnerServiceTest {
         assertEquals(newBusinessId, result.getExternalRefId());
         Optional<Business> afterClaim = businessRepository.findByExternalId(newBusinessId);
         assertTrue(afterClaim.isPresent());
+        assertEquals(BusinessState.Claimed, afterClaim.get().getState());
         User user = userRepository.findByEmail("x" + EMAIL);
         assertNotNull(user);
         assertEquals(PHONE, user.getPhoneNumber());
@@ -159,6 +158,49 @@ public class OwnerServiceTest {
         verify(notificationSender).sendNotification(eq(NotificationType.BUSINESS_CLAIMED), peopleCaptor.capture());
         assertEquals(result, peopleCaptor.getValue());
 
+    }
+
+    @Test
+    public void same_owner_claims_two_business() throws InternalException,
+            BusinessNotFoundException, BusinessAlreadyClaimedException {
+
+        ownerService.claimBusiness(getReq(newBusinessId, EMAIL, PHONE));
+        User owner = userRepository.findByEmail(EMAIL);
+        assertEquals(2, owner.getBusiness().size());
+    }
+
+    @Test
+    public void approve_owner_claim() throws InternalException, CustomerException {
+        com.coronacarecard.model.Business createdBusines = ownerService.claimBusiness(getReq(newBusinessId, EMAIL, PHONE));
+        String onboardURL = ownerService.approveClaim(PaymentSystem.STRIPE, createdBusines.getId());
+        assertEquals("TODO", onboardURL);
+        Business storedBusiness = businessRepository.findById(createdBusines.getId()).get();
+        assertEquals(BusinessState.Pending, storedBusiness.getState());
+
+    }
+
+    @Test
+    public void approve_already_claimed() {
+
+    }
+
+    @Test
+    public void approve_pending() throws CustomerException, InternalException {
+        com.coronacarecard.model.Business createdBusines =
+                ownerService.claimBusiness(getReq(newBusinessId, EMAIL, PHONE));
+        String onboardURL = ownerService.approveClaim(PaymentSystem.STRIPE, createdBusines.getId());
+        Business storedBusiness = businessRepository.findById(createdBusines.getId()).get();
+        assertEquals(BusinessState.Pending, storedBusiness.getState());
+        com.coronacarecard.model.Business businessRetry
+                = ownerService.claimBusiness(getReq(newBusinessId, EMAIL, PHONE));
+        assertEquals(createdBusines.getId(), createdBusines.getId());
+
+    }
+
+    @Test (expected = BusinessClaimException.class)
+    public void error_approve_draft_business() throws CustomerException {
+        setState(BusinessState.Draft);
+        ownerService.approveClaim(PaymentSystem.STRIPE, existingBusiness.getId());
 
     }
 }

@@ -1,5 +1,6 @@
 package com.coronacarecard.service;
 
+import com.coronacarecard.dao.entity.Business;
 import com.coronacarecard.model.CheckoutResponse;
 import com.coronacarecard.model.PaymentSystem;
 
@@ -28,4 +29,12 @@ public interface PaymentService {
      * @param transactionId
      */
     void confirmTransaction(PaymentSystem paymentSystem, String transactionId);
+
+    /**
+     * Generate onboarding URL for the given payment system and business.
+     * @param paymentSystem
+     * @param businessDAO
+     * @return
+     */
+    String generateOnBoardingUrl(PaymentSystem paymentSystem, Business businessDAO);
 }
