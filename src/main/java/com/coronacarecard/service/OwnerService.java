@@ -27,6 +27,7 @@ public interface OwnerService {
      * @param request
      * @return
      */
+    @Transactional
     Business claimBusiness(BusinessRegistrationRequest request)
             throws BusinessAlreadyClaimedException, InternalException, BusinessNotFoundException;
 
@@ -54,4 +55,12 @@ public interface OwnerService {
      */
     @Transactional
     String approveClaim(PaymentSystem paymentSystem, Long id) throws CustomerException;
+
+    /**
+     * For the given business decline the claim and remove its realtionship with owner.
+     * Also generate SNS notification which could be used to inform business
+     * @param id
+     */
+    @Transactional
+    void declineClaim(Long id) throws BusinessNotFoundException;
 }

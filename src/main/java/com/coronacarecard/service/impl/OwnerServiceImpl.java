@@ -147,4 +147,28 @@ public class OwnerServiceImpl implements OwnerService {
         return url;
 
     }
+
+    @Override
+    @Transactional
+    public void declineClaim(Long id) throws BusinessNotFoundException {
+        Optional<com.coronacarecard.dao.entity.Business> business = businessRepository.findById(id);
+        if(!business.isPresent()) {
+            log.error(String.format("No business with id %s exists. You cannot decline it.", id));
+            throw new BusinessNotFoundException();
+        }
+
+        if (BusinessState.Draft.equals(business.get().getState())) {
+            log.info("Business already marked as Draft nothing to do");
+        }
+
+        com.coronacarecard.dao.entity.Business.BusinessBuilder updatedBusiness = business.get().toBuilder();
+        updatedBusiness.state(BusinessState.Draft);
+        updatedBusiness.owner(null);
+        com.coronacarecard.dao.entity.Business result = businessRepository.save(updatedBusiness.build());
+        notificationSender.sendNotification(NotificationType.BUSINESS_DECLINED,
+                businessEntityMapper.toModel(result));
+
+
+
+    }
 }

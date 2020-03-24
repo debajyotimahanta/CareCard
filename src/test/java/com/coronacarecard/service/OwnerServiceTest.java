@@ -209,4 +209,23 @@ public class OwnerServiceTest {
         ownerService.approveClaim(PaymentSystem.STRIPE, existingBusiness.getId());
 
     }
+
+    @Test
+    public void decline_claimned_business()
+            throws InternalException, BusinessNotFoundException, BusinessAlreadyClaimedException {
+        com.coronacarecard.model.Business business =
+                ownerService.claimBusiness(getReq(newBusinessId, EMAIL, PHONE));
+        Business createdBusiness = businessRepository.findByExternalId(newBusinessId).get();
+        assertEquals(BusinessState.Claimed, createdBusiness.getState());
+        assertEquals(EMAIL, createdBusiness.getOwner().getEmail());
+        ownerService.declineClaim(createdBusiness.getId());
+        Business afterDecline = businessRepository.findByExternalId(newBusinessId).get();
+        assertEquals(BusinessState.Draft, afterDecline.getState());
+        assertNull(afterDecline.getOwner());
+        ArgumentCaptor<com.coronacarecard.model.Business> businessArgumentCaptor
+                = ArgumentCaptor.forClass(com.coronacarecard.model.Business.class);
+        verify(notificationSender).sendNotification(eq(NotificationType.BUSINESS_DECLINED),
+                businessArgumentCaptor.capture());
+        assertEquals(newBusinessId, afterDecline.getExternalRefId());
+    }
 }

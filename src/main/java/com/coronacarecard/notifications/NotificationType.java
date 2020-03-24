@@ -6,5 +6,6 @@ package com.coronacarecard.notifications;
 public enum NotificationType {
     NEW_BUSINESS_REGISTERED,
     BUSINESS_CLAIMED,
-    BUSINESS_APPROVED
+    BUSINESS_APPROVED,
+    BUSINESS_DECLINED
 }
