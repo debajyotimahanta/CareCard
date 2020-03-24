@@ -9,7 +9,21 @@ import java.util.List;
 @lombok.Getter
 @lombok.ToString
 @Entity
-@Table(name = "users")
+@Table(
+        name = "users",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"email"}),
+        indexes = {
+                @Index(
+                        name = "idx_email",
+                        columnList = "email",
+                        unique = true
+                ),
+                @Index(
+                        name = "idx_confirmation_token",
+                        columnList = "confirmation_token"
+                )
+        }
+)
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
