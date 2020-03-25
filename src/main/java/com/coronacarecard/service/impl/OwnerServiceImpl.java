@@ -136,7 +136,7 @@ public class OwnerServiceImpl implements OwnerService {
             log.info("Business is claimed now, will wait for owner to enter payment details");
             businessDAO = businessRepository.save(businessDAO.toBuilder().state(BusinessState.Pending).build());
         }
-        String url = paymentService.generateOnBoardingUrl(paymentSystem, businessDAO);
+        String url = paymentService.generateOnBoardingUrl(paymentSystem, businessEntityMapper.toModel(businessDAO));
         approvalNotificationSender.sendNotification(
                 NotificationType.BUSINESS_APPROVED,
                 BusinessApprovalDetails.builder()

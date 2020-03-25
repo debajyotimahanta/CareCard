@@ -10,4 +10,9 @@ public class CryptoServiceImpl implements CryptoService {
     public String encryptBusiness(Business claimedBusiness) {
         return null;
     }
+
+    @Override
+    public Long decryptBusiness(String state) {
+        return null;
+    }
 }

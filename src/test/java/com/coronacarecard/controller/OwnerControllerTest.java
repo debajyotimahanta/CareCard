@@ -3,13 +3,8 @@ package com.coronacarecard.controller;
 import com.coronacarecard.dao.BusinessRepository;
 import com.coronacarecard.dao.UserRepository;
 import com.coronacarecard.dao.entity.Business;
-import com.coronacarecard.model.BusinessRegistrationRequest;
 import com.coronacarecard.model.ClaimResult;
 import com.coronacarecard.notifications.NotificationSender;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,12 +20,14 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.util.Optional;
 
+import static com.coronacarecard.util.TestHelper.getBusinessRegistrationRequestJson;
 import static com.coronacarecard.util.TestHelper.parseResponse;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest
+@SpringBootTest(properties="spring.app.forntEndBaseUrl=http://base")
 @AutoConfigureTestDatabase
 @AutoConfigureMockMvc
 public class OwnerControllerTest {
@@ -62,8 +59,8 @@ public class OwnerControllerTest {
     }
     @Test
     public void claim_valid_business() throws Exception {
-        MvcResult response = mockMvc.perform(MockMvcRequestBuilders.post("/owner/register")
-                .content(getRequest(PLACEID, EMAIL, PHONE))
+        MvcResult response = mockMvc.perform(MockMvcRequestBuilders.post("/owner/claim")
+                .content(getBusinessRegistrationRequestJson(PLACEID, EMAIL, PHONE))
                 .contentType("application/json"))
                 .andExpect(status().isOk())
                 .andReturn();
@@ -75,29 +72,17 @@ public class OwnerControllerTest {
 
     }
 
-    private String getRequest(String businessId, String email, String phone) throws JsonProcessingException {
-        BusinessRegistrationRequest req = BusinessRegistrationRequest.builder()
-                .businessId(businessId)
-                .email(email)
-                .phone(phone)
-                .build();
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configure(SerializationFeature.WRAP_ROOT_VALUE, false);
-        ObjectWriter ow = mapper.writer().withDefaultPrettyPrinter();
-        return ow.writeValueAsString(req );
-    }
-
     @Test
     public void re_claim_same_business() throws Exception {
-        MvcResult response1 = mockMvc.perform(MockMvcRequestBuilders.post("/owner/register")
-                .content(getRequest(PLACEID, EMAIL, PHONE))
+        MvcResult response1 = mockMvc.perform(MockMvcRequestBuilders.post("/owner/claim")
+                .content(getBusinessRegistrationRequestJson(PLACEID, EMAIL, PHONE))
                 .contentType("application/json"))
                 .andExpect(status().isOk())
                 .andReturn();
         Optional<Business> businessDAO = businessRepository.findByExternalId(PLACEID);
         assertTrue(businessDAO.isPresent());
-        MvcResult response2 = mockMvc.perform(MockMvcRequestBuilders.post("/owner/register")
-                .content(getRequest(PLACEID, EMAIL, PHONE))
+        MvcResult response2 = mockMvc.perform(MockMvcRequestBuilders.post("/owner/claim")
+                .content(getBusinessRegistrationRequestJson(PLACEID, EMAIL, PHONE))
                 .contentType("application/json"))
                 .andExpect(status().isOk())
                 .andReturn();

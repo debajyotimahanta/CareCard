@@ -2,9 +2,11 @@ package com.coronacarecard.util;
 
 import com.coronacarecard.dao.BusinessRepository;
 import com.coronacarecard.dao.entity.Business;
+import com.coronacarecard.model.BusinessRegistrationRequest;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.test.web.servlet.MvcResult;
@@ -34,5 +36,17 @@ public class TestHelper {
             throws UnsupportedEncodingException, JsonProcessingException {
         String contentAsString = result.getResponse().getContentAsString();
         return MAPPER.readValue(contentAsString, responseClass);
+    }
+
+    public static String getBusinessRegistrationRequestJson(String businessId, String email, String phone) throws JsonProcessingException {
+        BusinessRegistrationRequest req = BusinessRegistrationRequest.builder()
+                .businessId(businessId)
+                .email(email)
+                .phone(phone)
+                .build();
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.configure(SerializationFeature.WRAP_ROOT_VALUE, false);
+        ObjectWriter ow = mapper.writer().withDefaultPrettyPrinter();
+        return ow.writeValueAsString(req );
     }
 }

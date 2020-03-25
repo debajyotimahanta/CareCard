@@ -25,8 +25,9 @@ public class OwnerController {
     private CryptoService cryptoService;
 
 
-    @PostMapping("/register")
-    public ClaimResult register(@RequestBody BusinessRegistrationRequest businessRegistrationRequest)
+
+    @PostMapping("/claim")
+    public ClaimResult claim(@RequestBody BusinessRegistrationRequest businessRegistrationRequest)
             throws BusinessNotFoundException, InternalException, BusinessAlreadyClaimedException {
 
         Business claimedBusiness = ownerService.claimBusiness(businessRegistrationRequest);

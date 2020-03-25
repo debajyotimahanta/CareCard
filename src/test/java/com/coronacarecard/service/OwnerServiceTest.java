@@ -26,12 +26,14 @@ import org.springframework.test.context.junit4.SpringRunner;
 import java.util.Optional;
 
 import static org.junit.Assert.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(SpringRunner.class)
 @AutoConfigureTestDatabase
-@SpringBootTest
+@SpringBootTest(properties="spring.app.forntEndBaseUrl=http://base")
 public class OwnerServiceTest {
 
     public static final String DESC = "Hello world";
@@ -57,6 +59,9 @@ public class OwnerServiceTest {
     @Autowired
     private UserRepository userRepository;
 
+    @MockBean
+    private PaymentService paymentService;
+
     private String existingBusinessId = "ChIJicMwN4lskFQR9brCQh07Xyo";
     private String newBusinessId = "ChIJKV8LiAcPkFQRgaK8WZdjnuY";
     private Business existingBusinessDAO;
@@ -80,6 +85,8 @@ public class OwnerServiceTest {
                 .owner(user)
                 .build();
         businessRepository.save(existingBusinessDAO);
+
+        when(paymentService.generateOnBoardingUrl(any(), any())).thenReturn("url");
     }
 
     @After
@@ -179,7 +186,7 @@ public class OwnerServiceTest {
     public void approve_owner_claim() throws InternalException, CustomerException {
         com.coronacarecard.model.Business createdBusines = ownerService.claimBusiness(getReq(newBusinessId, EMAIL, PHONE));
         String onboardURL = ownerService.approveClaim(PaymentSystem.STRIPE, createdBusines.getId());
-        assertEquals("TODO", onboardURL);
+        assertEquals("url", onboardURL);
         ArgumentCaptor<BusinessApprovalDetails> approvalDetails
                 = ArgumentCaptor.forClass(BusinessApprovalDetails.class);
         verify(approvalNotificationSender).sendNotification(eq(NotificationType.BUSINESS_APPROVED),

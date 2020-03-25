@@ -1,7 +1,7 @@
 package com.coronacarecard.service;
 
-import com.coronacarecard.dao.entity.Business;
 import com.coronacarecard.dao.entity.OrderDetail;
+import com.coronacarecard.model.Business;
 import com.coronacarecard.model.CheckoutResponse;
 import com.coronacarecard.model.PaymentSystem;
 
@@ -34,10 +34,10 @@ public interface PaymentService {
     /**
      * Generate onboarding URL for the given payment system and business
      * @param paymentSystem
-     * @param businessDAO
+     * @param business
      * @return
      */
-    String generateOnBoardingUrl(PaymentSystem paymentSystem, Business businessDAO);
+    String generateOnBoardingUrl(PaymentSystem paymentSystem, Business business);
 
     /**
      * This method is used to generate checkout session for the given Order
@@ -53,4 +53,6 @@ public interface PaymentService {
      * @param order
      */
     void validate(PaymentSystem paymentSystem, com.coronacarecard.model.orders.OrderDetail order);
+
+    Business getBusinessDetails(PaymentSystem stripe, String code);
 }

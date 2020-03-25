@@ -20,7 +20,7 @@ import static org.mockito.Mockito.when;
 
 @RunWith(SpringRunner.class)
 @AutoConfigureTestDatabase
-@SpringBootTest
+@SpringBootTest(properties="spring.app.forntEndBaseUrl=http://base")
 public class BusinessServiceTest {
     @MockBean
     private CloudStorageService cloudStorageService;
