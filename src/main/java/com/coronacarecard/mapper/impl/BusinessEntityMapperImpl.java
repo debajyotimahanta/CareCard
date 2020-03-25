@@ -3,6 +3,7 @@ package com.coronacarecard.mapper.impl;
 import com.coronacarecard.dao.entity.Business;
 import com.coronacarecard.mapper.BusinessEntityMapper;
 import com.coronacarecard.model.BusinessSearchResult;
+import com.coronacarecard.model.BusinessState;
 import com.coronacarecard.model.PagedBusinessSearchResult;
 import com.coronacarecard.model.Photo;
 import com.google.maps.model.PlaceDetails;
@@ -61,6 +62,7 @@ public class BusinessEntityMapperImpl implements BusinessEntityMapper {
                 .Website(business.getWebsite())
                 .internationalPhoneNumber(business.getInternationalPhoneNumber())
                 .formattedPhoneNumber(business.getFormattedPhoneNumber())
+                .isActive(business.getState()== BusinessState.Active)
                 .build();
     }
 
