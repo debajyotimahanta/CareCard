@@ -170,12 +170,17 @@ public class BusinessControllerTest {
 
     @Test
     public void get_business_with_non_existent_id() throws Exception {
-        mockMvc.perform(
+        final String mongolian_grid_id="ChIJeSVts2QSkFQRyse0d8pWNa0";
+        MvcResult response= mockMvc.perform(
                 MockMvcRequestBuilders
-                        .get("/business/this_id_will_never_be_there" )
+                        .get("/business/"+mongolian_grid_id )
                         .contentType("application/json"))
-                .andExpect(status().isNotFound());
-
+                .andExpect(status().isOk())
+                .andReturn();
+        com.coronacarecard.model.Business result=parseResponse(response, com.coronacarecard.model.Business.class);
+        assertTrue(result!=null);
+        assertEquals(result.getExternalRefId(),mongolian_grid_id);
+        assertTrue(!result.isActive());
 
     }
 
