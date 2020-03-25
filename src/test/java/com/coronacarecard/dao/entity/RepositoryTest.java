@@ -1,7 +1,14 @@
 package com.coronacarecard.dao.entity;
 
 import com.coronacarecard.dao.BusinessRepository;
+import com.coronacarecard.dao.OrderDetailRepository;
 import com.coronacarecard.dao.UserRepository;
+import com.coronacarecard.exceptions.BusinessNotFoundException;
+import com.coronacarecard.model.PaymentSystem;
+import com.coronacarecard.model.orders.OrderDetail;
+import com.coronacarecard.model.orders.OrderLine;
+import com.coronacarecard.model.orders.OrderStatus;
+import com.coronacarecard.service.ShoppingCartService;
 import com.coronacarecard.util.TestHelper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,7 +25,9 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.Assert.*;
@@ -33,6 +42,12 @@ public class RepositoryTest {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private OrderDetailRepository orderDetailRepository;
+
+    @Autowired
+    private ShoppingCartService shoppingCartService;
 
     @Test
     public void createBusiness() {
@@ -96,5 +111,63 @@ public class RepositoryTest {
 
     }
 
+    @Test
+    public void createCart() throws BusinessNotFoundException {
+        String idPrefix = "78255b5db1ca027c669ca49e9576d7a26b40f7f";
+        String email = "test@test.com";
+        User user = userRepository.save(User.builder()
+                .email(email)
+                .phoneNumber("12345")
+                .build());
+        List<Long> businessIds = new ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            Business business = TestHelper.createEntry(businessRepository, INTERNATIONAL_PHONE_NUMBER + i,
+                    idPrefix + i, "Food for Friends" + i);
+            businessIds.add(business.getId());
+            businessRepository.save(business.toBuilder().owner(user).build());
+        }
 
+        OrderDetail orders = getOrder(businessIds);
+        shoppingCartService.checkout(PaymentSystem.STRIPE, orders);
+        com.coronacarecard.dao.entity.OrderDetail storedOrder =
+                orderDetailRepository.findAll().iterator().next();
+        assertNotNull(storedOrder);
+        assertEquals(10, storedOrder.getOrderItems().size());
+        assertEquals(5, storedOrder.getOrderItems().get(0).getItems().size());
+    }
+
+    private OrderDetail getOrder(List<Long> businessIds) {
+        List<OrderLine> line = new ArrayList<>();
+        for (Long id : businessIds) {
+
+            line.add(OrderLine.builder()
+                    .businessId(id)
+                    .tip(10.0)
+                    .items(getItems())
+                    .build());
+        }
+
+        return OrderDetail.builder()
+                .contribution(100.0)
+                .customerEmail("cust@email.com")
+                .customerMobile("773")
+                .status(OrderStatus.PENDING)
+                .processingFee(1.2)
+                .total(500.23)
+                .orderLine(line)
+                .build();
+
+    }
+
+    private List<com.coronacarecard.model.orders.Item> getItems() {
+        List<com.coronacarecard.model.orders.Item> items = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            items.add(com.coronacarecard.model.orders.Item.builder()
+                    .unitPrice(10.0)
+                    .quantity(i)
+                    .build()
+            );
+        }
+        return items;
+    }
 }

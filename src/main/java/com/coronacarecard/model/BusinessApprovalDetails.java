@@ -6,7 +6,6 @@ import java.io.Serializable;
 @lombok.NoArgsConstructor
 @lombok.AllArgsConstructor
 @lombok.Getter
-@lombok.ToString
 public class BusinessApprovalDetails implements Serializable {
     private String registrationUrl;
     private Business business;

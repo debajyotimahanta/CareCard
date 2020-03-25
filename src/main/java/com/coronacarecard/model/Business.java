@@ -1,5 +1,7 @@
 package com.coronacarecard.model;
 
+import com.coronacarecard.model.orders.OrderStatus;
+
 import java.io.Serializable;
 
 @lombok.Builder(toBuilder = true)
@@ -7,7 +9,6 @@ import java.io.Serializable;
 @lombok.AllArgsConstructor
 @lombok.Getter
 @lombok.Setter
-@lombok.ToString
 @lombok.EqualsAndHashCode
 public class Business implements Serializable {
     private Long id;
@@ -22,4 +23,5 @@ public class Business implements Serializable {
     private String internationalPhoneNumber;
     private String Website;
     private boolean isActive;
+    private OrderStatus status;
 }

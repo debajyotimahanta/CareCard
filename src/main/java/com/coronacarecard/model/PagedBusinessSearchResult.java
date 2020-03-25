@@ -6,7 +6,6 @@ import java.util.List;
 @lombok.NoArgsConstructor
 @lombok.AllArgsConstructor
 @lombok.Getter
-@lombok.ToString
 public class PagedBusinessSearchResult {
     private List<BusinessSearchResult> items;
     private Integer pageNumber;

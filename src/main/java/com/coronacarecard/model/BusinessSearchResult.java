@@ -4,7 +4,6 @@ package com.coronacarecard.model;
 @lombok.NoArgsConstructor
 @lombok.AllArgsConstructor
 @lombok.Getter
-@lombok.ToString
 public class BusinessSearchResult {
     private String name;
     private String address;

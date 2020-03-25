@@ -7,7 +7,6 @@ import java.util.List;
 @lombok.NoArgsConstructor
 @lombok.AllArgsConstructor
 @lombok.Getter
-@lombok.ToString
 @Entity
 @Table(
         name = "users",

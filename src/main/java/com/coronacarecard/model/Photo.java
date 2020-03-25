@@ -4,7 +4,6 @@ package com.coronacarecard.model;
 @lombok.NoArgsConstructor
 @lombok.AllArgsConstructor
 @lombok.Getter
-@lombok.ToString
 @lombok.EqualsAndHashCode
 public class Photo {
     private String photoReference;  

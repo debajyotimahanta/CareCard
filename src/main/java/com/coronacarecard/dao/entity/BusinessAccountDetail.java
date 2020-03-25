@@ -6,10 +6,8 @@ import javax.persistence.*;
 @lombok.NoArgsConstructor
 @lombok.AllArgsConstructor
 @lombok.Getter
-@lombok.ToString
 @Entity
 @Table(
-        name = "businessaccountdetails",
         indexes = {
                 @Index(
                         name = "idx_ext_ref_id",

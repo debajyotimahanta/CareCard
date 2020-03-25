@@ -1,6 +1,7 @@
 package com.coronacarecard.service;
 
 import com.coronacarecard.dao.entity.Business;
+import com.coronacarecard.dao.entity.OrderDetail;
 import com.coronacarecard.model.CheckoutResponse;
 import com.coronacarecard.model.PaymentSystem;
 
@@ -37,4 +38,19 @@ public interface PaymentService {
      * @return
      */
     String generateOnBoardingUrl(PaymentSystem paymentSystem, Business businessDAO);
+
+    /**
+     * This method is used to generate checkout session for the given Order
+     * @param savedOrder
+     * @return
+     */
+    CheckoutResponse generateCheckoutSession(OrderDetail savedOrder);
+
+    /**
+     * Validate all details about the order is correct.
+     * Its mostly used to check if the processing fee is correct and also the total adds up
+     * @param paymentSystem
+     * @param order
+     */
+    void validate(PaymentSystem paymentSystem, com.coronacarecard.model.orders.OrderDetail order);
 }

@@ -3,15 +3,14 @@ package com.coronacarecard.dao.entity;
 import com.coronacarecard.model.BusinessState;
 
 import javax.persistence.*;
+import java.util.List;
 
 @lombok.Builder(toBuilder = true)
 @lombok.NoArgsConstructor
 @lombok.AllArgsConstructor
 @lombok.Getter
-@lombok.ToString
 @Entity
 @Table(
-        name = "businesses",
         uniqueConstraints = @UniqueConstraint(columnNames = {"externalRefId"}),
         indexes = {
                 @Index(
@@ -48,4 +47,7 @@ public class Business {
 
     @ManyToOne
     private User owner;
+
+    @OneToMany(fetch=FetchType.LAZY, mappedBy = "business")
+    private List<OrderItem> orders;
 }

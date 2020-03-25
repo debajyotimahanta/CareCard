@@ -1,7 +1,8 @@
 package com.coronacarecard.service;
 
+import com.coronacarecard.exceptions.BusinessNotFoundException;
 import com.coronacarecard.model.CheckoutResponse;
-import com.coronacarecard.model.OrderDetail;
+import com.coronacarecard.model.orders.OrderDetail;
 import com.coronacarecard.model.PaymentSystem;
 
 public interface ShoppingCartService {
@@ -14,5 +15,5 @@ public interface ShoppingCartService {
      * @param order
      * @return
      */
-    CheckoutResponse checkout(PaymentSystem paymentSystem, OrderDetail order);
+    CheckoutResponse checkout(PaymentSystem paymentSystem, OrderDetail order) throws BusinessNotFoundException;
 }
