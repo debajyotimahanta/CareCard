@@ -2,6 +2,7 @@ package com.coronacarecard.mapper.impl;
 
 import com.coronacarecard.model.Business;
 import com.coronacarecard.model.BusinessSearchResult;
+import com.coronacarecard.model.BusinessState;
 import com.coronacarecard.model.Photo;
 import com.google.maps.model.Geometry;
 import com.google.maps.model.LatLng;
@@ -119,6 +120,7 @@ public class BusinessEntityMapperImplTest {
                 .latitude(Double.parseDouble("12345.6789"))
                 .longitude(Double.parseDouble("23456.789"))
                 .photoReference("CnRtAAAATLZNl354RwP_9UKbQ_5Psy40texXePv4oAlgP4qNEkdIrkyse7rPXYGd9D_Uj1rVsQdWT4oRz4QrYAJNpFX7rzqqMlZw2h2E2y5IKMUZ7ouD_SlcHxYq1yL4KbKUv3qtWgTK0A6QbGh87GB3sscrHRIQiG2RrmU_jF4tENr9wGS_YxoUSSDrYjWmrNfeEHSGSc3FyhNLlBU")
+                .state(BusinessState.Active)
                 .build();
         BusinessEntityMapperImpl target = new BusinessEntityMapperImpl();
 
@@ -136,7 +138,47 @@ public class BusinessEntityMapperImplTest {
                 () -> assertTrue(result.getDescription().equals(dao.getDescription())),
                 () -> assertTrue(result.getWebsite().equals(dao.getWebsite())),
                 () -> assertTrue(result.getFormattedPhoneNumber().equals(dao.getFormattedPhoneNumber())),
-                () -> assertTrue(result.getInternationalPhoneNumber().equals(dao.getInternationalPhoneNumber()))
+                () -> assertTrue(result.getInternationalPhoneNumber().equals(dao.getInternationalPhoneNumber())),
+                ()-> assertTrue(result.isActive())
+        );
+    }
+
+    @Test
+    @DisplayName("Test values of Business DAO mapped to model inactive business")
+    public  void checkMappingBusinessDAOToModelInactiveBusiness(){
+        // Arrange
+        com.coronacarecard.dao.entity.Business dao = com.coronacarecard.dao.entity.Business.builder()
+                .id(1234L)
+                .externalRefId("ABCD1234")
+                .name("Winter Wonders Inc.")
+                .address("123 Main St, Chicago")
+                .formattedPhoneNumber("123-456-7890")
+                .internationalPhoneNumber("+1-123-456-7890")
+                .description("desc")
+                .Website("www.carecard.org")
+                .latitude(Double.parseDouble("12345.6789"))
+                .longitude(Double.parseDouble("23456.789"))
+                .photoReference("CnRtAAAATLZNl354RwP_9UKbQ_5Psy40texXePv4oAlgP4qNEkdIrkyse7rPXYGd9D_Uj1rVsQdWT4oRz4QrYAJNpFX7rzqqMlZw2h2E2y5IKMUZ7ouD_SlcHxYq1yL4KbKUv3qtWgTK0A6QbGh87GB3sscrHRIQiG2RrmU_jF4tENr9wGS_YxoUSSDrYjWmrNfeEHSGSc3FyhNLlBU")
+                .state(BusinessState.Draft)
+                .build();
+        BusinessEntityMapperImpl target = new BusinessEntityMapperImpl();
+
+        // Act
+        Business result = target.toModel(dao);
+
+        // Assert
+        assertAll("Value matches",
+                () -> assertTrue(result.getId().equals(dao.getId())),
+                () -> assertTrue(result.getExternalRefId().equals(dao.getExternalRefId())),
+                () -> assertTrue(result.getName().equals(dao.getName())),
+                () -> assertTrue(result.getAddress().equals(dao.getAddress())),
+                () -> assertTrue(result.getLatitude().equals(dao.getLatitude())),
+                () -> assertTrue(result.getLongitude().equals(dao.getLongitude())),
+                () -> assertTrue(result.getDescription().equals(dao.getDescription())),
+                () -> assertTrue(result.getWebsite().equals(dao.getWebsite())),
+                () -> assertTrue(result.getFormattedPhoneNumber().equals(dao.getFormattedPhoneNumber())),
+                () -> assertTrue(result.getInternationalPhoneNumber().equals(dao.getInternationalPhoneNumber())),
+                ()-> assertTrue(!result.isActive())
         );
     }
 
