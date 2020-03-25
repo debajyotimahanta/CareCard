@@ -19,7 +19,7 @@ import java.util.List;
                         unique = true
                 ),
                 @Index(
-                        name = "idx_name",
+                        name = "idx_business_name",
                         columnList = "name"
                 )
         }
