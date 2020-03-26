@@ -3,10 +3,12 @@ package com.coronacarecard.controller;
 import com.coronacarecard.dao.BusinessRepository;
 import com.coronacarecard.exceptions.BusinessClaimException;
 import com.coronacarecard.exceptions.BusinessNotFoundException;
+import com.coronacarecard.exceptions.InternalException;
 import com.coronacarecard.model.Business;
 import com.coronacarecard.model.BusinessState;
 import com.coronacarecard.model.CheckoutResponse;
 import com.coronacarecard.model.PaymentSystem;
+import com.coronacarecard.service.BusinessService;
 import com.coronacarecard.service.CryptoService;
 import com.coronacarecard.service.PaymentService;
 import org.apache.commons.logging.Log;
@@ -14,10 +16,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -36,6 +35,9 @@ public class StripPaymentController {
     @Autowired
     private BusinessRepository businessRepository;
 
+    @Autowired
+    private BusinessService businessService;
+
     @Value("${spring.app.forntEndBaseUrl}")
     private String forntEndBaseUrl;
 
@@ -48,6 +50,19 @@ public class StripPaymentController {
     @GetMapping("/failure")
     public CheckoutResponse fail(String urlParams) {
         return paymentService.failedPayment(PaymentSystem.STRIPE, urlParams);
+    }
+
+    @GetMapping("/business/onboard/{id}")
+    public String onboard(@PathVariable String id) throws BusinessNotFoundException, InternalException {
+        try {
+            Long businessId = Long.parseLong(id);
+            Business business=businessService.getBusiness(businessId);
+            return paymentService.generateOnBoardingUrl(PaymentSystem.STRIPE,business);
+        }catch(NumberFormatException ex){
+            log.error(String.format("The id %s is not in the proper format",id));
+            //TODO: This is a BadRequest exception
+            throw new InternalException("Id is not in the proper format");
+        }
     }
 
     @GetMapping("/business/confirm")

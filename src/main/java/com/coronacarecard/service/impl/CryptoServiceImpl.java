@@ -8,11 +8,11 @@ import org.springframework.stereotype.Service;
 public class CryptoServiceImpl implements CryptoService {
     @Override
     public String encryptBusiness(Business claimedBusiness) {
-        return null;
+        return claimedBusiness.getId().toString();
     }
 
     @Override
     public Long decryptBusiness(String state) {
-        return null;
+        return Long.parseLong(state);
     }
 }

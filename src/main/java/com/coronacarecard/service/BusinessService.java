@@ -15,6 +15,8 @@ public interface BusinessService {
 
     Business getBusiness(String externalId) throws BusinessNotFoundException, InternalException;
 
+    Business getBusiness(Long id) throws BusinessNotFoundException;
+
     Business createOrUpdate(String id) throws BusinessNotFoundException, InternalException;
 
     List<BusinessSearchResult> externalSearch(String searchText, Optional<Double> lat, Optional<Double> lng) throws InternalException;

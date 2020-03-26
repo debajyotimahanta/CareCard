@@ -12,6 +12,9 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class PaymentServiceImpl implements PaymentService {
+    private static final String STRIPE_CONNECT_URL = "https://connect.stripe.com/oauth/authorize?client_id=%1$s&state=%2$s&scope=read_write&response_type=code";
+    private static final String STRIPE_CONNECT_ID="JJJJ";
+
     @Autowired
     private CryptoService cryptoService;
 
@@ -35,7 +38,16 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public String generateOnBoardingUrl(PaymentSystem paymentSystem, Business business) {
-        return null;
+        String url = null;
+        String state = null;
+        switch (paymentSystem) {
+            case STRIPE:
+            default:
+                state = cryptoService.encryptBusiness(business);
+                url=String.format(STRIPE_CONNECT_URL,STRIPE_CONNECT_ID,state);
+                break;
+        }
+        return url;
     }
 
     @Override

@@ -61,6 +61,15 @@ public class BusinessServiceImpl implements BusinessService {
         return getOrCreate(externalId);
     }
 
+    @Override
+    public Business getBusiness(Long id) throws BusinessNotFoundException  {
+        Optional<com.coronacarecard.dao.entity.Business> businessDAO=businessRepository.findById(id);
+        if(!businessDAO.isPresent()){
+            throw new BusinessNotFoundException();
+        }
+        return businessEntityMapper.toModel(businessDAO.get());
+    }
+
     // TODO (deba) this is too complicated refactor it.
     @Override
     public Business createOrUpdate(String id) throws BusinessNotFoundException, InternalException {
