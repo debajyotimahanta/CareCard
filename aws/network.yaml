@@ -1,0 +1,339 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: This stack with public and private subet
+Mappings:
+  # Hard values for the subnet masks. These masks define
+  # the range of internal IP addresses that can be assigned.
+  # The VPC can have all IP's from 10.0.0.0 to 10.0.255.255
+  # There are four subnets which cover the ranges:
+  #
+  # 10.0.0.0 - 10.0.0.255
+  # 10.0.1.0 - 10.0.1.255
+  # 10.0.2.0 - 10.0.2.255
+  # 10.0.3.0 - 10.0.3.255
+  #
+  # If you need more IP addresses (perhaps you have so many
+  # instances that you run out) then you can customize these
+  # ranges to add more
+  SubnetConfig:
+    VPC:
+      CIDR: '10.0.0.0/16'
+    PublicOne:
+      CIDR: '10.0.0.0/24'
+    PublicTwo:
+      CIDR: '10.0.1.0/24'
+    PrivateOne:
+      CIDR: '10.0.2.0/24'
+    PrivateTwo:
+      CIDR: '10.0.3.0/24'
+  DatabaseConfig:
+    MySQL:
+      Port: 1509
+  Application:
+    Web:
+      Port: 5000
+Resources:
+  # VPC in which containers will be networked.
+  # It has two public subnets, and two private subnets.
+  # We distribute the subnets across the first two available subnets
+  # for the region, for high availability.
+  VPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      CidrBlock: !FindInMap ['SubnetConfig', 'VPC', 'CIDR']
+      Tags:
+        - Key: Name
+          Value: Corona Care Card VPC
+
+  # Two public subnets, where containers can have public IP addresses
+  PublicSubnetOne:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone:
+         Fn::Select:
+         - 0
+         - Fn::GetAZs: {Ref: 'AWS::Region'}
+      VpcId: !Ref 'VPC'
+      CidrBlock: !FindInMap ['SubnetConfig', 'PublicOne', 'CIDR']
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: Corona Care Card VPC
+  PublicSubnetTwo:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone:
+         Fn::Select:
+         - 1
+         - Fn::GetAZs: {Ref: 'AWS::Region'}
+      VpcId: !Ref 'VPC'
+      CidrBlock: !FindInMap ['SubnetConfig', 'PublicTwo', 'CIDR']
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: Public Subnet 2
+
+  # Two private subnets where containers will only have private
+  # IP addresses, and will only be reachable by other members of the
+  # VPC
+  PrivateSubnetOne:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone:
+         Fn::Select:
+         - 0
+         - Fn::GetAZs: {Ref: 'AWS::Region'}
+      VpcId: !Ref 'VPC'
+      CidrBlock: !FindInMap ['SubnetConfig', 'PrivateOne', 'CIDR']
+      Tags:
+        - Key: Name
+          Value: Private Subnet 1
+  PrivateSubnetTwo:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone:
+         Fn::Select:
+         - 1
+         - Fn::GetAZs: {Ref: 'AWS::Region'}
+      VpcId: !Ref 'VPC'
+      CidrBlock: !FindInMap ['SubnetConfig', 'PrivateTwo', 'CIDR']
+      Tags:
+        - Key: Name
+          Value: Private Subnet 1
+
+  # Setup networking resources for the public subnets. Containers
+  # in the public subnets have public IP addresses and the routing table
+  # sends network traffic via the internet gateway.
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+  GatewayAttachement:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref 'VPC'
+      InternetGatewayId: !Ref 'InternetGateway'
+  PublicRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref 'VPC'
+  PublicRoute:
+    Type: AWS::EC2::Route
+    DependsOn: GatewayAttachement
+    Properties:
+      RouteTableId: !Ref 'PublicRouteTable'
+      DestinationCidrBlock: '0.0.0.0/0'
+      GatewayId: !Ref 'InternetGateway'
+  PublicSubnetOneRouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref PublicSubnetOne
+      RouteTableId: !Ref PublicRouteTable
+  PublicSubnetTwoRouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref PublicSubnetTwo
+      RouteTableId: !Ref PublicRouteTable
+
+  # Setup networking resources for the private subnets. Containers
+  # in these subnets have only private IP addresses, and must use a NAT
+  # gateway to talk to the internet. We launch two NAT gateways, one for
+  # each private subnet.
+  NatGatewayOneAttachment:
+    Type: AWS::EC2::EIP
+    DependsOn: GatewayAttachement
+    Properties:
+        Domain: vpc
+  NatGatewayTwoAttachment:
+    Type: AWS::EC2::EIP
+    DependsOn: GatewayAttachement
+    Properties:
+        Domain: vpc
+  NatGatewayOne:
+    Type: AWS::EC2::NatGateway
+    Properties:
+      AllocationId: !GetAtt NatGatewayOneAttachment.AllocationId
+      SubnetId: !Ref PublicSubnetOne
+  NatGatewayTwo:
+    Type: AWS::EC2::NatGateway
+    Properties:
+      AllocationId: !GetAtt NatGatewayTwoAttachment.AllocationId
+      SubnetId: !Ref PublicSubnetTwo
+  PrivateRouteTableOne:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref 'VPC'
+  PrivateRouteOne:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref PrivateRouteTableOne
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId: !Ref NatGatewayOne
+  PrivateRouteTableOneAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PrivateRouteTableOne
+      SubnetId: !Ref PrivateSubnetOne
+  PrivateRouteTableTwo:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref 'VPC'
+  PrivateRouteTwo:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref PrivateRouteTableTwo
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId: !Ref NatGatewayTwo
+  PrivateRouteTableTwoAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PrivateRouteTableTwo
+      SubnetId: !Ref PrivateSubnetTwo
+
+
+  # Load balancers for getting traffic to containers.
+  # This sample template creates two load balancers:
+  #
+  # - One public load balancer, hosted in public subnets that is accessible
+  #   to the public, and is intended to route traffic to one or more public
+  #   facing services.
+  # - One private load balancer, hosted in private subnets, that only
+  #   accepts traffic from other containers in the Fargate cluster, and is
+  #   intended for private services that should not be accessed directly
+  #   by the public.
+
+  # A public facing load balancer, this is used for accepting traffic from the public
+  # internet and directing it to public facing microservices
+  PublicLoadBalancerSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Access to the public facing load balancer
+      VpcId: !Ref 'VPC'
+      SecurityGroupIngress:
+          # Allow access to ALB from anywhere on the internet
+          - CidrIp: 0.0.0.0/0
+            IpProtocol: -1
+  # Private security group which only accepts traffic from the public group
+  PrivateBackendSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Private backend security group with only access on certain ports from Public security group
+      VpcId: !Ref 'VPC'
+      SecurityGroupIngress:
+          # Allow access to ALB from anywhere on the internet
+          - SourceSecurityGroupId: !GetAtt PublicLoadBalancerSG.GroupId
+            IpProtocol: tcp
+            FromPort: !FindInMap ['Application', 'Web', 'Port']
+            ToPort: !FindInMap ['Application', 'Web', 'Port']
+          - SourceSecurityGroupId: !GetAtt PublicLoadBalancerSG.GroupId
+            IpProtocol: tcp
+            FromPort: 22
+            ToPort: 22
+  # Private DB security group which only accepts traffic from the private group which hosts the backed
+  PrivateDatabaseSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Database security group
+      VpcId: !Ref 'VPC'
+      SecurityGroupIngress:
+        # Allow access to ALB from anywhere on the internet
+        - SourceSecurityGroupId: !GetAtt PrivateBackendSG.GroupId
+          IpProtocol: tcp
+          FromPort: !FindInMap ['DatabaseConfig', 'MySQL', 'Port']
+          ToPort: !FindInMap ['DatabaseConfig', 'MySQL', 'Port']
+
+  PublicLoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    DependsOn: GatewayAttachement
+    Properties:
+      Scheme: internet-facing
+      LoadBalancerAttributes:
+      - Key: idle_timeout.timeout_seconds
+        Value: '30'
+      Subnets:
+        # The load balancer is placed into the public subnets, so that traffic
+        # from the internet can reach the load balancer directly via the internet gateway
+        - !Ref PublicSubnetOne
+        - !Ref PublicSubnetTwo
+      SecurityGroups: [!Ref 'PublicLoadBalancerSG']
+  # A dummy target group is used to setup the ALB to just drop traffic
+  # initially, before any real service target groups have been added.
+  DummyTargetGroupPublic:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      HealthCheckIntervalSeconds: 6
+      HealthCheckPath: /
+      HealthCheckProtocol: HTTP
+      HealthCheckTimeoutSeconds: 5
+      HealthyThresholdCount: 2
+      Name: !Join ['-', [!Ref 'AWS::StackName', 'drop-1']]
+      Port: !FindInMap ['Application', 'Web', 'Port']
+      Protocol: HTTP
+      UnhealthyThresholdCount: 2
+      VpcId: !Ref 'VPC'
+  PublicLoadBalancerListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    DependsOn:
+      - PublicLoadBalancer
+    Properties:
+      DefaultActions:
+        - TargetGroupArn: !Ref 'DummyTargetGroupPublic'
+          Type: 'forward'
+      LoadBalancerArn: !Ref 'PublicLoadBalancer'
+      Port: !FindInMap ['Application', 'Web', 'Port']
+      Protocol: HTTP
+
+ 
+# These are the values output by the CloudFormation template. Be careful
+# about changing any of them, because of them are exported with specific
+# names so that the other task related CF templates can use them.
+Outputs:
+  ExternalUrl:
+    Description: The url of the external load balancer
+    Value: !Join ['', ['http://', !GetAtt 'PublicLoadBalancer.DNSName']]
+    Export:
+      Name: !Join [ ':', [ !Ref 'AWS::StackName', 'ExternalUrl' ] ]
+  PublicListener:
+    Description: The ARN of the public load balancer's Listener
+    Value: !Ref PublicLoadBalancerListener
+    Export:
+      Name: !Join [ ':', [ !Ref 'AWS::StackName', 'PublicListener' ] ]
+  VPCId:
+    Description: The ID of the VPC that this stack is deployed in
+    Value: !Ref 'VPC'
+    Export:
+      Name: !Join [ ':', [ !Ref 'AWS::StackName', 'VPCId' ] ]
+  PublicSubnetOne:
+    Description: Public subnet one
+    Value: !Ref 'PublicSubnetOne'
+    Export:
+      Name: !Join [ ':', [ !Ref 'AWS::StackName', 'PublicSubnetOne' ] ]
+  PublicSubnetTwo:
+    Description: Public subnet two
+    Value: !Ref 'PublicSubnetTwo'
+    Export:
+      Name: !Join [ ':', [ !Ref 'AWS::StackName', 'PublicSubnetTwo' ] ]
+  PrivateSubnetOne:
+    Description: Private subnet one
+    Value: !Ref 'PrivateSubnetOne'
+    Export:
+      Name: !Join [ ':', [ !Ref 'AWS::StackName', 'PrivateSubnetOne' ] ]
+  PrivateSubnetTwo:
+    Description: Private subnet two
+    Value: !Ref 'PrivateSubnetTwo'
+    Export:
+      Name: !Join [ ':', [ !Ref 'AWS::StackName', 'PrivateSubnetTwo' ] ]
+  PublicSecurityGroup:
+    Description: Public security group
+    Value: !Ref 'PublicLoadBalancerSG'
+    Export:
+      Name: !Join [ ':', [ !Ref 'AWS::StackName', 'PublicSecurityGroup' ] ]
+  PrivateSecurityGroup:
+    Description: Private backend security group
+    Value: !Ref 'PrivateBackendSG'
+    Export:
+      Name: !Join [ ':', [ !Ref 'AWS::StackName', 'PrivateSecurityGroup' ] ]
+  DatabaseSecurityGroup:
+    Description: Private database security group
+    Value: !Ref 'PrivateDatabaseSG'
+    Export:
+      Name: !Join [ ':', [ !Ref 'AWS::StackName', 'DatabaseSecurityGroup' ] ]
