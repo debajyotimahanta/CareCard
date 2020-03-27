@@ -1,0 +1,114 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Cloudformation template for setting up the Web App via EBS
+Parameters:
+  NetworkStackName:
+    Description: Name of an active CloudFormation stack that contains the networking resources
+    Type: String
+    MinLength: 1
+    MaxLength: 255
+    AllowedPattern: ^[a-zA-Z][-a-zA-Z0-9]*$
+  IamStackName:
+    Description: Name of an active CloudFormation stack that contains the IAM resources
+    Type: String
+    MinLength: 1
+    MaxLength: 255
+    AllowedPattern: ^[a-zA-Z][-a-zA-Z0-9]*$
+  InfraStackName:
+    Description: Name of an active CloudFormation stack that contains the s3 bucket
+    Type: String
+    MinLength: 1
+    MaxLength: 255
+    AllowedPattern: ^[a-zA-Z][-a-zA-Z0-9]*$
+  KeyName:
+    Description: Name of an existing EC2 KeyPair to enable SSH access to the AWS Elastic
+      Beanstalk instance
+    Type: AWS::EC2::KeyPair::KeyName
+    ConstraintDescription: must be the name of an existing EC2 KeyPair.
+Resources:
+  WebApp:
+    Type: AWS::ElasticBeanstalk::Application
+    Properties:
+      ApplicationName: !Join [ ' ', [ !Ref 'AWS::StackName', 'EBS env' ]]
+      Description: !Join [ ' ', [ !Ref 'AWS::StackName', 'EBS env' ]]
+  WebAppStartVersion:
+    Type: AWS::ElasticBeanstalk::ApplicationVersion
+    Properties:
+      ApplicationName: !Ref WebApp
+      Description: The initial version of the source code for the web app
+      SourceBundle:
+        S3Bucket:
+          Fn::ImportValue: !Sub '${InfraStackName}:CodeBucket'
+        S3Key: carecard-1.0-SNAPSHOT.jar
+
+  WebEnv:
+    Type: AWS::ElasticBeanstalk::Environment
+    Properties:
+      ApplicationName:
+        Ref: WebApp
+      SolutionStackName: 64bit Amazon Linux 2018.03 v2.10.3 running Java 8
+      EnvironmentName: !Join [ ' ', [ !Ref 'AWS::StackName', 'EBS env' ]]
+      VersionLabel: !Ref WebAppStartVersion
+      Tier:
+        Name: WebServer
+        Type: Standard
+      OptionSettings:
+        ####################Auto scaling configuration##########################
+        - Namespace: aws:autoscaling:launchconfiguration
+          OptionName: IamInstanceProfile
+          Value:
+            Fn::ImportValue: !Sub '${IamStackName}:WebServerInstanceProfile'
+        - Namespace: aws:autoscaling:launchconfiguration
+          OptionName: EC2KeyName
+          Value: !Ref KeyName
+        - Namespace: aws:autoscaling:launchconfiguration
+          OptionName: InstanceType
+          Value: t2.micro
+        - Namespace: aws:autoscaling:launchconfiguration
+          OptionName: SecurityGroups
+          Value:
+            Fn::ImportValue: !Sub '${NetworkStackName}:PrivateSecurityGroup'
+        - Namespace: aws:elb:loadbalancer
+          OptionName: ManagedSecurityGroup
+          Value:
+            Fn::ImportValue: !Sub '${NetworkStackName}:PublicSecurityGroup'
+        - Namespace: aws:elb:loadbalancer
+          OptionName: SecurityGroups
+          Value:
+            Fn::ImportValue: !Sub '${NetworkStackName}:PublicSecurityGroup'
+        - Namespace: aws:autoscaling:asg
+          OptionName: MinSize
+          Value: "1"
+        - Namespace: aws:autoscaling:asg
+          OptionName: MaxSize
+          Value: "1"
+        ######################Network configuration########################
+        - Namespace: aws:ec2:vpc
+          OptionName: VPCId
+          Value:
+            Fn::ImportValue: !Sub '${NetworkStackName}:VPCId'
+        - Namespace: aws:ec2:vpc
+          OptionName: Subnets
+          Value:
+            Fn::Join:
+              - ','
+              - - Fn::ImportValue: !Sub '${NetworkStackName}:PrivateSubnetOne'
+                - Fn::ImportValue: !Sub '${NetworkStackName}:PrivateSubnetTwo'
+        - Namespace: aws:ec2:vpc
+          OptionName: ELBSubnets
+          Value:
+            Fn::Join:
+              - ','
+              - - Fn::ImportValue: !Sub '${NetworkStackName}:PublicSubnetOne'
+                - Fn::ImportValue: !Sub '${NetworkStackName}:PublicSubnetTwo'
+        - Namespace: aws:ec2:vpc
+          OptionName: ELBScheme
+          Value: public
+        - Namespace: aws:autoscaling:launchconfiguration
+          OptionName: SSHSourceRestriction
+          Value:
+            Fn::Join:
+              - ", "
+              - - "tcp"
+                - "22"
+                - "22"
+                - Fn::ImportValue: !Sub '${NetworkStackName}:BastionSecurityGroup'

@@ -249,6 +249,17 @@ Resources:
           # Allow access to ALB from anywhere on the internet
           - CidrIp: 0.0.0.0/0
             IpProtocol: -1
+  # This is a security group which will have all the bastion hosts via which we can SSH to backend
+  BastionSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: !Join [ ':', [ !Ref 'AWS::StackName', ' Bastion security group' ] ]
+      VpcId: !Ref 'VPC'
+      SecurityGroupIngress:
+        # Allow access to Bastion from anywhere on the internet
+        # TODO find out what IP range we should allow
+        - CidrIp: 0.0.0.0/0
+          IpProtocol: -1
   # Private security group which only accepts traffic from the public group
   PrivateBackendSG:
     Type: AWS::EC2::SecurityGroup
@@ -261,7 +272,7 @@ Resources:
             IpProtocol: tcp
             FromPort: !FindInMap ['Application', 'Web', 'Port']
             ToPort: !FindInMap ['Application', 'Web', 'Port']
-          - SourceSecurityGroupId: !GetAtt PublicLoadBalancerSG.GroupId
+          - SourceSecurityGroupId: !GetAtt BastionSecurityGroup.GroupId
             IpProtocol: tcp
             FromPort: 22
             ToPort: 22
@@ -370,6 +381,11 @@ Outputs:
     Value: !Ref 'PublicLoadBalancerSG'
     Export:
       Name: !Join [ ':', [ !Ref 'AWS::StackName', 'PublicSecurityGroup' ] ]
+  BastionSecurityGroup:
+    Description: bastion security group
+    Value: !Ref 'BastionSecurityGroup'
+    Export:
+      Name: !Join [ ':', [ !Ref 'AWS::StackName', 'BastionSecurityGroup' ] ]
   PrivateSecurityGroup:
     Description: Private backend security group
     Value: !Ref 'PrivateBackendSG'
