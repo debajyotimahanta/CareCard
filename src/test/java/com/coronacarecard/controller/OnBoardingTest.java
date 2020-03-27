@@ -2,6 +2,7 @@ package com.coronacarecard.controller;
 
 import com.coronacarecard.dao.BusinessRepository;
 import com.coronacarecard.dao.entity.Business;
+import com.coronacarecard.exceptions.InternalException;
 import com.coronacarecard.mapper.BusinessEntityMapper;
 import com.coronacarecard.model.BusinessApprovalDetails;
 import com.coronacarecard.model.BusinessState;
@@ -23,9 +24,10 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import java.io.IOException;
 import java.util.Optional;
 
-import static com.coronacarecard.util.TestHelper.getBusinessRegistrationRequestJson;
+import static com.coronacarecard.util.TestHelper.*;
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -34,15 +36,17 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(properties="spring.app.forntEndBaseUrl=http://base")
+@SpringBootTest(properties = {"AWS_ARN=arn:aws:kms:us-west-1:008731829883:key/a72c4b37-325e-4254-9a9f-38592d01e0b2",
+        "spring.app.forntEndBaseUrl=http://base"})
 @AutoConfigureTestDatabase
 @AutoConfigureMockMvc
 public class OnBoardingTest {
-    private static final String PLACEID = "ChIJXbraKagPkFQRR5OlYjIcCXI";
-    private static final String EMAIL = "t@t.com";
-    private static final String PHONE = "7737322612";
+    private static final String PLACEID  = getPlainTextPlaceId();
+    private static final String EXTERNALPLACEID  = "ChIJXbraKagPkFQRR5OlYjIcCXI";
+    private static final String EMAIL    = "t@t.com";
+    private static final String PHONE    = "7737322612";
     private static final String AUTHCODE = "code";
-    private static final String STATE = "state";
+    private static final String STATE    = getEncryptedPlaceId();
 
     @Autowired
     private MockMvc mockMvc;
@@ -69,11 +73,11 @@ public class OnBoardingTest {
 
 
     @Before
-    public void init() {
+    public void init() throws InternalException {
         when(paymentService.getBusinessDetails(PaymentSystem.STRIPE, AUTHCODE))
                 .thenAnswer(invocation -> businessEntityMapper.toModel(afterRegister.get()));
 
-        when(cryptoService.decryptBusiness(STATE)).thenAnswer(invocation -> afterRegister.get().getId());
+        when(cryptoService.decrypt(STATE)).thenAnswer(invocation -> afterRegister.get().getId().toString());
         when(paymentService.generateOnBoardingUrl(eq(PaymentSystem.STRIPE), any())).thenReturn("onboarding_url");
     }
 
@@ -85,41 +89,41 @@ public class OnBoardingTest {
      * 5. Confirm move the state to Active
      */
     @Test
-    public void onboarding_happy_case() throws Exception {
+    public void onboarding_happy_case() throws Exception, IOException {
         Optional<Business> beforeRegister = businessRepository.findByExternalId(PLACEID);
         assertFalse(beforeRegister.isPresent());
         mockMvc.perform(MockMvcRequestBuilders.post("/owner/claim")
-                .content(getBusinessRegistrationRequestJson(PLACEID, EMAIL, PHONE))
+                .content(getBusinessRegistrationRequestJson(EXTERNALPLACEID, EMAIL, PHONE))
                 .contentType("application/json"))
                 .andExpect(status().isOk())
                 .andReturn();
-        afterRegister = businessRepository.findByExternalId(PLACEID);
+        afterRegister = businessRepository.findByExternalId(EXTERNALPLACEID);
         assertTrue(afterRegister.isPresent());
         assertEquals(BusinessState.Claimed, afterRegister.get().getState());
         ArgumentCaptor<com.coronacarecard.model.Business> claimBusinessDetails
                 = ArgumentCaptor.forClass(com.coronacarecard.model.Business.class);
         verify(notificationSender).sendNotification(eq(NotificationType.BUSINESS_CLAIMED),
                 claimBusinessDetails.capture());
-        assertEquals(PLACEID , claimBusinessDetails.getValue().getExternalRefId());
+        assertEquals(EXTERNALPLACEID, claimBusinessDetails.getValue().getExternalRefId());
         mockMvc.perform(MockMvcRequestBuilders.get(
-                "/admin/business/"+afterRegister.get().getId()+"/approve/STRIPE")
+                "/admin/business/" + afterRegister.get().getId() + "/approve/STRIPE")
                 .contentType("application/json"))
                 .andExpect(status().isOk())
                 .andReturn();
-        assertEquals(BusinessState.Pending, businessRepository.findByExternalId(PLACEID).get().getState());
+        assertEquals(BusinessState.Pending, businessRepository.findByExternalId(EXTERNALPLACEID).get().getState());
         ArgumentCaptor<BusinessApprovalDetails> approvalDetails
                 = ArgumentCaptor.forClass(BusinessApprovalDetails.class);
         verify(approvalNotificationSender).sendNotification(eq(NotificationType.BUSINESS_APPROVED),
                 approvalDetails.capture());
         assertEquals("onboarding_url", approvalDetails.getValue().getRegistrationUrl());
-        assertEquals(PLACEID , claimBusinessDetails.getValue().getExternalRefId());
+        assertEquals(EXTERNALPLACEID, claimBusinessDetails.getValue().getExternalRefId());
 
         mockMvc.perform(MockMvcRequestBuilders.get(
-                "/payment/strip/business/confirm?code="+AUTHCODE+"&state="+STATE)
+                "/payment/strip/business/confirm?code=" + AUTHCODE + "&state=" + STATE)
                 .contentType("application/json"))
                 .andExpect(status().is3xxRedirection())
                 .andReturn();
-        assertEquals(BusinessState.Active, businessRepository.findByExternalId(PLACEID).get().getState());
+        assertEquals(BusinessState.Active, businessRepository.findByExternalId(EXTERNALPLACEID).get().getState());
 
 
     }

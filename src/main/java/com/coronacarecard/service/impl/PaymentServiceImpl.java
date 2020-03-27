@@ -43,7 +43,7 @@ public class PaymentServiceImpl implements PaymentService {
         switch (paymentSystem) {
             case STRIPE:
             default:
-                state = cryptoService.encryptBusiness(business);
+                state = cryptoService.encrypt(business.getId().toString());
                 url=String.format(STRIPE_CONNECT_URL,STRIPE_CONNECT_ID,state);
                 break;
         }

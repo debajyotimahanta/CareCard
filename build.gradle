@@ -41,6 +41,9 @@ dependencies {
 
     // https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk-s3
     compile group: 'com.amazonaws', name: 'aws-java-sdk-s3', version: '1.11.747'
+    // https://mvnrepository.com/artifact/com.amazonaws/aws-encryption-sdk-java
+    compile group: 'com.amazonaws', name: 'aws-encryption-sdk-java', version: '1.6.1'
+
 
 
     // implementation 'com.amazonaws:aws-java-sdk:1.11.748'

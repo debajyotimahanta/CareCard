@@ -70,8 +70,9 @@ public class StripPaymentController {
     public void confirm(@RequestParam(value = "code") String code,
                         @RequestParam(value = "state") String state,
                         HttpServletResponse httpServletResponse)
-            throws BusinessClaimException, BusinessNotFoundException, IOException {
-        Long id = cryptoService.decryptBusiness(state);
+            throws BusinessClaimException, BusinessNotFoundException, IOException, InternalException {
+        String decryptedPlaceId = cryptoService.decrypt(state);
+        Long id = Long.parseLong(decryptedPlaceId);
         Business business = paymentService.getBusinessDetails(PaymentSystem.STRIPE, code);
         if (id != business.getId()) {
             log.error(String.format("The business id %s and state's id %s don't match something is wrong",

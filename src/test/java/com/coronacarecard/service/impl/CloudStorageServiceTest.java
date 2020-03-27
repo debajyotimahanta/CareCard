@@ -3,7 +3,6 @@ package com.coronacarecard.service.impl;
 import com.amazonaws.services.s3.model.PutObjectResult;
 import com.coronacarecard.exceptions.InternalException;
 import com.coronacarecard.service.CloudStorageService;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -23,12 +22,11 @@ public class CloudStorageServiceTest {
     }
 
 
-    @Ignore
     @Test
     public void uploadImage() {
         // Arrange
         //TODO (arun) please create this file as a part of setup and then remove Ignore
-        File imageFile = new File("/home/amukherjee/Pictures/Test.jpg");
+        File imageFile = new File("src/test/resources/Test.jpg");
         byte[] values = null;
         String imageName = "myimage.jpg";
         String bucketName = "hjqurnwjjwhb";
