@@ -25,6 +25,10 @@ Mappings:
       CIDR: '10.0.2.0/24'
     PrivateTwo:
       CIDR: '10.0.3.0/24'
+    DatabaseOne:
+      CIDR: '10.0.4.0/24'
+    DatabaseTwo:
+      CIDR: '10.0.5.0/24'
   DatabaseConfig:
     MySQL:
       Port: 1509
@@ -100,7 +104,39 @@ Resources:
       CidrBlock: !FindInMap ['SubnetConfig', 'PrivateTwo', 'CIDR']
       Tags:
         - Key: Name
-          Value: Private Subnet 1
+          Value: Private Subnet 2
+  DatabaseSubnetOne:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone:
+        Fn::Select:
+          - 1
+          - Fn::GetAZs: {Ref: 'AWS::Region'}
+      VpcId: !Ref 'VPC'
+      CidrBlock: !FindInMap ['SubnetConfig', 'DatabaseOne', 'CIDR']
+      Tags:
+        - Key: Name
+          Value: Database subnet 1
+  DatabaseSubnetTwo:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone:
+        Fn::Select:
+          - 0
+          - Fn::GetAZs: {Ref: 'AWS::Region'}
+      VpcId: !Ref 'VPC'
+      CidrBlock: !FindInMap ['SubnetConfig', 'DatabaseTwo', 'CIDR']
+      Tags:
+        - Key: Name
+          Value: Database subnet 2
+  DBSubnetGroup:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupDescription: DB subnet group
+      SubnetIds:
+        - !Ref 'DatabaseSubnetOne'
+        - !Ref 'DatabaseSubnetTwo'
+
 
   # Setup networking resources for the public subnets. Containers
   # in the public subnets have public IP addresses and the routing table
@@ -206,7 +242,8 @@ Resources:
   PublicLoadBalancerSG:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: Access to the public facing load balancer
+
+      GroupDescription: !Join [ ':', [ !Ref 'AWS::StackName', ' Access to the public facing load balancer' ] ]
       VpcId: !Ref 'VPC'
       SecurityGroupIngress:
           # Allow access to ALB from anywhere on the internet
@@ -216,7 +253,7 @@ Resources:
   PrivateBackendSG:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: Private backend security group with only access on certain ports from Public security group
+      GroupDescription: !Join [ ':', [ !Ref 'AWS::StackName', ' Private backend security group with only access on certain ports from Public security group' ] ]
       VpcId: !Ref 'VPC'
       SecurityGroupIngress:
           # Allow access to ALB from anywhere on the internet
@@ -232,7 +269,8 @@ Resources:
   PrivateDatabaseSG:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: Database security group
+
+      GroupDescription: !Join [ ':', [ !Ref 'AWS::StackName', ' Database security group' ] ]
       VpcId: !Ref 'VPC'
       SecurityGroupIngress:
         # Allow access to ALB from anywhere on the internet
@@ -322,6 +360,11 @@ Outputs:
     Value: !Ref 'PrivateSubnetTwo'
     Export:
       Name: !Join [ ':', [ !Ref 'AWS::StackName', 'PrivateSubnetTwo' ] ]
+  DBSubnetGroup:
+    Description: DB subnet group
+    Value: !Ref 'DBSubnetGroup'
+    Export:
+      Name: !Join [ ':', [ !Ref 'AWS::StackName', 'DBSubnetGroup' ] ]
   PublicSecurityGroup:
     Description: Public security group
     Value: !Ref 'PublicLoadBalancerSG'

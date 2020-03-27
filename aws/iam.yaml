@@ -1,0 +1,71 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: IAM roles and details
+Parameters:
+  InfraStackName:
+    Description: Name of an active CloudFormation infra stack that has the kms key
+    Type: String
+    MinLength: 1
+    MaxLength: 255
+    AllowedPattern: ^[a-zA-Z][-a-zA-Z0-9]*$
+Resources:
+  WebServerInstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Description: Instance profile used by the web servers
+    Properties:
+      Path: /
+      Roles:
+        - !Ref WebServerRole
+  WebServerRole:
+    Type: AWS::IAM::Role
+    Description: The role web server will assume as a part of instance profile
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - ec2.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      ManagedPolicyArns:
+        - !Ref KMSPolicy
+        - !Ref SNSPolicy
+  KMSPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      ManagedPolicyName: !Join [ '-', [ !Ref 'AWS::StackName', '-ws-kms-policy' ] ]
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: 'AllowDecryptFromWebServer'
+            Effect: Allow
+            Action:
+              - 'kms:Decrypt'
+              - 'kms:Encrypt'
+            Resource:
+              Fn::ImportValue: !Sub "${InfraStackName}:MasterKeyArn"
+  SNSPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      ManagedPolicyName: !Join [ '-', [ !Ref 'AWS::StackName', '-ws-sns-policy' ] ]
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: 'AllowSNS'
+            Effect: Allow
+            Action:
+              - 'sns:Publish'
+              - 'sns:CreateTopic'
+              - 'sns:Unsubscribe'
+              - 'sns:Subscribe'
+              - 'sns:ConfirmSubscription'
+            Resource:
+              - '*'
+
+Outputs:
+  WebServerInstanceProfile:
+    Description: Instnace profile used by the web server
+    Value: !Ref 'WebServerInstanceProfile'
+    Export:
+      Name: !Join [ ':', [ !Ref 'AWS::StackName', 'WebServerInstanceProfile' ] ]
+
