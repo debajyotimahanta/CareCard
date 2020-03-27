@@ -20,21 +20,24 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.util.Optional;
 
-import static com.coronacarecard.util.TestHelper.getBusinessRegistrationRequestJson;
-import static com.coronacarecard.util.TestHelper.parseResponse;
+import static com.coronacarecard.util.TestHelper.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(properties="spring.app.forntEndBaseUrl=http://base")
+@SpringBootTest(properties = {"AWS_ARN=arn:aws:kms:us-west-1:008731829883:key/a72c4b37-325e-4254-9a9f-38592d01e0b2",
+        "spring.app.forntEndBaseUrl=http://base"})
 @AutoConfigureTestDatabase
 @AutoConfigureMockMvc
 public class OwnerControllerTest {
 
-    public static final String PLACEID = "ChIJXbraKagPkFQRR5OlYjIcCXI";
-    public static final String EMAIL = "t@t.com";
-    public static final String PHONE = "7737322612";
+    private static final String PLACEID         = getPlainTextPlaceId();
+    private static final String EXTERNALPLACEID = "ChIJXbraKagPkFQRR5OlYjIcCXI";
+    private static final String EMAIL           = "t@t.com";
+    private static final String PHONE           = "7737322612";
+    private static final String AUTHCODE        = "code";
+    private static final String STATE           = getEncryptedPlaceId();
 
     @MockBean
     private NotificationSender<com.coronacarecard.model.Business> notificationSender;
@@ -57,15 +60,16 @@ public class OwnerControllerTest {
         userRepository.deleteAll();
 
     }
+
     @Test
     public void claim_valid_business() throws Exception {
         MvcResult response = mockMvc.perform(MockMvcRequestBuilders.post("/owner/claim")
-                .content(getBusinessRegistrationRequestJson(PLACEID, EMAIL, PHONE))
+                .content(getBusinessRegistrationRequestJson(EXTERNALPLACEID, EMAIL, PHONE))
                 .contentType("application/json"))
                 .andExpect(status().isOk())
                 .andReturn();
-        Business businessDAO = businessRepository.findByExternalId(PLACEID).get();
-        ClaimResult result = parseResponse(response, ClaimResult.class);
+        Business    businessDAO = businessRepository.findByExternalId(EXTERNALPLACEID).get();
+        ClaimResult result      = parseResponse(response, ClaimResult.class);
         assertEquals(businessDAO.getId(), result.getBusiness().getId());
         assertEquals(businessDAO.getOwner().getEmail(), EMAIL);
         assertEquals(businessDAO.getOwner().getPhoneNumber(), PHONE);
@@ -75,20 +79,21 @@ public class OwnerControllerTest {
     @Test
     public void re_claim_same_business() throws Exception {
         MvcResult response1 = mockMvc.perform(MockMvcRequestBuilders.post("/owner/claim")
-                .content(getBusinessRegistrationRequestJson(PLACEID, EMAIL, PHONE))
+                .content(getBusinessRegistrationRequestJson(EXTERNALPLACEID, EMAIL, PHONE))
                 .contentType("application/json"))
                 .andExpect(status().isOk())
                 .andReturn();
-        Optional<Business> businessDAO = businessRepository.findByExternalId(PLACEID);
+        Optional<Business> businessDAO = businessRepository.findByExternalId(EXTERNALPLACEID);
         assertTrue(businessDAO.isPresent());
         MvcResult response2 = mockMvc.perform(MockMvcRequestBuilders.post("/owner/claim")
-                .content(getBusinessRegistrationRequestJson(PLACEID, EMAIL, PHONE))
+                .content(getBusinessRegistrationRequestJson(EXTERNALPLACEID, EMAIL, PHONE))
                 .contentType("application/json"))
                 .andExpect(status().isOk())
                 .andReturn();
-        assertEquals(response1.getResponse().getContentAsString(),
-                response2.getResponse().getContentAsString());
-        businessDAO = businessRepository.findByExternalId(PLACEID);
+
+        assertTrue(response1.getResponse().getContentAsString().contains("\"id\":2"));
+        assertTrue(response2.getResponse().getContentAsString().contains("\"id\":2"));
+        businessDAO = businessRepository.findByExternalId(EXTERNALPLACEID);
         assertTrue(businessDAO.isPresent());
 
 

@@ -33,7 +33,8 @@ import static org.mockito.Mockito.when;
 
 @RunWith(SpringRunner.class)
 @AutoConfigureTestDatabase
-@SpringBootTest(properties="spring.app.forntEndBaseUrl=http://base")
+@SpringBootTest(properties = {"AWS_ARN=arn:aws:kms:us-west-1:008731829883:key/a72c4b37-325e-4254-9a9f-38592d01e0b2",
+        "spring.app.forntEndBaseUrl=http://base"})
 public class OwnerServiceTest {
 
     public static final String DESC = "Hello world";

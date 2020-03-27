@@ -1,7 +1,7 @@
 package com.coronacarecard.service;
 
 
-import com.coronacarecard.model.Business;
+import com.coronacarecard.exceptions.InternalException;
 
 public interface CryptoService {
     /**
@@ -9,10 +9,10 @@ public interface CryptoService {
      * This string is passed to the payment registration form, which is passed back to us
      * when registration is completed. We will use this state to verify key info and
      * avoid CSRF attacks.
-     * @param claimedBusiness
+     * @param data
      * @return
      */
-    String encryptBusiness(Business claimedBusiness);
+    String encrypt(String data);
 
-    Long decryptBusiness(String state);
+    String decrypt(String state) throws InternalException;
 }
