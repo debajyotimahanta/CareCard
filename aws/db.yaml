@@ -1,0 +1,56 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: RDS database
+Parameters:
+  NetworkStackName:
+    Description: Name of an active CloudFormation stack that contains the networking resources
+    Type: String
+    MinLength: 1
+    MaxLength: 255
+    AllowedPattern: ^[a-zA-Z][-a-zA-Z0-9]*$
+
+Resources:
+  MyRDSInstanceRotationSecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Description: 'This is my rds instance secret'
+      GenerateSecretString:
+        SecretStringTemplate: '{"username": "admin"}'
+        GenerateStringKey: 'password'
+        PasswordLength: 16
+        ExcludeCharacters: '"@/\'
+      Tags:
+        - Key: Name
+          Value: CoronaCareCardDB
+  RDSCluster:
+    Type: AWS::RDS::DBCluster
+    Properties:
+      MasterUsername: !Join ['', ['{{resolve:secretsmanager:', !Ref MyRDSInstanceRotationSecret, ':SecretString:username}}' ]]
+      MasterUserPassword: !Join ['', ['{{resolve:secretsmanager:', !Ref MyRDSInstanceRotationSecret, ':SecretString:password}}' ]]
+      DBClusterIdentifier: corona-care-card
+      Engine: aurora
+      EngineVersion: 5.6.10a
+      EngineMode: serverless
+      DBSubnetGroupName:
+        Fn::ImportValue: !Sub "${NetworkStackName}:DBSubnetGroup"
+      ScalingConfiguration:
+        AutoPause: true
+        MinCapacity: 1
+        MaxCapacity: 1
+        SecondsUntilAutoPause: 1000
+      VpcSecurityGroupIds:
+        - Fn::ImportValue: !Sub "${NetworkStackName}:DatabaseSecurityGroup"
+
+  SecretRDSInstanceAttachment:
+    Type: AWS::SecretsManager::SecretTargetAttachment
+    Properties:
+      SecretId: !Ref MyRDSInstanceRotationSecret
+      TargetId: !Ref RDSCluster
+      TargetType: AWS::RDS::DBCluster
+
+Outputs:
+  DatabaseEndPoint:
+    Description: The database end point we will connect to
+    Value: !Join [':', [!GetAtt RDSCluster.Endpoint.Address, !GetAtt RDSCluster.Endpoint.Port]]
+    Export:
+      Name: !Join [ ':', [ !Ref 'AWS::StackName', 'DatabaseEndPoint' ] ]
+
