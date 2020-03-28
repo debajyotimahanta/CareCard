@@ -13,7 +13,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import static org.junit.Assert.assertNotNull;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(properties = {"AWS_ARN=arn:aws:kms:us-west-1:008731829883:key/a72c4b37-325e-4254-9a9f-38592d01e0b2",
+@SpringBootTest(properties = {"MASTER_KEY_ID=arn:aws:kms:us-west-1:008731829883:key/a72c4b37-325e-4254-9a9f-38592d01e0b2",
         "spring.app.forntEndBaseUrl=http://base"})
 class CryptoServiceImplTest {
 
