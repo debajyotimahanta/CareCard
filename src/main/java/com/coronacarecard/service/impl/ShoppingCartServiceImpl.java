@@ -5,6 +5,8 @@ import com.coronacarecard.dao.OrderDetailRepository;
 import com.coronacarecard.dao.entity.Business;
 import com.coronacarecard.dao.entity.OrderItem;
 import com.coronacarecard.exceptions.BusinessNotFoundException;
+import com.coronacarecard.exceptions.InternalException;
+import com.coronacarecard.exceptions.PaymentAccountNotSetupException;
 import com.coronacarecard.model.CheckoutResponse;
 import com.coronacarecard.model.PaymentSystem;
 import com.coronacarecard.model.orders.Item;
@@ -35,11 +37,11 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
     @Override
     @Transactional
-    public CheckoutResponse checkout(PaymentSystem paymentSystem, OrderDetail order) throws BusinessNotFoundException {
+    public CheckoutResponse checkout(PaymentSystem paymentSystem, OrderDetail order) throws BusinessNotFoundException, PaymentAccountNotSetupException, InternalException {
         paymentService.validate(paymentSystem, order);
         com.coronacarecard.dao.entity.OrderDetail savedOrder = saveOrder(order);
 
-        return paymentService.generateCheckoutSession(savedOrder);
+        return paymentService.generateCheckoutSession(order);
     }
 
     private com.coronacarecard.dao.entity.OrderDetail saveOrder(OrderDetail order) throws BusinessNotFoundException {

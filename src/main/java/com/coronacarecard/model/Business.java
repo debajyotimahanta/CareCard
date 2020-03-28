@@ -3,6 +3,7 @@ package com.coronacarecard.model;
 import com.coronacarecard.model.orders.OrderStatus;
 
 import java.io.Serializable;
+import java.util.Optional;
 
 @lombok.Builder(toBuilder = true)
 @lombok.NoArgsConstructor
@@ -24,4 +25,6 @@ public class Business implements Serializable {
     private String Website;
     private boolean isActive;
     private OrderStatus status;
+    private Optional<User> owner;
+
 }

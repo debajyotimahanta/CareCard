@@ -1,9 +1,12 @@
 package com.coronacarecard.service;
 
-import com.coronacarecard.dao.entity.OrderDetail;
+import com.coronacarecard.exceptions.BusinessNotFoundException;
+import com.coronacarecard.exceptions.InternalException;
+import com.coronacarecard.exceptions.PaymentAccountNotSetupException;
 import com.coronacarecard.model.Business;
 import com.coronacarecard.model.CheckoutResponse;
 import com.coronacarecard.model.PaymentSystem;
+import com.coronacarecard.model.orders.OrderDetail;
 
 public interface PaymentService {
     /**
@@ -44,7 +47,7 @@ public interface PaymentService {
      * @param savedOrder
      * @return
      */
-    CheckoutResponse generateCheckoutSession(OrderDetail savedOrder);
+    CheckoutResponse generateCheckoutSession(OrderDetail savedOrder) throws BusinessNotFoundException, PaymentAccountNotSetupException, InternalException;
 
     /**
      * Validate all details about the order is correct.
