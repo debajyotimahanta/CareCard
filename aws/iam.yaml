@@ -7,6 +7,12 @@ Parameters:
     MinLength: 1
     MaxLength: 255
     AllowedPattern: ^[a-zA-Z][-a-zA-Z0-9]*$
+  DbStackName:
+    Description: Name of an CloudFormation db stack that has the db secret arn
+    Type: String
+    MinLength: 1
+    MaxLength: 255
+    AllowedPattern: ^[a-zA-Z][-a-zA-Z0-9]*$
 Resources:
   WebServerInstanceProfile:
     Type: AWS::IAM::InstanceProfile
@@ -30,6 +36,7 @@ Resources:
       ManagedPolicyArns:
         - !Ref KMSPolicy
         - !Ref SNSPolicy
+        - !Ref DBSecretPolicy
   KMSPolicy:
     Type: AWS::IAM::ManagedPolicy
     Properties:
@@ -61,6 +68,19 @@ Resources:
               - 'sns:ConfirmSubscription'
             Resource:
               - '*'
+  DBSecretPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      ManagedPolicyName: !Join [ '-', [ !Ref 'AWS::StackName', '-ws-db-secret-policy' ] ]
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: 'AllowSNS'
+            Effect: Allow
+            Action:
+              - 'secretsmanager:GetSecretValue'
+            Resource:
+              - Fn::ImportValue: !Sub '${DbStackName}:DatabaseSecret'
 
 Outputs:
   WebServerInstanceProfile:

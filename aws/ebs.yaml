@@ -112,3 +112,17 @@ Resources:
                 - "22"
                 - "22"
                 - Fn::ImportValue: !Sub '${NetworkStackName}:BastionSecurityGroup'
+
+        #Environment variables used by application
+        - Namespace: aws:elasticbeanstalk:application:environment
+            OptionName: MASTER_KEY_ID
+            Value:
+              Fn::ImportValue: !Sub '${InfraStackName}:MasterKeyArn'
+        - Namespace: aws:elasticbeanstalk:application:environment
+            OptionName: DATABASE_SECRET
+            Value:
+              Fn::ImportValue: !Sub '${DbStackName}:DatabaseSecret'
+        - Namespace: aws:elasticbeanstalk:application:environment
+            OptionName: DATABASE_ENDPOINT
+            Value:
+              Fn::ImportValue: !Sub '${DbStackName}:DatabaseEndPoint'
