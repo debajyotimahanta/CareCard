@@ -1,4 +1,4 @@
-package com.coronacarecard.service.impl;
+package com.coronacarecard.service.payment;
 
 import com.coronacarecard.config.StripeConfiguration;
 import com.coronacarecard.dao.BusinessRepository;
@@ -15,11 +15,13 @@ import com.coronacarecard.service.CryptoService;
 import com.coronacarecard.service.PaymentService;
 import com.stripe.exception.StripeException;
 import com.stripe.model.checkout.Session;
+import com.stripe.param.checkout.SessionCreateParams;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-@Service
-public class PaymentServiceImpl implements PaymentService {
+@Service("StripePaymentService")
+public class StripePaymentServiceImpl implements PaymentService {
 
     @Autowired
     private StripeConfiguration stripeConfiguration;
@@ -34,41 +36,35 @@ public class PaymentServiceImpl implements PaymentService {
     private BusinessService businessService;
 
     @Autowired
+    @Qualifier("StripeEntityMapper")
     private PaymentEntityMapper paymentMapper;
 
     @Override
-    public CheckoutResponse successPayment(PaymentSystem paymentSystem, String urlParams) {
+    public CheckoutResponse successPayment( String urlParams) {
         return null;
     }
 
     @Override
-    public CheckoutResponse failedPayment(PaymentSystem paymentSystem, String urlParams) {
+    public CheckoutResponse failedPayment( String urlParams) {
         return null;
     }
 
     @Override
-    public void confirmTransaction(PaymentSystem paymentSystem, String transactionId) {
+    public void confirmTransaction( String transactionId) {
 
     }
 
     @Override
-    public String generateOnBoardingUrl(PaymentSystem paymentSystem, Business business) {
-        String url = null;
-        String state = null;
-        switch (paymentSystem) {
-            case STRIPE:
-            default:
-                state = cryptoService.encrypt(business.getId().toString());
-                url=String.format(stripeConfiguration.getConnectUrl(),stripeConfiguration.getClientId(),state);
-                break;
-        }
-        return url;
+    public String generateOnBoardingUrl( Business business) {
+        String state;
+        state = cryptoService.encrypt(business.getId().toString());
+        return String.format(stripeConfiguration.getConnectUrl(), stripeConfiguration.getClientId(), state);
     }
 
     @Override
     public CheckoutResponse generateCheckoutSession(OrderDetail savedOrder) throws BusinessNotFoundException, PaymentAccountNotSetupException ,InternalException {
         try {
-            Session session = Session.create(paymentMapper.toSessionCreateParams(savedOrder, businessService));
+            Session session = Session.create((SessionCreateParams) paymentMapper.toSessionCreateParams(savedOrder, businessService));
             return paymentMapper.toCheckoutResponse(session,savedOrder,businessService);
         } catch (StripeException ex) {
             throw new InternalException(ex.getMessage());
@@ -76,12 +72,12 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
-    public void validate(PaymentSystem paymentSystem, com.coronacarecard.model.orders.OrderDetail order) {
+    public void validate( OrderDetail order) {
 
     }
 
     @Override
-    public Business getBusinessDetails(PaymentSystem stripe, String code) {
+    public Business getBusinessDetails( String code) {
         return null;
     }
 }

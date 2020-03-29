@@ -11,9 +11,11 @@ import com.coronacarecard.notifications.NotificationType;
 import com.coronacarecard.service.GooglePlaceService;
 import com.coronacarecard.service.OwnerService;
 import com.coronacarecard.service.PaymentService;
+import com.coronacarecard.service.payment.PaymentServiceFactory;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,7 +44,9 @@ public class OwnerServiceImpl implements OwnerService {
     private NotificationSender<BusinessApprovalDetails> approvalNotificationSender;
 
     @Autowired
+    @Qualifier("StripePaymentService")
     private PaymentService paymentService;
+
 
     @Override
     @Transactional
@@ -136,7 +140,7 @@ public class OwnerServiceImpl implements OwnerService {
             log.info("Business is claimed now, will wait for owner to enter payment details");
             businessDAO = businessRepository.save(businessDAO.toBuilder().state(BusinessState.Pending).build());
         }
-        String url = paymentService.generateOnBoardingUrl(paymentSystem, businessEntityMapper.toModel(businessDAO));
+        String url = paymentService.generateOnBoardingUrl( businessEntityMapper.toModel(businessDAO));
         approvalNotificationSender.sendNotification(
                 NotificationType.BUSINESS_APPROVED,
                 BusinessApprovalDetails.builder()

@@ -11,6 +11,6 @@ import com.stripe.param.checkout.SessionCreateParams;
 import java.util.Map;
 
 public interface PaymentEntityMapper {
-    SessionCreateParams toSessionCreateParams(OrderDetail orderDetail,BusinessService businessService) throws BusinessNotFoundException,PaymentAccountNotSetupException;
-    CheckoutResponse toCheckoutResponse(Session session, OrderDetail orderDetail, BusinessService service) throws BusinessNotFoundException, PaymentAccountNotSetupException;
+    Object toSessionCreateParams(OrderDetail orderDetail,BusinessService businessService) throws BusinessNotFoundException,PaymentAccountNotSetupException;
+    CheckoutResponse toCheckoutResponse(Object session, OrderDetail orderDetail, BusinessService service) throws BusinessNotFoundException, PaymentAccountNotSetupException;
 }

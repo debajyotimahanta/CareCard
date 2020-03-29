@@ -18,8 +18,8 @@ import org.springframework.stereotype.Component;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@Component
-public class PaymentEntityMapperImpl implements PaymentEntityMapper {
+@Component("StripeEntityMapper")
+public class StripePaymentEntityMapperImpl implements PaymentEntityMapper {
     private final String PAYMENT_METHOD_TYPES="payment_method_types";
     private final String LINE_ITEMS="line_items";
 
@@ -37,7 +37,7 @@ public class PaymentEntityMapperImpl implements PaymentEntityMapper {
     private String forntEndBaseUrl;
 
     @Override
-    public SessionCreateParams toSessionCreateParams(OrderDetail orderDetail, BusinessService businessService) throws BusinessNotFoundException, PaymentAccountNotSetupException {
+    public Object toSessionCreateParams(OrderDetail orderDetail, BusinessService businessService) throws BusinessNotFoundException, PaymentAccountNotSetupException {
         //TODO:Only one busiess can be part of a checkout, so getting the details of the first
         Business business = businessService.getBusiness(orderDetail.getOrderLine().get(0).getBusinessId());
         String accountId = business.getOwner()
@@ -71,7 +71,7 @@ public class PaymentEntityMapperImpl implements PaymentEntityMapper {
     }
 
     @Override
-    public CheckoutResponse toCheckoutResponse(Session session,OrderDetail orderDetail,BusinessService businessService) throws BusinessNotFoundException,PaymentAccountNotSetupException{
+    public CheckoutResponse toCheckoutResponse(Object session,OrderDetail orderDetail,BusinessService businessService) throws BusinessNotFoundException,PaymentAccountNotSetupException{
         Business business = businessService.getBusiness(orderDetail.getOrderLine().get(0).getBusinessId());
         String accountId = business.getOwner()
                 .flatMap(User::getBusinessAccountDetail)
@@ -81,7 +81,7 @@ public class PaymentEntityMapperImpl implements PaymentEntityMapper {
             throw new PaymentAccountNotSetupException();
         }
         return CheckoutResponse.builder()
-                .sessionId(session.getId())
+                .sessionId(((Session)session).getId())
                 .accountId(accountId)
                 .build();
     }

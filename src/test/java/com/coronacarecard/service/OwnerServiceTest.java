@@ -87,7 +87,7 @@ public class OwnerServiceTest {
                 .build();
         businessRepository.save(existingBusinessDAO);
 
-        when(paymentService.generateOnBoardingUrl(any(), any())).thenReturn("url");
+        when(paymentService.generateOnBoardingUrl(any())).thenReturn("url");
     }
 
     @After

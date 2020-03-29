@@ -74,11 +74,11 @@ public class OnBoardingTest {
 
     @Before
     public void init() throws InternalException {
-        when(paymentService.getBusinessDetails(PaymentSystem.STRIPE, AUTHCODE))
+        when(paymentService.getBusinessDetails( AUTHCODE))
                 .thenAnswer(invocation -> businessEntityMapper.toModel(afterRegister.get()));
 
         when(cryptoService.decrypt(STATE)).thenAnswer(invocation -> afterRegister.get().getId().toString());
-        when(paymentService.generateOnBoardingUrl(eq(PaymentSystem.STRIPE), any())).thenReturn("onboarding_url");
+        when(paymentService.generateOnBoardingUrl(any())).thenReturn("onboarding_url");
     }
 
     /**

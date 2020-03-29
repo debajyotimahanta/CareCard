@@ -21,7 +21,7 @@ import static org.mockito.Mockito.when;
 @RunWith(SpringRunner.class)
 @SpringBootTest(properties = {"MASTER_KEY_ID=arn:aws:kms:us-west-1:008731829883:key/a72c4b37-325e-4254-9a9f-38592d01e0b2",
         "spring.app.forntEndBaseUrl=http://base"})
-public class PaymentServiceTest {
+public class StripePaymentServiceTest {
 
     @MockBean
     private CryptoService cryptoService;
@@ -46,10 +46,15 @@ public class PaymentServiceTest {
         String expected=stripeConfiguration.getConnectUrl();
 
         Business business=Business.builder().id(10L).externalRefId(business_id).build();
-        String onboardingUrl=paymentService.generateOnBoardingUrl(PaymentSystem.STRIPE,business);
+        String onboardingUrl=paymentService.generateOnBoardingUrl(business);
 
         System.out.println(onboardingUrl);
         assertEquals(String.format(expected,connectId,cryptoService.encrypt(business.getId().toString())),onboardingUrl);
 
+    }
+
+    @Test
+    public void generate_session_test(){
+        
     }
 }

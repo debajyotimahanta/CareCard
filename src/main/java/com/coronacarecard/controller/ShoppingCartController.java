@@ -18,7 +18,8 @@ public class ShoppingCartController {
     private ShoppingCartService shoppingCartService;
 
     @PostMapping("/checkout")
-    public CheckoutResponse checkout(@RequestBody OrderDetail order) throws BusinessNotFoundException, PaymentAccountNotSetupException, InternalException {
+    public CheckoutResponse checkout(@RequestBody OrderDetail order) throws BusinessNotFoundException,
+            PaymentAccountNotSetupException, InternalException {
         return shoppingCartService.checkout(PaymentSystem.STRIPE, order);
     }
 

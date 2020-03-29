@@ -14,6 +14,7 @@ import com.coronacarecard.service.PaymentService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -26,7 +27,9 @@ import java.util.Optional;
 @RequestMapping("payment/strip")
 public class StripPaymentController {
     private static Log log = LogFactory.getLog(StripPaymentController.class);
+
     @Autowired
+    @Qualifier("StripePaymentService")
     private PaymentService paymentService;
 
     @Autowired
@@ -43,13 +46,13 @@ public class StripPaymentController {
 
     @GetMapping("/success")
     public CheckoutResponse checkout(String urlParams) {
-        return paymentService.successPayment(PaymentSystem.STRIPE, urlParams);
+        return paymentService.successPayment( urlParams);
     }
 
 
     @GetMapping("/failure")
     public CheckoutResponse fail(String urlParams) {
-        return paymentService.failedPayment(PaymentSystem.STRIPE, urlParams);
+        return paymentService.failedPayment( urlParams);
     }
 
     @GetMapping("/business/onboard/{id}")
@@ -57,7 +60,7 @@ public class StripPaymentController {
         try {
             Long businessId = Long.parseLong(id);
             Business business=businessService.getBusiness(businessId);
-            return paymentService.generateOnBoardingUrl(PaymentSystem.STRIPE,business);
+            return paymentService.generateOnBoardingUrl(business);
         }catch(NumberFormatException ex){
             log.error(String.format("The id %s is not in the proper format",id));
             //TODO: This is a BadRequest exception
@@ -73,7 +76,7 @@ public class StripPaymentController {
             throws BusinessClaimException, BusinessNotFoundException, IOException, InternalException {
         String decryptedPlaceId = cryptoService.decrypt(state);
         Long id = Long.parseLong(decryptedPlaceId);
-        Business business = paymentService.getBusinessDetails(PaymentSystem.STRIPE, code);
+        Business business = paymentService.getBusinessDetails(code);
         if (id != business.getId()) {
             log.error(String.format("The business id %s and state's id %s don't match something is wrong",
                     business.getId(), id));
