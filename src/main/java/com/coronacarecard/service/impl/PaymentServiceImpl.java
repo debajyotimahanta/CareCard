@@ -1,5 +1,6 @@
 package com.coronacarecard.service.impl;
 
+import com.coronacarecard.config.StripeConfiguration;
 import com.coronacarecard.dao.BusinessRepository;
 import com.coronacarecard.exceptions.BusinessNotFoundException;
 import com.coronacarecard.exceptions.InternalException;
@@ -19,8 +20,9 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class PaymentServiceImpl implements PaymentService {
-    private static final String STRIPE_CONNECT_URL = "https://connect.stripe.com/oauth/authorize?client_id=%1$s&state=%2$s&scope=read_write&response_type=code";
-    private static final String STRIPE_CONNECT_ID="JJJJ";
+
+    @Autowired
+    private StripeConfiguration stripeConfiguration;
 
     @Autowired
     private CryptoService cryptoService;
@@ -57,7 +59,7 @@ public class PaymentServiceImpl implements PaymentService {
             case STRIPE:
             default:
                 state = cryptoService.encrypt(business.getId().toString());
-                url=String.format(STRIPE_CONNECT_URL,STRIPE_CONNECT_ID,state);
+                url=String.format(stripeConfiguration.getConnectUrl(),stripeConfiguration.getClientId(),state);
                 break;
         }
         return url;
