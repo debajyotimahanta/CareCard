@@ -19,6 +19,12 @@ Parameters:
     MinLength: 1
     MaxLength: 255
     AllowedPattern: ^[a-zA-Z][-a-zA-Z0-9]*$
+  SecretsStackName:
+    Description: Name of an kms stack
+    Type: String
+    MinLength: 1
+    MaxLength: 255
+    AllowedPattern: ^[a-zA-Z][-a-zA-Z0-9]*$
   KeyName:
     Description: Name of an existing EC2 KeyPair to enable SSH access to the AWS Elastic
       Beanstalk instance
@@ -123,7 +129,7 @@ Resources:
         - Namespace: aws:elasticbeanstalk:application:environment
           OptionName: MASTER_KEY_ID
           Value:
-            Fn::ImportValue: !Sub '${InfraStackName}:MasterKeyArn'
+            Fn::ImportValue: !Sub '${SecretsStackName}:MasterKeyArn'
         - Namespace: aws:elasticbeanstalk:application:environment
           OptionName: spring_profiles_active
           Value: aws

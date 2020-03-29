@@ -1,0 +1,85 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Different Queues and Notification topics for events
+Resources:
+  BusinessEventSQS:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: BusinessEventQueue
+  # Queue Policy to give Topic permission to write to Queues
+  BusinessEventSQSPolicy:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      PolicyDocument:
+        Version: '2012-10-17'
+        Id: MyQueuePolicy
+        Statement:
+          - Sid: Allow-Business
+            Effect: Allow
+            Principal: "*"
+            Action:
+              - sqs:SendMessage
+            Resource: !GetAtt BusinessEventSQS.Arn
+            Condition:
+              ArnEquals:
+                aws:SourceArn: !Sub 'arn:aws:sns:${AWS::Region}:${AWS::AccountId}:BUSINESS*'
+          - Sid: Allow-New-Business
+            Effect: Allow
+            Principal: "*"
+            Action:
+              - sqs:SendMessage
+            Resource: !GetAtt BusinessEventSQS.Arn
+            Condition:
+              ArnEquals:
+                aws:SourceArn: !Sub 'arn:aws:sns:${AWS::Region}:${AWS::AccountId}:NEW_BUSINESS*'
+      Queues:
+        - !Ref BusinessEventSQS
+
+  NewBusinessClaimedTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: "NEW_BUSINESS_REGISTERED"
+      Subscription:
+        - Endpoint:
+            Fn::GetAtt:
+              - "BusinessEventSQS"
+              - "Arn"
+          Protocol: "sqs"
+  BusinessClaimedTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: "BUSINESS_CLAIMED"
+      Subscription:
+        - Endpoint:
+            Fn::GetAtt:
+              - "BusinessEventSQS"
+              - "Arn"
+          Protocol: "sqs"
+  BusinessApprovedTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: "BUSINESS_APPROVED"
+      Subscription:
+        - Endpoint:
+            Fn::GetAtt:
+              - "BusinessEventSQS"
+              - "Arn"
+          Protocol: "sqs"
+  BusinessDeclinedTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: "BUSINESS_DECLINED"
+      Subscription:
+        - Endpoint:
+            Fn::GetAtt:
+              - "BusinessEventSQS"
+              - "Arn"
+          Protocol: "sqs"
+Outputs:
+  Topic:
+    Description: NewBusinessClaimedTopic
+    Value: !Ref NewBusinessClaimedTopic
+  Queue1:
+    Description: Events Queue
+    Value: !Ref BusinessEventSQS
+
+

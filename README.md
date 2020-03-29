@@ -31,7 +31,10 @@ aws cloudformation --region ca-central-1 create-stack --stack-name $stackPrefix-
 
 aws cloudformation --region ca-central-1 create-stack --stack-name $stackPrefix-4-iam-v1 --template-body file://iam.yaml --parameters ParameterKey=InfraStackName,ParameterValue=$stackPrefix-2-infra-v1 ParameterKey=DbStackName,ParameterValue=$stackPrefix-3-db-v1 --capabilities CAPABILITY_NAMED_IAM
 
-aws cloudformation --region ca-central-1 create-stack --stack-name $stackPrefix-5-ebs-v1 --template-body file://ebs.yaml --parameters ParameterKey=NetworkStackName,ParameterValue=$stackPrefix-1-network-v1 ParameterKey=InfraStackName,ParameterValue=$stackPrefix-2-infra-v1  ParameterKey=DbStackName,ParameterValue=$stackPrefix-3-db-v1 ParameterKey=IamStackName,ParameterValue=$stackPrefix-4-iam-v1 ParameterKey=KeyName,ParameterValue=deba 
+aws cloudformation --region ca-central-1 create-stack --stack-name $stackPrefix-5-secrets-v1 --template-body file://secerts.yaml --parameters ParameterKey=IamStackName,ParameterValue=$stackPrefix-4-iam-v1
+
+aws cloudformation --region ca-central-1 create-stack --stack-name $stackPrefix-6-ebs-v1 --template-body file://ebs.yaml --parameters ParameterKey=NetworkStackName,ParameterValue=$stackPrefix-1-network-v1 ParameterKey=InfraStackName,ParameterValue=$stackPrefix-2-infra-v1  ParameterKey=DbStackName,ParameterValue=$stackPrefix-3-db-v1 ParameterKey=IamStackName,ParameterValue=$stackPrefix-4-iam-v1 ParameterKey=SecretsStackName,ParameterValue=$stackPrefix-X-secrets-v1 ParameterKey=KeyName,ParameterValue=deba
+ 
  
 ```
 

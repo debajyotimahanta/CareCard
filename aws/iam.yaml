@@ -34,23 +34,8 @@ Resources:
             Action:
               - sts:AssumeRole
       ManagedPolicyArns:
-        - !Ref KMSPolicy
         - !Ref SNSPolicy
         - !Ref DBSecretPolicy
-  KMSPolicy:
-    Type: AWS::IAM::ManagedPolicy
-    Properties:
-      ManagedPolicyName: !Join [ '-', [ !Ref 'AWS::StackName', '-ws-kms-policy' ] ]
-      PolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-          - Sid: 'AllowDecryptFromWebServer'
-            Effect: Allow
-            Action:
-              - 'kms:Decrypt'
-              - 'kms:Encrypt'
-            Resource:
-              Fn::ImportValue: !Sub "${InfraStackName}:MasterKeyArn"
   SNSPolicy:
     Type: AWS::IAM::ManagedPolicy
     Properties:
@@ -90,3 +75,8 @@ Outputs:
     Export:
       Name: !Join [ ':', [ !Ref 'AWS::StackName', 'WebServerInstanceProfile' ] ]
 
+  WebServerRoleArn:
+    Description: Instnace profile role used by the web server
+    Value: {"Fn::GetAtt": ["WebServerRole", "Arn"] }
+    Export:
+      Name: !Join [ ':', [ !Ref 'AWS::StackName', 'WebServerRoleArn' ] ]
