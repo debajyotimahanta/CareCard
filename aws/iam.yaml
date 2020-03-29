@@ -79,6 +79,7 @@ Resources:
             Effect: Allow
             Action:
               - 'secretsmanager:GetSecretValue'
+              - 'secretsmanager:DescribeSecret'
             Resource:
               - Fn::ImportValue: !Sub '${DbStackName}:DatabaseSecret'
 
