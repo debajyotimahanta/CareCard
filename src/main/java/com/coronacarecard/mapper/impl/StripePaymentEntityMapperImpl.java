@@ -36,6 +36,9 @@ public class StripePaymentEntityMapperImpl implements PaymentEntityMapper {
     @Value("${spring.app.forntEndBaseUrl}")
     private String forntEndBaseUrl;
 
+    @Value("${spring.app.appUrl}")
+    private String appUrl;
+
     @Override
     public Object toSessionCreateParams(OrderDetail orderDetail, BusinessService businessService) throws BusinessNotFoundException, PaymentAccountNotSetupException {
         //TODO:Only one busiess can be part of a checkout, so getting the details of the first
@@ -58,8 +61,8 @@ public class StripePaymentEntityMapperImpl implements PaymentEntityMapper {
                         .flatMap(Collection::stream)
                         .collect(Collectors.toList())
                 )
-                .setSuccessUrl(forntEndBaseUrl+"/checkout/success")
-                .setCancelUrl(forntEndBaseUrl+"/checkout/cancel")
+                .setSuccessUrl(appUrl+"/payment/stripe/success")
+                .setCancelUrl(appUrl+"/payment/stripe/cancel")
                 .setPaymentIntentData(SessionCreateParams.PaymentIntentData
                         .builder()
                         .setTransferData(SessionCreateParams.PaymentIntentData.TransferData

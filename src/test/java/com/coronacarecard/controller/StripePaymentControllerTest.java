@@ -7,9 +7,7 @@ import com.coronacarecard.exceptions.InternalException;
 import com.coronacarecard.mapper.BusinessEntityMapper;
 import com.coronacarecard.service.CryptoService;
 import com.coronacarecard.util.TestHelper;
-import org.checkerframework.checker.units.qual.A;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,13 +27,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(properties = {"AWS_ARN=arn:aws:kms:us-west-1:008731829883:key/a72c4b37-325e-4254-9a9f-38592d01e0b2",
-        "spring.app.forntEndBaseUrl=http://base"})
+        "spring.app.forntEndBaseUrl=http://base","spring.app.appUrl:http://appbase"})
 @AutoConfigureTestDatabase
 @AutoConfigureMockMvc
-public class StripPaymentControllerTest {
+public class StripePaymentControllerTest {
 
     @Autowired
-    private StripPaymentController controller;
+    private StripePaymentController controller;
 
     @Autowired
     private BusinessRepository businessRepository;
@@ -68,7 +66,7 @@ public class StripPaymentControllerTest {
         String expected  = stripeConfiguration.getConnectUrl();
         MvcResult response = mockMvc.perform(
                 MockMvcRequestBuilders
-                        .get("/payment/strip/business/onboard/" + business.getId().toString())
+                        .get("/payment/stripe/business/onboard/" + business.getId().toString())
                         .contentType("application/json"))
                 .andExpect(status().isOk())
                 .andReturn();

@@ -37,7 +37,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(properties = {"MASTER_KEY_ID=arn:aws:kms:us-west-1:008731829883:key/a72c4b37-325e-4254-9a9f-38592d01e0b2",
-        "spring.app.forntEndBaseUrl=http://base"})
+        "spring.app.forntEndBaseUrl=http://base","spring.app.appUrl:http://appbase"})
 @AutoConfigureTestDatabase
 @AutoConfigureMockMvc
 public class OnBoardingTest {
@@ -119,7 +119,7 @@ public class OnBoardingTest {
         assertEquals(EXTERNALPLACEID, claimBusinessDetails.getValue().getExternalRefId());
 
         mockMvc.perform(MockMvcRequestBuilders.get(
-                "/payment/strip/business/confirm?code=" + AUTHCODE + "&state=" + STATE)
+                "/payment/stripe/business/confirm?code=" + AUTHCODE + "&state=" + STATE)
                 .contentType("application/json"))
                 .andExpect(status().is3xxRedirection())
                 .andReturn();

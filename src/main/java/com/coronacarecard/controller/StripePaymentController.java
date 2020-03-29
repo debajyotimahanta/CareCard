@@ -7,7 +7,6 @@ import com.coronacarecard.exceptions.InternalException;
 import com.coronacarecard.model.Business;
 import com.coronacarecard.model.BusinessState;
 import com.coronacarecard.model.CheckoutResponse;
-import com.coronacarecard.model.PaymentSystem;
 import com.coronacarecard.service.BusinessService;
 import com.coronacarecard.service.CryptoService;
 import com.coronacarecard.service.PaymentService;
@@ -24,9 +23,9 @@ import java.io.IOException;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("payment/strip")
-public class StripPaymentController {
-    private static Log log = LogFactory.getLog(StripPaymentController.class);
+@RequestMapping("payment/stripe")
+public class StripePaymentController {
+    private static Log log = LogFactory.getLog(StripePaymentController.class);
 
     @Autowired
     @Qualifier("StripePaymentService")

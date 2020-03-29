@@ -37,7 +37,7 @@ import static org.junit.Assert.*;
 @RunWith(SpringRunner.class)
 @DataJpaTest(properties = {"MASTER_KEY_ID=arn:aws:kms:us-west-1:008731829883:key/a72c4b37-325e-4254-9a9f-38592d01e0b2",
         "spring.app.forntEndBaseUrl=http://base",
-        "STRIPE_KEY=sk_test_K4eOik2NYeiKvHs889qkqe1A007A5S4KJU"})
+        "STRIPE_KEY=sk_test_K4eOik2NYeiKvHs889qkqe1A007A5S4KJU","spring.app.appUrl:http://appbase"})
 public class RepositoryTest {
 
     public static final String INTERNATIONAL_PHONE_NUMBER = "+44 737327272";
