@@ -14,6 +14,7 @@ import com.coronacarecard.service.CloudStorageService;
 import com.coronacarecard.service.GooglePlaceService;
 import com.google.maps.ImageResult;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -39,9 +40,9 @@ public class BusinessServiceImpl implements BusinessService {
     @Autowired
     private CloudStorageService cloudStorageService;
 
-    private static final String AWS_BUCKET_NAME  = "hjqurnwjjwhb";
-//    private static final int    PHOTO_MAX_HEIGHT = 400; // value in pixel
-//    private static final int    PHOTO_MAX_WIDTH  = 450; // value in pixel
+    // TODO (arun) Move this to CloudStorage as its a S3 detail not a business service details
+    @Value("${spring.app.s3imageBucket}")
+    private String imageBucketName;
 
     @Autowired
     private NotificationSender<Business> notificationSender;
@@ -121,17 +122,16 @@ public class BusinessServiceImpl implements BusinessService {
                 Optional.of(business.getPhoto().getWidth()));
         String imageExtension = getImageExtensionFromContentType(photo.contentType);
         String imageName = new StringBuilder("")
-                .append(business.getPhoto().getPhotoReference())
-                .append(imageExtension)
+                .append(business.getExternalRefId())
                 .toString();
         // Store image
-        cloudStorageService.uploadImage(AWS_BUCKET_NAME,
+        cloudStorageService.uploadImage(imageBucketName,
                 imageName,
                 photo.imageData,
                 Optional.of(photo.contentType));
 
         // Get the image url
-        String s3PhotoUrl = cloudStorageService.getObjectUrl(AWS_BUCKET_NAME, imageName);
+        String s3PhotoUrl = cloudStorageService.getObjectUrl(imageBucketName, imageName);
 
         return business.toBuilder().photo(business.getPhoto().toBuilder()
                 .photoUrl(s3PhotoUrl)

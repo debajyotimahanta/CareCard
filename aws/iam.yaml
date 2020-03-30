@@ -37,6 +37,26 @@ Resources:
         - !Ref SNSPolicy
         - !Ref DBSecretPolicy
         - !Ref CloudWatchLogPolicy
+        - !Ref S3Policy
+  S3Policy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      ManagedPolicyName: !Join [ '-', [ !Ref 'AWS::StackName', 's3-policy' ] ]
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: 'AllowS3'
+            Effect: Allow
+            Action:
+              - "s3:PutObject"
+              - "s3:PutObjectAcl"
+              - "s3:GetObject"
+              - "s3:DeleteObject"
+            Resource:
+              - Fn::Join:
+                  - ''
+                  - - Fn::ImportValue: !Sub '${InfraStackName}:ImageBucketArn'
+                    - '/*'
   CloudWatchLogPolicy:
     Type: AWS::IAM::ManagedPolicy
     Properties:

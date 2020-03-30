@@ -27,8 +27,7 @@ import static org.junit.Assert.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(properties = {"MASTER_KEY_ID=arn:aws:kms:us-west-1:008731829883:key/a72c4b37-325e-4254-9a9f-38592d01e0b2",
-        "spring.app.forntEndBaseUrl=http://base","spring.app.appUrl:http://appbase"})
+@SpringBootTest
 @AutoConfigureTestDatabase
 @AutoConfigureMockMvc
 public class BusinessControllerTest {

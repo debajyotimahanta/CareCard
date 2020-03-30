@@ -3,8 +3,6 @@ package com.coronacarecard.dao.entity;
 import com.coronacarecard.dao.BusinessRepository;
 import com.coronacarecard.dao.OrderDetailRepository;
 import com.coronacarecard.dao.UserRepository;
-import com.coronacarecard.exceptions.BusinessNotFoundException;
-import com.coronacarecard.exceptions.InternalException;
 import com.coronacarecard.model.Currency;
 import com.coronacarecard.model.PaymentSystem;
 import com.coronacarecard.model.orders.OrderDetail;
@@ -35,9 +33,7 @@ import java.util.Optional;
 import static org.junit.Assert.*;
 
 @RunWith(SpringRunner.class)
-@DataJpaTest(properties = {"MASTER_KEY_ID=arn:aws:kms:us-west-1:008731829883:key/a72c4b37-325e-4254-9a9f-38592d01e0b2",
-        "spring.app.forntEndBaseUrl=http://base",
-        "STRIPE_KEY=sk_test_K4eOik2NYeiKvHs889qkqe1A007A5S4KJU","spring.app.appUrl:http://appbase"})
+@DataJpaTest
 public class RepositoryTest {
 
     public static final String INTERNATIONAL_PHONE_NUMBER = "+44 737327272";

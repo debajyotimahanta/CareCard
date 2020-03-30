@@ -145,3 +145,7 @@ Resources:
           OptionName: DB_USER
           Value:
             Fn::ImportValue: !Sub '${DbStackName}:DatabaseUser'
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: IMAGE_BUCKET_NAME
+          Value:
+            Fn::ImportValue: !Sub '${InfraStackName}:ImageBucket'

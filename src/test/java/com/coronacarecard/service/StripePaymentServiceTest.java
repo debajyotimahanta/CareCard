@@ -3,12 +3,7 @@ package com.coronacarecard.service;
 import com.coronacarecard.config.StripeConfiguration;
 import com.coronacarecard.exceptions.InternalException;
 import com.coronacarecard.model.Business;
-import com.coronacarecard.model.PaymentSystem;
-import com.stripe.model.Event;
-import com.stripe.param.EventListParams;
-import org.apache.commons.codec.digest.Crypt;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,8 +16,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(properties = {"MASTER_KEY_ID=arn:aws:kms:us-west-1:008731829883:key/a72c4b37-325e-4254-9a9f-38592d01e0b2",
-        "spring.app.forntEndBaseUrl=http://base","spring.app.appUrl:http://appbase"})
+@SpringBootTest
 public class StripePaymentServiceTest {
 
     @MockBean

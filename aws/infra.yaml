@@ -22,6 +22,12 @@ Outputs:
     Value: !Ref 'ImageBucket'
     Export:
       Name: !Join [ ':', [ !Ref 'AWS::StackName', 'ImageBucket' ] ]
+  ImageBucketArn:
+    Description:  S3 image bucket ARN
+    Value:
+      Fn::GetAtt: ['ImageBucket', Arn]
+    Export:
+      Name: !Join [ ':', [ !Ref 'AWS::StackName', 'ImageBucketArn' ] ]
   CodeBucket:
     Description: S3 code bucket
     Value: !Ref 'CodeBucket'
