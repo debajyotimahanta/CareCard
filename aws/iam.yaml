@@ -36,6 +36,27 @@ Resources:
       ManagedPolicyArns:
         - !Ref SNSPolicy
         - !Ref DBSecretPolicy
+        - !Ref CloudWatchLogPolicy
+  CloudWatchLogPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      ManagedPolicyName: !Join [ '-', [ !Ref 'AWS::StackName', 'cw-log-policy' ] ]
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: 'AllowCW'
+            Effect: Allow
+            Action:
+              - 'logs:CreateLogGroup'
+              - 'logs:CreateLogGroup'
+              - 'logs:CreateLogStream'
+              - 'logs:GetLogEvents'
+              - 'logs:PutLogEvents'
+              - 'logs:DescribeLogGroups'
+              - 'logs:DescribeLogStreams'
+              - 'logs:PutRetentionPolicy'
+            Resource:
+              - '*'
   SNSPolicy:
     Type: AWS::IAM::ManagedPolicy
     Properties:

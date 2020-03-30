@@ -125,6 +125,10 @@ Resources:
                 - "22"
                 - Fn::ImportValue: !Sub '${NetworkStackName}:BastionSecurityGroup'
 
+        - Namespace: aws:elasticbeanstalk:cloudwatch:logs
+          OptionName: StreamLogs
+          Value: true
+
         #Environment variables used by application
         - Namespace: aws:elasticbeanstalk:application:environment
           OptionName: MASTER_KEY_ID
