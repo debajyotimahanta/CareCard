@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("admin")
 public class AdminController {
@@ -18,14 +20,14 @@ public class AdminController {
     private OwnerService ownerService;
 
     @RequestMapping(value = "business/{id}/approve/{paymentSystem}", method = RequestMethod.GET)
-    public String approveBusiness(@PathVariable("id") Long id,
+    public String approveBusiness(@PathVariable("id") UUID id,
                                   @PathVariable("paymentSystem") PaymentSystem paymentSystem) throws
             CustomerException, InternalException {
         return ownerService.approveClaim(paymentSystem, id);
     }
 
     @RequestMapping(value = "business/{id}/decline", method = RequestMethod.GET)
-    public void approveBusiness(@PathVariable Long id) throws
+    public void approveBusiness(@PathVariable UUID id) throws
             BusinessNotFoundException, InternalException {
         ownerService.declineClaim(id);
     }

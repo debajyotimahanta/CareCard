@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.util.UUID;
+
 import static org.junit.Assert.assertEquals;
 
 @RunWith(SpringRunner.class)
@@ -29,7 +31,7 @@ public class PaymentServiceTest {
         String connectId="JJJJ";
         String expected="https://connect.stripe.com/oauth/authorize?client_id=%1$s&state=%2$s&scope=read_write&response_type=code";
 
-        Business business=Business.builder().id(10L).externalRefId("ext-100").build();
+        Business business=Business.builder().id(UUID.randomUUID()).externalRefId("ext-100").build();
         String onboardingUrl=paymentService.generateOnBoardingUrl(PaymentSystem.STRIPE,business);
 
         assertEquals(String.format(expected,connectId,cryptoService.encrypt(business.getId().toString())),onboardingUrl);

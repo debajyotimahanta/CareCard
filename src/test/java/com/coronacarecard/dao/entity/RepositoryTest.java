@@ -25,10 +25,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.junit.Assert.*;
 
@@ -120,7 +117,7 @@ public class RepositoryTest {
                 .email(email)
                 .phoneNumber("12345")
                 .build());
-        List<Long> businessIds = new ArrayList<>();
+        List<UUID> businessIds = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
             Business business = TestHelper.createEntry(businessRepository, INTERNATIONAL_PHONE_NUMBER + i,
                     idPrefix + i, "Food for Friends" + i);
@@ -137,9 +134,9 @@ public class RepositoryTest {
         assertEquals(5, storedOrder.getOrderItems().get(0).getItems().size());
     }
 
-    private OrderDetail getOrder(List<Long> businessIds) {
+    private OrderDetail getOrder(List<UUID> businessIds) {
         List<OrderLine> line = new ArrayList<>();
-        for (Long id : businessIds) {
+        for (UUID id : businessIds) {
 
             line.add(OrderLine.builder()
                     .businessId(id)

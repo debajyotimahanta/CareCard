@@ -21,7 +21,7 @@ public enum BusinessState {
 
     /**
      * After the owner fills in the business payment details we mark it as Active
-     * It can now recieve payments
+     * It can now receive payments
      */
     Active
 }

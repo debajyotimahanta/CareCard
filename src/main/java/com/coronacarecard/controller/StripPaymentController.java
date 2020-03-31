@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Optional;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("payment/strip")
@@ -55,7 +56,7 @@ public class StripPaymentController {
     @GetMapping("/business/onboard/{id}")
     public String onboard(@PathVariable String id) throws BusinessNotFoundException, InternalException {
         try {
-            Long businessId = Long.parseLong(id);
+            UUID businessId = UUID.fromString(id);
             Business business=businessService.getBusiness(businessId);
             return paymentService.generateOnBoardingUrl(PaymentSystem.STRIPE,business);
         }catch(NumberFormatException ex){
@@ -71,12 +72,12 @@ public class StripPaymentController {
                         @RequestParam(value = "state") String state,
                         HttpServletResponse httpServletResponse)
             throws BusinessClaimException, BusinessNotFoundException, IOException, InternalException {
-        String decryptedPlaceId = cryptoService.decrypt(state);
-        Long id = Long.parseLong(decryptedPlaceId);
-        Business business = paymentService.getBusinessDetails(PaymentSystem.STRIPE, code);
-        if (id != business.getId()) {
+        String   decryptedPlaceId = cryptoService.decrypt(state);
+        UUID     id               = UUID.fromString(decryptedPlaceId);
+        Business business         = paymentService.getBusinessDetails(PaymentSystem.STRIPE, code);
+        if (id.compareTo(business.getId()) != 0) {
             log.error(String.format("The business id %s and state's id %s don't match something is wrong",
-                    business.getId(), id));
+                    business.getId().toString(), id.toString()));
             throw new BusinessClaimException("The business id dont match");
         }
         Optional<com.coronacarecard.dao.entity.Business> businessDAO = businessRepository.findById(business.getId());

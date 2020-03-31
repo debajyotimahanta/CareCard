@@ -15,6 +15,7 @@ import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import static java.util.UUID.randomUUID;
 import static org.junit.jupiter.api.Assertions.*;
 
 @RunWith(SpringRunner.class)
@@ -34,7 +35,7 @@ public class BusinessEntityMapperImplTest {
     public  void checkMappingBusinessModelToDAO(){
         // Arrange
         Business model = Business.builder()
-                .id(1234L)
+                .id(randomUUID())
                 .externalRefId("ABCD1234")
                 .name("Winter Wonders Inc.")
                 .address("123 Main St, Chicago")
@@ -109,7 +110,7 @@ public class BusinessEntityMapperImplTest {
     public  void checkMappingBusinessDAOToModel(){
         // Arrange
         com.coronacarecard.dao.entity.Business dao = com.coronacarecard.dao.entity.Business.builder()
-                .id(1234L)
+                .id(randomUUID())
                 .externalRefId("ABCD1234")
                 .name("Winter Wonders Inc.")
                 .address("123 Main St, Chicago")
@@ -148,7 +149,7 @@ public class BusinessEntityMapperImplTest {
     public  void checkMappingBusinessDAOToModelInactiveBusiness(){
         // Arrange
         com.coronacarecard.dao.entity.Business dao = com.coronacarecard.dao.entity.Business.builder()
-                .id(1234L)
+                .id(randomUUID())
                 .externalRefId("ABCD1234")
                 .name("Winter Wonders Inc.")
                 .address("123 Main St, Chicago")

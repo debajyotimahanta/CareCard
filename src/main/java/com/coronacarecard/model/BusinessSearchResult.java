@@ -1,5 +1,7 @@
 package com.coronacarecard.model;
 
+import java.util.UUID;
+
 @lombok.Builder
 @lombok.NoArgsConstructor
 @lombok.AllArgsConstructor
@@ -7,7 +9,7 @@ package com.coronacarecard.model;
 public class BusinessSearchResult {
     private String name;
     private String address;
-    private Long id;
+    private UUID   id;
     private String externalRefId;
     private Double latitude;
     private Double longitude;

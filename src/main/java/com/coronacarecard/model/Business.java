@@ -3,6 +3,7 @@ package com.coronacarecard.model;
 import com.coronacarecard.model.orders.OrderStatus;
 
 import java.io.Serializable;
+import java.util.UUID;
 
 @lombok.Builder(toBuilder = true)
 @lombok.NoArgsConstructor
@@ -11,7 +12,7 @@ import java.io.Serializable;
 @lombok.Setter
 @lombok.EqualsAndHashCode
 public class Business implements Serializable {
-    private Long id;
+    private UUID   id;
     private String externalRefId;
     private Double latitude;
     private Double longitude;

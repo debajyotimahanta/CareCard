@@ -9,6 +9,8 @@ import com.coronacarecard.model.BusinessRegistrationRequest;
 import com.coronacarecard.model.PaymentSystem;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.UUID;
+
 public interface OwnerService {
 
     /**
@@ -54,7 +56,7 @@ public interface OwnerService {
      * business will use to onboard.
      */
     @Transactional
-    String approveClaim(PaymentSystem paymentSystem, Long id) throws CustomerException;
+    String approveClaim(PaymentSystem paymentSystem, UUID id) throws CustomerException;
 
     /**
      * For the given business decline the claim and remove its realtionship with owner.
@@ -62,5 +64,5 @@ public interface OwnerService {
      * @param id
      */
     @Transactional
-    void declineClaim(Long id) throws BusinessNotFoundException;
+    void declineClaim(UUID id) throws BusinessNotFoundException;
 }

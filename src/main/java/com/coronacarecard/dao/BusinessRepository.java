@@ -8,8 +8,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 
 import java.util.Optional;
+import java.util.UUID;
 
-public interface BusinessRepository extends PagingAndSortingRepository<Business, Long>, JpaSpecificationExecutor<Business> {
+public interface BusinessRepository extends PagingAndSortingRepository<Business, UUID>, JpaSpecificationExecutor<Business> {
 
     @Query("Select b from Business b where b.name LIKE  %?1% order by b.id")
     Page<Business> findByName(String name, Pageable pageable);
