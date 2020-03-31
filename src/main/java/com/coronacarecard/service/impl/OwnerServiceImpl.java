@@ -11,7 +11,6 @@ import com.coronacarecard.notifications.NotificationType;
 import com.coronacarecard.service.GooglePlaceService;
 import com.coronacarecard.service.OwnerService;
 import com.coronacarecard.service.PaymentService;
-import com.coronacarecard.service.payment.PaymentServiceFactory;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -139,7 +138,8 @@ public class OwnerServiceImpl implements OwnerService {
 
         if(BusinessState.Claimed.equals(businessDAO.getState())) {
             log.info("Business is claimed now, will wait for owner to enter payment details");
-            businessDAO = businessRepository.save(businessDAO.toBuilder().state(BusinessState.Pending).build());
+            businessDAO.setState(BusinessState.Pending);
+            businessDAO = businessRepository.save(businessDAO);
         }
         String url = paymentService.generateOnBoardingUrl( businessEntityMapper.toModel(businessDAO));
         approvalNotificationSender.sendNotification(
@@ -166,10 +166,10 @@ public class OwnerServiceImpl implements OwnerService {
             log.info("Business already marked as Draft nothing to do");
         }
 
-        com.coronacarecard.dao.entity.Business.BusinessBuilder updatedBusiness = business.get().toBuilder();
-        updatedBusiness.state(BusinessState.Draft);
-        updatedBusiness.owner(null);
-        com.coronacarecard.dao.entity.Business result = businessRepository.save(updatedBusiness.build());
+
+        business.get().setState(BusinessState.Draft);
+        business.get().setOwner(null);
+        com.coronacarecard.dao.entity.Business result = businessRepository.save(business.get());
         notificationSender.sendNotification(NotificationType.BUSINESS_DECLINED,
                 businessEntityMapper.toModel(result));
 

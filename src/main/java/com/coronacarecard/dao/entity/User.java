@@ -3,7 +3,7 @@ package com.coronacarecard.dao.entity;
 import javax.persistence.*;
 import java.util.List;
 
-@lombok.Builder
+@lombok.Builder(toBuilder = true)
 @lombok.NoArgsConstructor
 @lombok.AllArgsConstructor
 @lombok.Getter
@@ -43,11 +43,11 @@ public class User {
     @Column(name = "confirmation_token")
     private String confirmationToken;
 
-    @OneToMany(fetch=FetchType.EAGER, mappedBy = "owner")
+    @OneToMany(fetch=FetchType.EAGER, mappedBy = "owner", cascade = CascadeType.ALL)
     private List<Business> business;
 
     @OneToOne(cascade =CascadeType.ALL)
-    @JoinColumn(name = "id", referencedColumnName = "id")
+    @JoinColumn(name = "account", referencedColumnName = "id")
     private BusinessAccountDetail account;
 
 

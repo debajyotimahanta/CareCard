@@ -2,10 +2,10 @@ package com.coronacarecard.service;
 
 import com.coronacarecard.exceptions.BusinessNotFoundException;
 import com.coronacarecard.exceptions.InternalException;
+import com.coronacarecard.exceptions.PayementServiceException;
 import com.coronacarecard.exceptions.PaymentAccountNotSetupException;
 import com.coronacarecard.model.Business;
 import com.coronacarecard.model.CheckoutResponse;
-import com.coronacarecard.model.PaymentSystem;
 import com.coronacarecard.model.orders.OrderDetail;
 
 public interface PaymentService {
@@ -60,5 +60,5 @@ public interface PaymentService {
      */
     void validate(com.coronacarecard.model.orders.OrderDetail order);
 
-    Business getBusinessDetails(String code);
+    Business importBusiness(String code, String state) throws BusinessNotFoundException, PayementServiceException, InternalException;
 }

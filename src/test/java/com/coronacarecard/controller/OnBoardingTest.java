@@ -2,7 +2,9 @@ package com.coronacarecard.controller;
 
 import com.coronacarecard.dao.BusinessRepository;
 import com.coronacarecard.dao.entity.Business;
+import com.coronacarecard.exceptions.BusinessNotFoundException;
 import com.coronacarecard.exceptions.InternalException;
+import com.coronacarecard.exceptions.PayementServiceException;
 import com.coronacarecard.mapper.BusinessEntityMapper;
 import com.coronacarecard.model.BusinessApprovalDetails;
 import com.coronacarecard.model.BusinessState;
@@ -71,8 +73,8 @@ public class OnBoardingTest {
 
 
     @Before
-    public void init() throws InternalException {
-        when(paymentService.getBusinessDetails( AUTHCODE))
+    public void init() throws InternalException, BusinessNotFoundException, PayementServiceException {
+        when(paymentService.importBusiness( AUTHCODE, STATE))
                 .thenAnswer(invocation -> businessEntityMapper.toModel(afterRegister.get()));
 
         when(cryptoService.decrypt(STATE)).thenAnswer(invocation -> afterRegister.get().getId().toString());
