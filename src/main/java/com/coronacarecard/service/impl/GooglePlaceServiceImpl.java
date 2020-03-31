@@ -14,6 +14,7 @@ import com.google.maps.model.PlacesSearchResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -26,17 +27,14 @@ import java.util.stream.Collectors;
 public class GooglePlaceServiceImpl implements GooglePlaceService {
     private static Log log = LogFactory.getLog(GooglePlaceServiceImpl.class);
 
+    @Value("${google.photo.maxwidth}")
+    private int imageMaxWidth;
+
+    @Autowired
+    private GeoApiContext context;
+
     @Autowired
     private BusinessEntityMapper mapper;
-
-    private final GeoApiContext context;
-
-    public GooglePlaceServiceImpl() {
-        //TODO Move key to config
-        context = new GeoApiContext.Builder()
-                .apiKey("AIzaSyCt-BrVmt0PVN6bAIxABtoGmNVQfjWHM3o")
-                .build();
-    }
 
     @Override
     public Business getBusiness(String id) throws BusinessNotFoundException, InternalException {
@@ -80,21 +78,23 @@ public class GooglePlaceServiceImpl implements GooglePlaceService {
     }
 
     @Override
-    public ImageResult getPhoto(String photoReference, Optional<Integer> maxHeight, Optional<Integer> maxWidth) throws InternalException {
-        // TODO Implement the method
+    public ImageResult getPhoto(String photoReference) throws InternalException {
+
         PhotoRequest request = PlacesApi.photo(context, photoReference);
         request.photoReference(photoReference);
-        if(maxHeight.isPresent()) request.maxHeight(maxHeight.get().intValue());
-        if(maxWidth.isPresent()) request.maxWidth(maxWidth.get().intValue());
+        request.maxWidth(imageMaxWidth);
 
         ImageResult result = null;
         try {
              result = request.await();
         } catch (ApiException e) {
+            log.error("Error while requesting image with id : " + photoReference);
             throw new InternalException(e.getMessage());
         } catch (InterruptedException e) {
+            log.error("Error while requesting image with id : " + photoReference);
             throw new InternalException(e.getMessage());
         } catch (IOException e) {
+            log.error("Error while requesting image with id : " + photoReference);
             throw new InternalException(e.getMessage());
         }
         return result;

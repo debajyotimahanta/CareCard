@@ -118,9 +118,7 @@ public class BusinessServiceImpl implements BusinessService {
     }
 
     private Business storeDefaultBusinessImage(Business business) throws InternalException {
-        ImageResult photo = googlePlaceService.getPhoto(business.getPhoto().getPhotoReference(),
-                Optional.of(business.getPhoto().getHeight()),
-                Optional.of(business.getPhoto().getWidth()));
+        ImageResult photo = googlePlaceService.getPhoto(business.getPhoto().getPhotoReference());
         String imageExtension = getImageExtensionFromContentType(photo.contentType);
         String imageName = new StringBuilder("")
                 .append(business.getExternalRefId())
