@@ -136,7 +136,7 @@ public class RepositoryTest {
                 .email(email)
                 .phoneNumber("12345")
                 .account(BusinessAccountDetail.builder()
-                        .externalRefId("acct_1GRh5xDPr3q3wDlF")
+                        .externalRefId("acct_1GSRdxIsoQ5ULXuu")
                         .build())
                 .build());
         List<UUID> businessIds = new ArrayList<>();
