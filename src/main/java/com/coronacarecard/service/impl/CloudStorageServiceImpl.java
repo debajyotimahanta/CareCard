@@ -1,12 +1,10 @@
 package com.coronacarecard.service.impl;
 
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.regions.Regions;
-import com.amazonaws.services.s3.AmazonS3Client;
-import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.*;
 import com.coronacarecard.exceptions.InternalException;
 import com.coronacarecard.service.CloudStorageService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayInputStream;
@@ -16,9 +14,8 @@ import java.util.Optional;
 
 @Service
 public class CloudStorageServiceImpl implements CloudStorageService {
-
-    private static final String AWS_ACCESS_KEY        = "";
-    private static final String AWS_ACCESS_SECRET_KEY = "";
+    @Autowired
+    private AmazonS3 client;
 
     @Override
     public Bucket createFolder(String bucketName) throws InternalException {
@@ -30,7 +27,6 @@ public class CloudStorageServiceImpl implements CloudStorageService {
     public PutObjectResult uploadImage(String bucketName, String imageName, byte[] image, Optional<String> contentType)
             throws InternalException {
         PutObjectResult result = null;
-        AmazonS3Client  client = getAWSClient();
 
         try (InputStream dataStream = new ByteArrayInputStream(image);) {
             // Set Object Metadata like content-type and file name
@@ -60,21 +56,8 @@ public class CloudStorageServiceImpl implements CloudStorageService {
 
     @Override
     public String getObjectUrl(String bucketName, String imageName) throws InternalException {
-        AmazonS3Client client = getAWSClient();
-        return client.getResourceUrl(bucketName, imageName);
+        return client.getUrl(bucketName, imageName).toString();
     }
 
-    private AmazonS3Client getAWSClient() {
 
-        BasicAWSCredentials awsCreds = new BasicAWSCredentials(AWS_ACCESS_KEY,
-                AWS_ACCESS_SECRET_KEY);
-
-        // Using AmazonS3Client over AmazonS3 interface because AmazonS3Client exposes
-        // method to get object url.
-        AmazonS3Client client = (AmazonS3Client) AmazonS3ClientBuilder.standard()
-                .withRegion(Regions.US_EAST_2)
-                .build();
-
-        return client;
-    }
 }

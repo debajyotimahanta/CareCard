@@ -20,8 +20,7 @@ import static org.mockito.Mockito.when;
 
 @RunWith(SpringRunner.class)
 @AutoConfigureTestDatabase
-@SpringBootTest(properties = {"AWS_ARN=arn:aws:kms:us-west-1:008731829883:key/a72c4b37-325e-4254-9a9f-38592d01e0b2",
-        "spring.app.forntEndBaseUrl=http://base"})
+@SpringBootTest
 public class BusinessServiceTest {
     @MockBean
     private CloudStorageService cloudStorageService;

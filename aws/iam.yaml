@@ -7,6 +7,12 @@ Parameters:
     MinLength: 1
     MaxLength: 255
     AllowedPattern: ^[a-zA-Z][-a-zA-Z0-9]*$
+  DbStackName:
+    Description: Name of an CloudFormation db stack that has the db secret arn
+    Type: String
+    MinLength: 1
+    MaxLength: 255
+    AllowedPattern: ^[a-zA-Z][-a-zA-Z0-9]*$
 Resources:
   WebServerInstanceProfile:
     Type: AWS::IAM::InstanceProfile
@@ -28,22 +34,49 @@ Resources:
             Action:
               - sts:AssumeRole
       ManagedPolicyArns:
-        - !Ref KMSPolicy
         - !Ref SNSPolicy
-  KMSPolicy:
+        - !Ref DBSecretPolicy
+        - !Ref CloudWatchLogPolicy
+        - !Ref S3Policy
+  S3Policy:
     Type: AWS::IAM::ManagedPolicy
     Properties:
-      ManagedPolicyName: !Join [ '-', [ !Ref 'AWS::StackName', '-ws-kms-policy' ] ]
+      ManagedPolicyName: !Join [ '-', [ !Ref 'AWS::StackName', 's3-policy' ] ]
       PolicyDocument:
         Version: '2012-10-17'
         Statement:
-          - Sid: 'AllowDecryptFromWebServer'
+          - Sid: 'AllowS3'
             Effect: Allow
             Action:
-              - 'kms:Decrypt'
-              - 'kms:Encrypt'
+              - "s3:PutObject"
+              - "s3:PutObjectAcl"
+              - "s3:GetObject"
+              - "s3:DeleteObject"
             Resource:
-              Fn::ImportValue: !Sub "${InfraStackName}:MasterKeyArn"
+              - Fn::Join:
+                  - ''
+                  - - Fn::ImportValue: !Sub '${InfraStackName}:ImageBucketArn'
+                    - '/*'
+  CloudWatchLogPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      ManagedPolicyName: !Join [ '-', [ !Ref 'AWS::StackName', 'cw-log-policy' ] ]
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: 'AllowCW'
+            Effect: Allow
+            Action:
+              - 'logs:CreateLogGroup'
+              - 'logs:CreateLogGroup'
+              - 'logs:CreateLogStream'
+              - 'logs:GetLogEvents'
+              - 'logs:PutLogEvents'
+              - 'logs:DescribeLogGroups'
+              - 'logs:DescribeLogStreams'
+              - 'logs:PutRetentionPolicy'
+            Resource:
+              - '*'
   SNSPolicy:
     Type: AWS::IAM::ManagedPolicy
     Properties:
@@ -61,6 +94,20 @@ Resources:
               - 'sns:ConfirmSubscription'
             Resource:
               - '*'
+  DBSecretPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      ManagedPolicyName: !Join [ '-', [ !Ref 'AWS::StackName', '-ws-db-secret-policy' ] ]
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: 'AllowSNS'
+            Effect: Allow
+            Action:
+              - 'secretsmanager:GetSecretValue'
+              - 'secretsmanager:DescribeSecret'
+            Resource:
+              - Fn::ImportValue: !Sub '${DbStackName}:DatabaseSecret'
 
 Outputs:
   WebServerInstanceProfile:
@@ -69,3 +116,8 @@ Outputs:
     Export:
       Name: !Join [ ':', [ !Ref 'AWS::StackName', 'WebServerInstanceProfile' ] ]
 
+  WebServerRoleArn:
+    Description: Instnace profile role used by the web server
+    Value: {"Fn::GetAtt": ["WebServerRole", "Arn"] }
+    Export:
+      Name: !Join [ ':', [ !Ref 'AWS::StackName', 'WebServerRoleArn' ] ]

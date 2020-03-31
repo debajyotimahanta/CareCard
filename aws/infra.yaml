@@ -1,38 +1,16 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: IAM roles and details
 Resources:
-  MasterKey:
-    Type: AWS::KMS::Key
-    Properties:
-      Description: !Join [ '-', [ !Ref 'AWS::StackName', 'Key to encrypt information by EC2' ] ]
-      KeyPolicy:
-        Version: "2012-10-17"
-        Id: !Ref AWS::StackName
-        Statement:
-          - Sid: Allows admin of the key
-            Effect: Allow
-            Principal:
-              AWS: !Sub arn:aws:iam::${AWS::AccountId}:root
-            Action:
-              - "kms:Create*"
-              - "kms:Describe*"
-              - "kms:Enable*"
-              - "kms:List*"
-              - "kms:Put*"
-              - "kms:Update*"
-              - "kms:Revoke*"
-              - "kms:Disable*"
-              - "kms:Get*"
-              - "kms:Delete*"
-              - "kms:ScheduleKeyDeletion"
-              - "kms:CancelKeyDeletion"
-            Resource: "*"
-
   ImageBucket:
     Type: AWS::S3::Bucket
     Properties:
       AccessControl: PublicRead
       BucketName: !Join [ '-', [ !Ref 'AWS::StackName', !Ref 'AWS::AccountId', 'images']]
+  CodeBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      AccessControl: Private
+      BucketName: !Join [ '-', [ !Ref 'AWS::StackName', !Ref 'AWS::AccountId', 'code']]
 Outputs:
   ImageBucketURL:
     Value: !Join ['', ['https://', !GetAtt [ImageBucket, DomainName]]]
@@ -44,11 +22,15 @@ Outputs:
     Value: !Ref 'ImageBucket'
     Export:
       Name: !Join [ ':', [ !Ref 'AWS::StackName', 'ImageBucket' ] ]
-  MasterKeyArn:
-    Description: Master key used to encrypt data
+  ImageBucketArn:
+    Description:  S3 image bucket ARN
     Value:
-      Fn::GetAtt: ['MasterKey', Arn]
-
+      Fn::GetAtt: ['ImageBucket', Arn]
     Export:
-      Name: !Join [ ':', [ !Ref 'AWS::StackName', 'MasterKeyArn' ] ]
+      Name: !Join [ ':', [ !Ref 'AWS::StackName', 'ImageBucketArn' ] ]
+  CodeBucket:
+    Description: S3 code bucket
+    Value: !Ref 'CodeBucket'
+    Export:
+      Name: !Join [ ':', [ !Ref 'AWS::StackName', 'CodeBucket' ] ]
 

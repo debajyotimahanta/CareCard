@@ -5,6 +5,8 @@ import com.coronacarecard.dao.OrderDetailRepository;
 import com.coronacarecard.dao.entity.Business;
 import com.coronacarecard.dao.entity.OrderItem;
 import com.coronacarecard.exceptions.BusinessNotFoundException;
+import com.coronacarecard.exceptions.InternalException;
+import com.coronacarecard.exceptions.PaymentAccountNotSetupException;
 import com.coronacarecard.model.CheckoutResponse;
 import com.coronacarecard.model.PaymentSystem;
 import com.coronacarecard.model.orders.Item;
@@ -12,9 +14,11 @@ import com.coronacarecard.model.orders.OrderDetail;
 import com.coronacarecard.model.orders.OrderLine;
 import com.coronacarecard.service.PaymentService;
 import com.coronacarecard.service.ShoppingCartService;
+import com.coronacarecard.service.payment.PaymentServiceFactory;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,21 +29,23 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     private static Log log = LogFactory.getLog(ShoppingCartServiceImpl.class);
 
     @Autowired
-    private PaymentService paymentService;
-
-    @Autowired
     private OrderDetailRepository orderDetailRepository;
 
     @Autowired
     private BusinessRepository businessRepository;
 
+    @Autowired
+    @Qualifier("StripePaymentService")
+    private PaymentService paymentService;
+
     @Override
     @Transactional
-    public CheckoutResponse checkout(PaymentSystem paymentSystem, OrderDetail order) throws BusinessNotFoundException {
-        paymentService.validate(paymentSystem, order);
+    public CheckoutResponse checkout(PaymentSystem paymentSystem, OrderDetail order) throws BusinessNotFoundException, PaymentAccountNotSetupException, InternalException {
+
+        paymentService.validate(order);
         com.coronacarecard.dao.entity.OrderDetail savedOrder = saveOrder(order);
 
-        return paymentService.generateCheckoutSession(savedOrder);
+        return paymentService.generateCheckoutSession(order);
     }
 
     private com.coronacarecard.dao.entity.OrderDetail saveOrder(OrderDetail order) throws BusinessNotFoundException {

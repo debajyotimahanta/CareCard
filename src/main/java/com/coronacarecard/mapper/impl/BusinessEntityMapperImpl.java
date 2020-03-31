@@ -2,15 +2,14 @@ package com.coronacarecard.mapper.impl;
 
 import com.coronacarecard.dao.entity.Business;
 import com.coronacarecard.mapper.BusinessEntityMapper;
-import com.coronacarecard.model.BusinessSearchResult;
-import com.coronacarecard.model.BusinessState;
-import com.coronacarecard.model.PagedBusinessSearchResult;
-import com.coronacarecard.model.Photo;
+import com.coronacarecard.model.*;
 import com.google.maps.model.PlaceDetails;
 import com.google.maps.model.PlacesSearchResult;
+import org.checkerframework.checker.nullness.Opt;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 
 @Component
 public class BusinessEntityMapperImpl implements BusinessEntityMapper {
@@ -21,7 +20,7 @@ public class BusinessEntityMapperImpl implements BusinessEntityMapper {
 
     @Override
     public Business.BusinessBuilder toDAOBuilder(com.coronacarecard.model.Business business) {
-        String photoUrl       = business.getPhoto() != null ? business.getPhoto().getPhotoUrl() : null;
+        String photoUrl = business.getPhoto() != null ? business.getPhoto().getPhotoUrl() : null;
         String photoReference = business.getPhoto() != null ? business.getPhoto().getPhotoReference() : null;
         String photoAttribution = business.getPhoto() != null && business.getPhoto().getPhotoAttributions() != null
                 ? business.getPhoto().getPhotoAttributions()[0] : null;
@@ -62,7 +61,8 @@ public class BusinessEntityMapperImpl implements BusinessEntityMapper {
                 .Website(business.getWebsite())
                 .internationalPhoneNumber(business.getInternationalPhoneNumber())
                 .formattedPhoneNumber(business.getFormattedPhoneNumber())
-                .isActive(business.getState()== BusinessState.Active)
+                .isActive(business.getState() == BusinessState.Active)
+                .owner(buildUserData(business))
                 .build();
     }
 
@@ -134,5 +134,31 @@ public class BusinessEntityMapperImpl implements BusinessEntityMapper {
             return photos[0].htmlAttributions;
         }
         return null;
+    }
+
+    private Optional<User> buildUserData(Business business) {
+        if (business.getOwner() != null) {
+            com.coronacarecard.dao.entity.User user = business.getOwner();
+            return Optional.of(User.builder()
+                    .email(user.getEmail())
+                    .id(user.getId())
+                    .businessAccountDetail(buildBusinessAccountData(user))
+                    .build());
+        }
+
+        return Optional.empty();
+    }
+
+    private Optional<BusinessAccountDetail> buildBusinessAccountData(com.coronacarecard.dao.entity.User user) {
+        if (user.getAccount() != null) {
+            com.coronacarecard.dao.entity.BusinessAccountDetail account = user.getAccount();
+            return Optional.of(BusinessAccountDetail.builder()
+                    .externalRefId(account.getExternalRefId())
+                    .id(account.getId())
+                    .build()
+            );
+        }
+
+        return Optional.empty();
     }
 }

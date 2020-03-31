@@ -2,42 +2,53 @@ package com.coronacarecard.config;
 
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
-import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.encryptionsdk.kms.KmsMasterKeyProvider;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.sns.AmazonSNS;
 import com.amazonaws.services.sns.AmazonSNSClientBuilder;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.Lazy;
 
 @Configuration
 public class AWSConfiguration {
 
-    @Value("${AWS_ARN}")
+    @Value("${MASTER_KEY_ID}")
     private String awsARN;
 
     @Bean
-    public AmazonSNS snsClient() {
+    @Autowired
+    public AmazonSNS snsClient(AWSCredentialsProvider awsCredentialsProvider) {
         return AmazonSNSClientBuilder.standard()
-                .withEndpointConfiguration(getSnsEndPointConfig())
-                .withCredentials(getAWSCredProvider())
+                .withCredentials(awsCredentialsProvider)
                 .build();
     }
 
-    private AwsClientBuilder.EndpointConfiguration getSnsEndPointConfig() {
-        // This is for local testing using https://github.com/localstack/localstack
-        // TODO Remove this for prod deployment
-        return new AwsClientBuilder.EndpointConfiguration("http://localhost:4575", null);
-    }
-
-    private AWSCredentialsProvider getAWSCredProvider() {
+    @Bean
+    public AWSCredentialsProvider getAWSCredProvider() {
         return DefaultAWSCredentialsProviderChain.getInstance();
     }
 
     @Bean
-    @Scope("singleton")
-    public KmsMasterKeyProvider kmsMasterKeyProvider() {
-        return KmsMasterKeyProvider.builder().withKeysForEncryption(awsARN).build();
+    @Lazy
+    @Autowired
+    public KmsMasterKeyProvider kmsMasterKeyProvider(AWSCredentialsProvider awsCredentialsProvider) {
+
+        return KmsMasterKeyProvider
+                .builder()
+                .withCredentials(awsCredentialsProvider)
+                .withKeysForEncryption(awsARN).build();
+    }
+
+    @Bean
+    @Lazy
+    @Autowired
+    public AmazonS3 amazonS3Client(AWSCredentialsProvider awsCredentialsProvider) {
+        return  AmazonS3ClientBuilder.standard()
+                .withCredentials(awsCredentialsProvider)
+                .build();
     }
 }

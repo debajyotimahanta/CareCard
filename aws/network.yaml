@@ -1,5 +1,11 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: This stack with public and private subet
+Parameters:
+  KeyName:
+    Description: Name of an existing EC2 KeyPair to enable SSH access to the AWS Elastic
+      Beanstalk instance
+    Type: AWS::EC2::KeyPair::KeyName
+    ConstraintDescription: must be the name of an existing EC2 KeyPair.
 Mappings:
   # Hard values for the subnet masks. These masks define
   # the range of internal IP addresses that can be assigned.
@@ -249,6 +255,30 @@ Resources:
           # Allow access to ALB from anywhere on the internet
           - CidrIp: 0.0.0.0/0
             IpProtocol: -1
+  # This is a security group which will have all the bastion hosts via which we can SSH to backend
+  BastionSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: !Join [ ':', [ !Ref 'AWS::StackName', ' Bastion security group' ] ]
+      VpcId: !Ref 'VPC'
+      SecurityGroupIngress:
+        # Allow access to Bastion from anywhere on the internet
+        # TODO find out what IP range we should allow
+        - CidrIp: 0.0.0.0/0
+          IpProtocol: -1
+  Ec2Instance2:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: t2.small
+      ImageId: 'ami-0bf54ac1b628cf143'
+      SecurityGroupIds:
+        - !Ref BastionSecurityGroup
+      SubnetId: !Ref PublicSubnetOne
+      KeyName: !Ref KeyName
+      Tags:
+        - Key: Name
+          Value: !Join [ ':', [ !Ref 'AWS::StackName', ' Bastion host' ] ]
+
   # Private security group which only accepts traffic from the public group
   PrivateBackendSG:
     Type: AWS::EC2::SecurityGroup
@@ -261,7 +291,7 @@ Resources:
             IpProtocol: tcp
             FromPort: !FindInMap ['Application', 'Web', 'Port']
             ToPort: !FindInMap ['Application', 'Web', 'Port']
-          - SourceSecurityGroupId: !GetAtt PublicLoadBalancerSG.GroupId
+          - SourceSecurityGroupId: !GetAtt BastionSecurityGroup.GroupId
             IpProtocol: tcp
             FromPort: 22
             ToPort: 22
@@ -370,6 +400,11 @@ Outputs:
     Value: !Ref 'PublicLoadBalancerSG'
     Export:
       Name: !Join [ ':', [ !Ref 'AWS::StackName', 'PublicSecurityGroup' ] ]
+  BastionSecurityGroup:
+    Description: bastion security group
+    Value: !Ref 'BastionSecurityGroup'
+    Export:
+      Name: !Join [ ':', [ !Ref 'AWS::StackName', 'BastionSecurityGroup' ] ]
   PrivateSecurityGroup:
     Description: Private backend security group
     Value: !Ref 'PrivateBackendSG'

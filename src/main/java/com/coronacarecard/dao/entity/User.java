@@ -46,7 +46,7 @@ public class User {
     @OneToMany(fetch=FetchType.EAGER, mappedBy = "owner")
     private List<Business> business;
 
-    @OneToOne
+    @OneToOne(cascade =CascadeType.ALL)
     @JoinColumn(name = "id", referencedColumnName = "id")
     private BusinessAccountDetail account;
 

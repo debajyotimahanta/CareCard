@@ -7,13 +7,13 @@ import com.coronacarecard.exceptions.InternalException;
 import com.coronacarecard.model.Business;
 import com.coronacarecard.model.BusinessState;
 import com.coronacarecard.model.CheckoutResponse;
-import com.coronacarecard.model.PaymentSystem;
 import com.coronacarecard.service.BusinessService;
 import com.coronacarecard.service.CryptoService;
 import com.coronacarecard.service.PaymentService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -24,10 +24,12 @@ import java.util.Optional;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("payment/strip")
-public class StripPaymentController {
-    private static Log log = LogFactory.getLog(StripPaymentController.class);
+@RequestMapping("payment/stripe")
+public class StripePaymentController {
+    private static Log log = LogFactory.getLog(StripePaymentController.class);
+
     @Autowired
+    @Qualifier("StripePaymentService")
     private PaymentService paymentService;
 
     @Autowired
@@ -44,13 +46,13 @@ public class StripPaymentController {
 
     @GetMapping("/success")
     public CheckoutResponse checkout(String urlParams) {
-        return paymentService.successPayment(PaymentSystem.STRIPE, urlParams);
+        return paymentService.successPayment( urlParams);
     }
 
 
     @GetMapping("/failure")
     public CheckoutResponse fail(String urlParams) {
-        return paymentService.failedPayment(PaymentSystem.STRIPE, urlParams);
+        return paymentService.failedPayment( urlParams);
     }
 
     @GetMapping("/business/onboard/{id}")
@@ -58,7 +60,7 @@ public class StripPaymentController {
         try {
             UUID businessId = UUID.fromString(id);
             Business business=businessService.getBusiness(businessId);
-            return paymentService.generateOnBoardingUrl(PaymentSystem.STRIPE,business);
+            return paymentService.generateOnBoardingUrl(business);
         }catch(NumberFormatException ex){
             log.error(String.format("The id %s is not in the proper format",id));
             //TODO: This is a BadRequest exception
@@ -74,7 +76,7 @@ public class StripPaymentController {
             throws BusinessClaimException, BusinessNotFoundException, IOException, InternalException {
         String   decryptedPlaceId = cryptoService.decrypt(state);
         UUID     id               = UUID.fromString(decryptedPlaceId);
-        Business business         = paymentService.getBusinessDetails(PaymentSystem.STRIPE, code);
+        Business business = paymentService.getBusinessDetails(code);
         if (id.compareTo(business.getId()) != 0) {
             log.error(String.format("The business id %s and state's id %s don't match something is wrong",
                     business.getId().toString(), id.toString()));

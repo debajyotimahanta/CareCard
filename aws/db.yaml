@@ -12,6 +12,7 @@ Resources:
   MyRDSInstanceRotationSecret:
     Type: AWS::SecretsManager::Secret
     Properties:
+      Name: !Join [ '/', [ !Ref 'AWS::StackName', 'dbuser' ] ]
       Description: 'This is my rds instance secret'
       GenerateSecretString:
         SecretStringTemplate: '{"username": "admin"}'
@@ -53,4 +54,14 @@ Outputs:
     Value: !Join [':', [!GetAtt RDSCluster.Endpoint.Address, !GetAtt RDSCluster.Endpoint.Port]]
     Export:
       Name: !Join [ ':', [ !Ref 'AWS::StackName', 'DatabaseEndPoint' ] ]
+  DatabaseSecret:
+    Description: The AWS secret which has the database keys
+    Value: !Ref MyRDSInstanceRotationSecret
+    Export:
+      Name: !Join [ ':', [ !Ref 'AWS::StackName', 'DatabaseSecret' ] ]
+  DatabaseUser:
+    Description: The AWS secret which has the database keys
+    Value: !Join [ '/', [ !Ref 'AWS::StackName', 'dbuser' ] ]
+    Export:
+      Name: !Join [ ':', [ !Ref 'AWS::StackName', 'DatabaseUser' ] ]
 

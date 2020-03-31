@@ -8,6 +8,7 @@ import com.coronacarecard.exceptions.InternalException;
 import com.coronacarecard.service.CryptoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Base64Utils;
 
@@ -19,10 +20,11 @@ import java.util.Map;
 @Service
 public class CryptoServiceImpl implements CryptoService {
 
-    @Value("${AWS_ARN}")
+    @Value("${MASTER_KEY_ID}")
     private String awsARN;
 
     @Autowired
+    @Lazy
     KmsMasterKeyProvider keyProvider;
 
     private final Map<String, String> context = Collections.singletonMap("@rtval", "#postvar");

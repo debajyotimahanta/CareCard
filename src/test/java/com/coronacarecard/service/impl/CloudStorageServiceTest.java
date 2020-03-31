@@ -3,6 +3,7 @@ package com.coronacarecard.service.impl;
 import com.amazonaws.services.s3.model.PutObjectResult;
 import com.coronacarecard.exceptions.InternalException;
 import com.coronacarecard.service.CloudStorageService;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -13,7 +14,8 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-
+//TODO (arun) a unit test needs to run in everyone desktop without any special access
+@Ignore
 public class CloudStorageServiceTest {
 
 

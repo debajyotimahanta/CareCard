@@ -49,6 +49,8 @@ dependencies {
     // implementation 'com.amazonaws:aws-java-sdk:1.11.748'
     implementation 'com.amazonaws:aws-java-sdk-sns:1.11.748'
     implementation 'cloud.localstack:localstack-utils:0.2.1'
+    implementation 'com.amazonaws.secretsmanager:aws-secretsmanager-jdbc:1.0.2'
+    implementation 'mysql:mysql-connector-java:8.0.19'
 
 
     testImplementation 'org.mockito:mockito-core:3.3.3'

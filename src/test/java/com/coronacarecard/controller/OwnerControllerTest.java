@@ -26,8 +26,7 @@ import static org.junit.Assert.assertTrue;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(properties = {"AWS_ARN=arn:aws:kms:us-west-1:008731829883:key/a72c4b37-325e-4254-9a9f-38592d01e0b2",
-        "spring.app.forntEndBaseUrl=http://base"})
+@SpringBootTest
 @AutoConfigureTestDatabase
 @AutoConfigureMockMvc
 public class OwnerControllerTest {

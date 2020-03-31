@@ -33,8 +33,7 @@ import static org.mockito.Mockito.when;
 
 @RunWith(SpringRunner.class)
 @AutoConfigureTestDatabase
-@SpringBootTest(properties = {"AWS_ARN=arn:aws:kms:us-west-1:008731829883:key/a72c4b37-325e-4254-9a9f-38592d01e0b2",
-        "spring.app.forntEndBaseUrl=http://base"})
+@SpringBootTest
 public class OwnerServiceTest {
 
     public static final String DESC = "Hello world";
@@ -87,7 +86,7 @@ public class OwnerServiceTest {
                 .build();
         businessRepository.save(existingBusinessDAO);
 
-        when(paymentService.generateOnBoardingUrl(any(), any())).thenReturn("url");
+        when(paymentService.generateOnBoardingUrl(any())).thenReturn("url");
     }
 
     @After

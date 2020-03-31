@@ -3,7 +3,7 @@ package com.coronacarecard.dao.entity;
 import com.coronacarecard.dao.BusinessRepository;
 import com.coronacarecard.dao.OrderDetailRepository;
 import com.coronacarecard.dao.UserRepository;
-import com.coronacarecard.exceptions.BusinessNotFoundException;
+import com.coronacarecard.model.Currency;
 import com.coronacarecard.model.PaymentSystem;
 import com.coronacarecard.model.orders.OrderDetail;
 import com.coronacarecard.model.orders.OrderLine;
@@ -30,8 +30,7 @@ import java.util.*;
 import static org.junit.Assert.*;
 
 @RunWith(SpringRunner.class)
-@DataJpaTest(properties = {"AWS_ARN=arn:aws:kms:us-west-1:008731829883:key/a72c4b37-325e-4254-9a9f-38592d01e0b2",
-        "spring.app.forntEndBaseUrl=http://base"})
+@DataJpaTest
 public class RepositoryTest {
 
     public static final String INTERNATIONAL_PHONE_NUMBER = "+44 737327272";
@@ -110,12 +109,15 @@ public class RepositoryTest {
     }
 
     @Test
-    public void createCart() throws BusinessNotFoundException {
+    public void createCart() throws Exception {
         String idPrefix = "78255b5db1ca027c669ca49e9576d7a26b40f7f";
         String email = "test@test.com";
         User user = userRepository.save(User.builder()
                 .email(email)
                 .phoneNumber("12345")
+                .account(BusinessAccountDetail.builder()
+                        .externalRefId("acct_1GRh5xDPr3q3wDlF")
+                        .build())
                 .build());
         List<UUID> businessIds = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
@@ -153,6 +155,7 @@ public class RepositoryTest {
                 .processingFee(1.2)
                 .total(500.23)
                 .orderLine(line)
+                .currency(Currency.USD)
                 .build();
 
     }
@@ -162,7 +165,7 @@ public class RepositoryTest {
         for (int i = 0; i < 5; i++) {
             items.add(com.coronacarecard.model.orders.Item.builder()
                     .unitPrice(10.0)
-                    .quantity(i)
+                    .quantity(i+1)
                     .build()
             );
         }

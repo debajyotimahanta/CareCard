@@ -6,7 +6,6 @@ import com.coronacarecard.exceptions.InternalException;
 import com.coronacarecard.mapper.BusinessEntityMapper;
 import com.coronacarecard.model.BusinessApprovalDetails;
 import com.coronacarecard.model.BusinessState;
-import com.coronacarecard.model.PaymentSystem;
 import com.coronacarecard.notifications.NotificationSender;
 import com.coronacarecard.notifications.NotificationType;
 import com.coronacarecard.service.CryptoService;
@@ -36,8 +35,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(properties = {"AWS_ARN=arn:aws:kms:us-west-1:008731829883:key/a72c4b37-325e-4254-9a9f-38592d01e0b2",
-        "spring.app.forntEndBaseUrl=http://base"})
+@SpringBootTest
 @AutoConfigureTestDatabase
 @AutoConfigureMockMvc
 public class OnBoardingTest {
@@ -74,11 +72,11 @@ public class OnBoardingTest {
 
     @Before
     public void init() throws InternalException {
-        when(paymentService.getBusinessDetails(PaymentSystem.STRIPE, AUTHCODE))
+        when(paymentService.getBusinessDetails( AUTHCODE))
                 .thenAnswer(invocation -> businessEntityMapper.toModel(afterRegister.get()));
 
         when(cryptoService.decrypt(STATE)).thenAnswer(invocation -> afterRegister.get().getId().toString());
-        when(paymentService.generateOnBoardingUrl(eq(PaymentSystem.STRIPE), any())).thenReturn("onboarding_url");
+        when(paymentService.generateOnBoardingUrl(any())).thenReturn("onboarding_url");
     }
 
     /**
@@ -119,7 +117,7 @@ public class OnBoardingTest {
         assertEquals(EXTERNALPLACEID, claimBusinessDetails.getValue().getExternalRefId());
 
         mockMvc.perform(MockMvcRequestBuilders.get(
-                "/payment/strip/business/confirm?code=" + AUTHCODE + "&state=" + STATE)
+                "/payment/stripe/business/confirm?code=" + AUTHCODE + "&state=" + STATE)
                 .contentType("application/json"))
                 .andExpect(status().is3xxRedirection())
                 .andReturn();
