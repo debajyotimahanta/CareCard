@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -63,7 +64,7 @@ public class BusinessServiceImpl implements BusinessService {
     }
 
     @Override
-    public Business getBusiness(Long id) throws BusinessNotFoundException  {
+    public Business getBusiness(UUID id) throws BusinessNotFoundException  {
         Optional<com.coronacarecard.dao.entity.Business> businessDAO=businessRepository.findById(id);
         if(!businessDAO.isPresent()){
             throw new BusinessNotFoundException();
@@ -117,9 +118,7 @@ public class BusinessServiceImpl implements BusinessService {
     }
 
     private Business storeDefaultBusinessImage(Business business) throws InternalException {
-        ImageResult photo = googlePlaceService.getPhoto(business.getPhoto().getPhotoReference(),
-                Optional.of(business.getPhoto().getHeight()),
-                Optional.of(business.getPhoto().getWidth()));
+        ImageResult photo = googlePlaceService.getPhoto(business.getPhoto().getPhotoReference());
         String imageExtension = getImageExtensionFromContentType(photo.contentType);
         String imageName = new StringBuilder("")
                 .append(business.getExternalRefId())

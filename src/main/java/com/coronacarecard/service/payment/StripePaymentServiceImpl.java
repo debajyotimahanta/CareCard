@@ -31,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service("StripePaymentService")
 public class StripePaymentServiceImpl implements PaymentService {
@@ -101,7 +102,7 @@ public class StripePaymentServiceImpl implements PaymentService {
             PayementServiceException, InternalException {
         try {
             Optional<com.coronacarecard.dao.entity.Business> businessDAO =
-                    businessRepository.findById(Long.valueOf(cryptoService.decrypt(state)));
+                    businessRepository.findById(UUID.fromString(cryptoService.decrypt(state)));
             if (!businessDAO.isPresent()) {
                 throw new BusinessNotFoundException();
             }

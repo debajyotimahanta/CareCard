@@ -23,8 +23,9 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.Optional;
+import java.util.UUID;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
 
 @RunWith(SpringRunner.class)
@@ -35,27 +36,27 @@ import static org.mockito.Mockito.when;
 @Ignore
 public class StripePaymentServiceImplTest {
 
-    private static final Long BUSINESS_ID = 1L;
-    private static final BusinessAccountDetail ACCOUNT = BusinessAccountDetail.builder()
+    private static final UUID                  BUSINESS_ID = UUID.randomUUID();
+    private static final BusinessAccountDetail ACCOUNT     = BusinessAccountDetail.builder()
             .build();
-    private static String  STATE = "encrypt_business_id";
+    private static       String                STATE       = "encrypt_business_id";
     @Autowired
     @Qualifier("StripePaymentService")
-    private PaymentService paymentService;
+    private              PaymentService        paymentService;
 
     @Autowired
     private StripeConfiguration stripeConfiguration;
 
     @MockBean
-    private BusinessRepository businessRepository;
+    private BusinessRepository                businessRepository;
     @MockBean
-    private CryptoService cryptoService;
+    private CryptoService                     cryptoService;
     @MockBean
-    private BusinessAccountDetailRepository businessAccountDetailRepository;
-    private Business fakeBusinessDAO = Business.builder().id(BUSINESS_ID)
+    private BusinessAccountDetailRepository   businessAccountDetailRepository;
+    private Business                          fakeBusinessDAO = Business.builder().id(BUSINESS_ID)
             .owner(User.builder().account(ACCOUNT).build())
             .build();
-    private com.coronacarecard.model.Business fakeBusiness =
+    private com.coronacarecard.model.Business fakeBusiness    =
             com.coronacarecard.model.Business.builder().id(BUSINESS_ID).build();
 
     @Before
@@ -75,8 +76,8 @@ public class StripePaymentServiceImplTest {
 
     @Test
     public void importBusiness() throws InternalException, PayementServiceException, BusinessNotFoundException {
-        String authCode = "ac_H0csVTWLWupJQ3P8wOiw2uWZQk3T70XQ";
-        com.coronacarecard.model.Business result = paymentService.importBusiness(authCode, STATE);
+        String                            authCode = "ac_H0csVTWLWupJQ3P8wOiw2uWZQk3T70XQ";
+        com.coronacarecard.model.Business result   = paymentService.importBusiness(authCode, STATE);
         assertEquals(BUSINESS_ID, result.getId());
     }
 }

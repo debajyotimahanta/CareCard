@@ -11,6 +11,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.util.UUID;
+
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -41,7 +43,7 @@ public class StripePaymentServiceTest {
         String connectId=stripeConfiguration.getClientId();
         String expected=stripeConfiguration.getConnectUrl();
 
-        Business business=Business.builder().id(10L).externalRefId(business_id).build();
+        Business business=Business.builder().id(UUID.randomUUID()).externalRefId(business_id).build();
         String onboardingUrl=paymentService.generateOnBoardingUrl(business);
 
         System.out.println(onboardingUrl);

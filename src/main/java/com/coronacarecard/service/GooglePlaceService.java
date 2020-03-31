@@ -15,5 +15,5 @@ public interface GooglePlaceService {
 
     List<BusinessSearchResult> search(String searchText, Optional<Double> lat, Optional<Double> lng) throws InternalException;
 
-    ImageResult getPhoto(String photoReference, Optional<Integer> maxHeight, Optional<Integer> maxWidth) throws InternalException;
+    ImageResult getPhoto(String photoReference) throws InternalException;
 }

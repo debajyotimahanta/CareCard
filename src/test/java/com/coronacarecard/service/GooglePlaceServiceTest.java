@@ -1,5 +1,6 @@
 package com.coronacarecard.service;
 
+import com.coronacarecard.config.GoogleConfiguration;
 import com.coronacarecard.exceptions.BusinessNotFoundException;
 import com.coronacarecard.exceptions.InternalException;
 import com.coronacarecard.mapper.impl.BusinessEntityMapperImpl;
@@ -10,7 +11,7 @@ import com.google.maps.ImageResult;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.List;
@@ -19,7 +20,7 @@ import java.util.Optional;
 import static org.junit.Assert.*;
 
 @RunWith(SpringRunner.class)
-@ContextConfiguration(classes = {BusinessEntityMapperImpl.class, GooglePlaceServiceImpl.class})
+@SpringBootTest(classes = {BusinessEntityMapperImpl.class, GooglePlaceServiceImpl.class, GoogleConfiguration.class})
 public class GooglePlaceServiceTest {
     public static final String ID = "ChIJicMwN4lskFQR9brCQh07Xyo";
     @Autowired
@@ -59,9 +60,7 @@ public class GooglePlaceServiceTest {
         String photoReference = "CnRvAAAAwMpdHeWlXl-lH0vp7lez4znKPIWSWvgvZFISdKx45AwJVP1Qp37YOrH7sqHMJ8C-vBDC546decipPHchJhHZL94RcTUfPa1jWzo-rSHaTlbNtjh-N68RkcToUCuY9v2HNpo5mziqkir37WU8FJEqVBIQ4k938TI3e7bf8xq-uwDZcxoUbO_ZJzPxremiQurAYzCTwRhE_V0";
 
         // Act
-        ImageResult result = service.getPhoto(photoReference,
-                Optional.of(Integer.parseInt("400")),
-                Optional.empty());
+        ImageResult result = service.getPhoto(photoReference);
 
         // Assert
         assertNotNull(result);

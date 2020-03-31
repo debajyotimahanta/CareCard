@@ -30,6 +30,7 @@ import javax.persistence.criteria.Root;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.Assert.*;
 
@@ -138,7 +139,7 @@ public class RepositoryTest {
                         .externalRefId("acct_1GRh5xDPr3q3wDlF")
                         .build())
                 .build());
-        List<Long> businessIds = new ArrayList<>();
+        List<UUID> businessIds = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
             Business business = TestHelper.createEntry(businessRepository, INTERNATIONAL_PHONE_NUMBER + i,
                     idPrefix + i, "Food for Friends" + i);
@@ -155,9 +156,9 @@ public class RepositoryTest {
         assertEquals(5, storedOrder.getOrderItems().get(0).getItems().size());
     }
 
-    private OrderDetail getOrder(List<Long> businessIds) {
+    private OrderDetail getOrder(List<UUID> businessIds) {
         List<OrderLine> line = new ArrayList<>();
-        for (Long id : businessIds) {
+        for (UUID id : businessIds) {
 
             line.add(OrderLine.builder()
                     .businessId(id)

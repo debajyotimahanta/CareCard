@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Optional;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("payment/stripe")
@@ -56,10 +57,9 @@ public class StripePaymentController {
     }
 
     @GetMapping("/business/onboard/{id}")
-    public String onboard(@PathVariable String id) throws BusinessNotFoundException, InternalException {
+    public String onboard(@PathVariable UUID id) throws BusinessNotFoundException, InternalException {
         try {
-            Long businessId = Long.parseLong(id);
-            Business business=businessService.getBusiness(businessId);
+            Business business=businessService.getBusiness(id);
             return paymentService.generateOnBoardingUrl(business);
         }catch(NumberFormatException ex){
             log.error(String.format("The id %s is not in the proper format",id));
@@ -74,12 +74,12 @@ public class StripePaymentController {
                         @RequestParam(value = "state") String state,
                         HttpServletResponse httpServletResponse)
             throws BusinessClaimException, BusinessNotFoundException, IOException, InternalException, PayementServiceException {
-        String decryptedPlaceId = cryptoService.decrypt(state);
-        Long id = Long.parseLong(decryptedPlaceId);
+        String   decryptedPlaceId = cryptoService.decrypt(state);
+        UUID     id               = UUID.fromString(decryptedPlaceId);
         Business business = paymentService.importBusiness(code, state);
-        if (id != business.getId()) {
+        if (id.compareTo(business.getId()) != 0) {
             log.error(String.format("The business id %s and state's id %s don't match something is wrong",
-                    business.getId(), id));
+                    business.getId().toString(), id.toString()));
             throw new BusinessClaimException("The business id dont match");
         }
         Optional<com.coronacarecard.dao.entity.Business> businessDAO = businessRepository.findById(business.getId());

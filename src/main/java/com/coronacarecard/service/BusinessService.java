@@ -8,6 +8,7 @@ import com.coronacarecard.model.PagedBusinessSearchResult;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public interface BusinessService {
 
@@ -15,7 +16,7 @@ public interface BusinessService {
 
     Business getBusiness(String externalId) throws BusinessNotFoundException, InternalException;
 
-    Business getBusiness(Long id) throws BusinessNotFoundException;
+    Business getBusiness(UUID id) throws BusinessNotFoundException;
 
     Business createOrUpdate(String id) throws BusinessNotFoundException, InternalException;
 

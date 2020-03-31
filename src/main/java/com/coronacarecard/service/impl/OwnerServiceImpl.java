@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class OwnerServiceImpl implements OwnerService {
@@ -118,7 +119,7 @@ public class OwnerServiceImpl implements OwnerService {
 
     @Override
     @Transactional
-    public String approveClaim(PaymentSystem paymentSystem, Long id) throws CustomerException {
+    public String approveClaim(PaymentSystem paymentSystem, UUID id) throws CustomerException {
         Optional<com.coronacarecard.dao.entity.Business> business = businessRepository.findById(id);
         if(!business.isPresent()) {
             log.error(String.format("No business with id %s exists. You cannot approve it.", id));
@@ -154,7 +155,7 @@ public class OwnerServiceImpl implements OwnerService {
 
     @Override
     @Transactional
-    public void declineClaim(Long id) throws BusinessNotFoundException {
+    public void declineClaim(UUID id) throws BusinessNotFoundException {
         Optional<com.coronacarecard.dao.entity.Business> business = businessRepository.findById(id);
         if(!business.isPresent()) {
             log.error(String.format("No business with id %s exists. You cannot decline it.", id));
