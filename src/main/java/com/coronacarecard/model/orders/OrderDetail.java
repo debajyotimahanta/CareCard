@@ -8,6 +8,7 @@ import java.util.List;
 @lombok.NoArgsConstructor
 @lombok.AllArgsConstructor
 @lombok.Getter
+@lombok.Setter
 public class OrderDetail {
     private Long id;
     private String customerEmail;

@@ -12,6 +12,7 @@ import com.coronacarecard.model.PaymentSystem;
 import com.coronacarecard.model.orders.Item;
 import com.coronacarecard.model.orders.OrderDetail;
 import com.coronacarecard.model.orders.OrderLine;
+import com.coronacarecard.model.orders.OrderStatus;
 import com.coronacarecard.service.PaymentService;
 import com.coronacarecard.service.ShoppingCartService;
 import com.coronacarecard.service.payment.PaymentServiceFactory;
@@ -44,6 +45,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
         paymentService.validate(order);
         com.coronacarecard.dao.entity.OrderDetail savedOrder = saveOrder(order);
+        order.setId(savedOrder.getId());
 
         return paymentService.generateCheckoutSession(order);
     }
@@ -57,7 +59,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
                         .customerMobile(order.getCustomerMobile())
                         .processingFee(order.getProcessingFee())
                         .total(order.getTotal())
-                        .status(order.getStatus())
+                        .status(order.getStatus()!=null?order.getStatus(): OrderStatus.PENDING)
                         .build();
 
         for (OrderLine line : order.getOrderLine()) {

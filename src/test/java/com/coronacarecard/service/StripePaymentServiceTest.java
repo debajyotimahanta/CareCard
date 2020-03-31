@@ -4,6 +4,9 @@ import com.coronacarecard.config.StripeConfiguration;
 import com.coronacarecard.dao.BusinessRepository;
 import com.coronacarecard.exceptions.BusinessAlreadyClaimedException;
 import com.coronacarecard.exceptions.BusinessNotFoundException;
+import com.coronacarecard.dao.UserRepository;
+import com.coronacarecard.dao.entity.BusinessAccountDetail;
+import com.coronacarecard.dao.entity.User;
 import com.coronacarecard.exceptions.InternalException;
 import com.coronacarecard.exceptions.PayementServiceException;
 import com.coronacarecard.model.Business;
@@ -12,6 +15,14 @@ import com.coronacarecard.service.payment.StripeCalls;
 import com.google.gson.JsonObject;
 import com.stripe.exception.StripeException;
 import com.stripe.model.oauth.TokenResponse;
+import com.coronacarecard.model.CheckoutResponse;
+import com.coronacarecard.model.Currency;
+import com.coronacarecard.model.orders.Item;
+import com.coronacarecard.model.orders.OrderDetail;
+import com.coronacarecard.model.orders.OrderLine;
+import com.coronacarecard.model.orders.OrderStatus;
+import com.coronacarecard.util.TestHelper;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +36,12 @@ import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @RunWith(SpringRunner.class)
@@ -49,14 +66,23 @@ public class StripePaymentServiceTest {
     @Qualifier("StripePaymentService")
     private PaymentService stripePayementService;
 
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private BusinessRepository businessRepository;
+
+    @Before
+    public void init() throws InternalException {
+        when(cryptoService.encrypt(any())).thenReturn(business_id.getBytes());
+        when(cryptoService.decrypt(any())).thenReturn(business_id);
+    }
+
     @MockBean
     private StripeCalls stripeCalls;
 
     @Autowired
     private OwnerService ownerService;
-
-    @Autowired
-    private BusinessRepository businessRepository;
 
     @Autowired
     private CryptoService cryptoService;
@@ -99,7 +125,61 @@ public class StripePaymentServiceTest {
         assertEquals(REFRESH_TOKEN,
                 cryptoService.decrypt(businessWithAccount.getOwner().getAccount().getRefreshToken()));
 
+    }
 
+
+    @Test
+    public void create_stripe_session() throws Exception{
+        User user = userRepository.save(User.builder()
+                .email("testuser@xyz.com")
+                .phoneNumber("12345")
+                .account(BusinessAccountDetail.builder()
+                        .externalRefId("acct_1GSRdxIsoQ5ULXuu")
+                        .build())
+                .build());
+        com.coronacarecard.dao.entity.Business business = TestHelper.createEntry(businessRepository,"23456789" ,
+                "1234", "Food for Friends");
+        businessRepository.save(business.toBuilder().owner(user).build());
+        OrderDetail order= OrderDetail.builder()
+                .customerEmail("cust@email.com")
+                .customerMobile("773")
+                .status(OrderStatus.PENDING)
+                .processingFee(1.2)
+                .orderLine(createLine(business.getId()))
+                .currency(Currency.USD)
+                .id(100L)
+                .contribution(20.0)
+                .build();
+
+        CheckoutResponse checkoutResponse= paymentService.generateCheckoutSession(order);
+        assertNotNull(checkoutResponse.getSessionId());
+
+    }
+
+    private List<Item> createItems(){
+        ArrayList<Item> items=new ArrayList<>();
+        for(int i=0;i<5;i++){
+            items.add(Item.builder()
+                    .unitPrice(10.0)
+                    .quantity(1)
+                    .build());
+        }
+        items.add(Item.builder()
+                .unitPrice(100.0)
+                .quantity(2)
+                .build());
+        return items;
+    }
+    private List<OrderLine> createLine(UUID id){
+        ArrayList<OrderLine> line=new ArrayList<>();
+        for(int i=0;i<2;i++){
+            line.add(OrderLine.builder()
+                    .businessId(id)
+                    .tip(10.0)
+                    .items(createItems())
+                    .build());
+        }
+        return line;
     }
 
 }

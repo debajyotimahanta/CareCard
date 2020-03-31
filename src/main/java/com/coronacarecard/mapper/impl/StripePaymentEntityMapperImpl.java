@@ -49,23 +49,33 @@ public class StripePaymentEntityMapperImpl implements PaymentEntityMapper {
         if (accountId == null || !maybeUser.isPresent()) {
             throw new PaymentAccountNotSetupException();
         }
+        List<SessionCreateParams.LineItem> allLineItems = orderDetail.getOrderLine()
+                .stream()
+                .map(ol -> createLineItems(orderDetail, ol))
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
+        if (orderDetail.getContribution() > 0) {
+            allLineItems.add(SessionCreateParams.LineItem.builder()
+                    .setCurrency(orderDetail.getCurrency().toString().toLowerCase())
+                    .setQuantity(1L)
+                    .setAmount(((Double) (orderDetail.getContribution() * 100)).longValue())
+                    .setName("Contribution to the platform")
+                    .build());
+        }
         return SessionCreateParams.builder()
                 .setCustomerEmail(maybeUser.get().getEmail())
+                .setClientReferenceId(orderDetail.getId().toString())
                 .addPaymentMethodType(SessionCreateParams.PaymentMethodType.CARD)
-                .addAllLineItem(orderDetail.getOrderLine()
-                        .stream()
-                        .map(ol -> createLineItems(orderDetail, ol))
-                        .flatMap(Collection::stream)
-                        .collect(Collectors.toList())
-                )
-                .setSuccessUrl(appUrl+"/payment/stripe/success")
-                .setCancelUrl(appUrl+"/payment/stripe/cancel")
+                .addAllLineItem(allLineItems)
+                .setSuccessUrl(appUrl + "/payment/stripe/success")
+                .setCancelUrl(appUrl + "/payment/stripe/cancel")
                 .setPaymentIntentData(SessionCreateParams.PaymentIntentData
                         .builder()
                         .setTransferData(SessionCreateParams.PaymentIntentData.TransferData
                                 .builder()
                                 .setDestination(accountId)
                                 .build())
+                        .setApplicationFeeAmount(((Double) (orderDetail.getProcessingFee() * 100)).longValue())
                         .build())
                 .build();
     }
@@ -86,28 +96,29 @@ public class StripePaymentEntityMapperImpl implements PaymentEntityMapper {
                 .build();
     }
 
-    private List<SessionCreateParams.LineItem> createLineItems(OrderDetail header,OrderLine orderLine){
-       List<SessionCreateParams.LineItem> lineItems= orderLine.getItems()
+    private List<SessionCreateParams.LineItem> createLineItems(OrderDetail header,OrderLine orderLine) {
+        List<SessionCreateParams.LineItem> lineItems = orderLine.getItems()
                 .stream()
-               .map(item->{
-                   return SessionCreateParams.LineItem.builder()
-                           .setAmount(item.getUnitPrice().longValue())
-                           .setQuantity(item.getQuantity().longValue())
-                           .setCurrency(header.getCurrency().toString())
-                           .setName("Gift Card")
-                           .build();
-               })
-               .collect(Collectors.toList());
-
-       lineItems.add(SessionCreateParams.LineItem.builder()
-                    .setAmount(orderLine.getTip().longValue())
+                .map(item -> {
+                    return SessionCreateParams.LineItem.builder()
+                            .setAmount(((Double) (item.getUnitPrice() * 100)).longValue())//Convert from cent to dollar
+                            .setQuantity(item.getQuantity().longValue())
+                            .setCurrency(header.getCurrency().toString())
+                            .setName("Gift Card")
+                            .build();
+                })
+                .collect(Collectors.toList());
+        if (orderLine.getTip() > 0) {
+            lineItems.add(SessionCreateParams.LineItem.builder()
+                    .setAmount(((Double) (orderLine.getTip()* 100)).longValue())//Convert from cent to dollar
                     .setQuantity(1L)
                     .setCurrency(header.getCurrency().toString())
                     .setName("Tip")
                     .build()
-       );
+            );
+        }
 
-       return lineItems;
+        return lineItems;
     }
 
 }
