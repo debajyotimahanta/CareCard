@@ -2,6 +2,7 @@ package com.coronacarecard.model;
 
 import java.io.Serializable;
 import java.util.Optional;
+import java.util.UUID;
 
 @lombok.Builder(toBuilder = true)
 @lombok.NoArgsConstructor
@@ -10,7 +11,7 @@ import java.util.Optional;
 @lombok.Setter
 @lombok.EqualsAndHashCode
 public class User implements Serializable {
-    private long id;
+    private UUID   id;
     private String email;
     private String phoneNumber;
     private Optional<BusinessAccountDetail> businessAccountDetail;

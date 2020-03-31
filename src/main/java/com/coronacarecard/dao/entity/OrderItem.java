@@ -5,6 +5,7 @@ import lombok.Builder;
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @lombok.Builder
 @lombok.NoArgsConstructor
@@ -15,7 +16,8 @@ public class OrderItem {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+    @Column(name = "id", columnDefinition = "uuid")
+    private UUID id;
 
     @ManyToOne
     private Business business;

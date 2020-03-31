@@ -1,6 +1,7 @@
 package com.coronacarecard.dao.entity;
 
 import javax.persistence.*;
+import java.util.UUID;
 
 @lombok.Builder(toBuilder = true)
 @lombok.NoArgsConstructor
@@ -19,7 +20,8 @@ import javax.persistence.*;
 public class BusinessAccountDetail {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    public Long id;
+    @Column(name = "id", columnDefinition = "uuid")
+    public  UUID   id;
     private String externalRefId;
     private String refreshToken;
     private String accessToken;

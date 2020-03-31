@@ -2,6 +2,7 @@ package com.coronacarecard.dao.entity;
 
 import javax.persistence.*;
 import java.util.List;
+import java.util.UUID;
 
 @lombok.Builder(toBuilder = true)
 @lombok.NoArgsConstructor
@@ -26,7 +27,8 @@ import java.util.List;
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+    @Column(name = "id", columnDefinition = "uuid")
+    private UUID id;
 
     @Column(name = "email", nullable = false)
     private String email;
