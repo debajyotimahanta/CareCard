@@ -57,10 +57,9 @@ public class StripePaymentController {
     }
 
     @GetMapping("/business/onboard/{id}")
-    public String onboard(@PathVariable String id) throws BusinessNotFoundException, InternalException {
+    public String onboard(@PathVariable UUID id) throws BusinessNotFoundException, InternalException {
         try {
-            UUID businessId = UUID.fromString(id);
-            Business business=businessService.getBusiness(businessId);
+            Business business=businessService.getBusiness(id);
             return paymentService.generateOnBoardingUrl(business);
         }catch(NumberFormatException ex){
             log.error(String.format("The id %s is not in the proper format",id));
