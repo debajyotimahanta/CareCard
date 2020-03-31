@@ -21,5 +21,6 @@ public class BusinessAccountDetail {
     @GeneratedValue(strategy = GenerationType.AUTO)
     public Long id;
     private String externalRefId;
-
+    private String refreshToken;
+    private String accessToken;
 }

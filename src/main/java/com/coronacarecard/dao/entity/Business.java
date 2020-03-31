@@ -9,6 +9,8 @@ import java.util.List;
 @lombok.NoArgsConstructor
 @lombok.AllArgsConstructor
 @lombok.Getter
+// We need this else if we use toBuilder to create different instance of the same object
+@lombok.Setter
 @Entity
 @Table(
         uniqueConstraints = @UniqueConstraint(columnNames = {"externalRefId"}),
@@ -45,7 +47,7 @@ public class Business {
     @Enumerated(EnumType.STRING)
     private BusinessState state;
 
-    @ManyToOne
+    @ManyToOne(cascade=CascadeType.ALL)
     private User owner;
 
     @OneToMany(fetch=FetchType.LAZY, mappedBy = "business")

@@ -4,6 +4,7 @@ import com.coronacarecard.dao.BusinessRepository;
 import com.coronacarecard.exceptions.BusinessClaimException;
 import com.coronacarecard.exceptions.BusinessNotFoundException;
 import com.coronacarecard.exceptions.InternalException;
+import com.coronacarecard.exceptions.PayementServiceException;
 import com.coronacarecard.model.Business;
 import com.coronacarecard.model.BusinessState;
 import com.coronacarecard.model.CheckoutResponse;
@@ -72,10 +73,10 @@ public class StripePaymentController {
     public void confirm(@RequestParam(value = "code") String code,
                         @RequestParam(value = "state") String state,
                         HttpServletResponse httpServletResponse)
-            throws BusinessClaimException, BusinessNotFoundException, IOException, InternalException {
+            throws BusinessClaimException, BusinessNotFoundException, IOException, InternalException, PayementServiceException {
         String decryptedPlaceId = cryptoService.decrypt(state);
         Long id = Long.parseLong(decryptedPlaceId);
-        Business business = paymentService.getBusinessDetails(code);
+        Business business = paymentService.importBusiness(code, state);
         if (id != business.getId()) {
             log.error(String.format("The business id %s and state's id %s don't match something is wrong",
                     business.getId(), id));
@@ -87,13 +88,9 @@ public class StripePaymentController {
             log.error(String.format("The business %s does not exists in the system", id));
             throw new BusinessNotFoundException();
         }
-        com.coronacarecard.dao.entity.Business.BusinessBuilder businessBuilder = businessDAO.get().toBuilder();
-        businessRepository.save(
-                businessBuilder
-                        .state(BusinessState.Active)
-                        .externalRefId(business.getExternalRefId())
-                        .build()
-        );
+        businessDAO.get().setState(BusinessState.Active);
+        businessDAO.get().setExternalRefId(business.getExternalRefId());
+        businessRepository.save(businessDAO.get());
         httpServletResponse.sendRedirect(forntEndBaseUrl + "/" + businessDAO.get().getExternalRefId() + "?confirm=true");
 
     }

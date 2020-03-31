@@ -1,5 +1,6 @@
 package com.coronacarecard.dao.entity;
 
+import com.coronacarecard.dao.BusinessAccountDetailRepository;
 import com.coronacarecard.dao.BusinessRepository;
 import com.coronacarecard.dao.OrderDetailRepository;
 import com.coronacarecard.dao.UserRepository;
@@ -20,13 +21,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -49,6 +50,9 @@ public class RepositoryTest {
     @Autowired
     private ShoppingCartService shoppingCartService;
 
+    @Autowired
+    private BusinessAccountDetailRepository businessAccountDetailRepository;
+
     @Test
     public void createBusiness() {
         String id = "78255b5db1ca027c669ca49e9576d7a26b40f7f9";
@@ -60,19 +64,31 @@ public class RepositoryTest {
         assertEquals(INTERNATIONAL_PHONE_NUMBER, createdBusiness.get().getInternationalPhoneNumber());
 
         String email = "g@g.com";
-        userRepository.save(User.builder()
-                .business(Arrays.asList(createdBusiness.get()))
-                .email(email)
-                .phoneNumber("77777777")
-                .build());
+        Business toBeUpdatedBusiness = createdBusiness.get();
+        updateUser(email, toBeUpdatedBusiness);
 
         User result = userRepository.findByEmail(email);
         assertNotNull(result);
-        assertNotNull(result.getBusiness());
-        assertEquals(createdBusiness.get().getExternalRefId(), result.getBusiness().get(0).getExternalRefId());
+        //assertNotNull(result.getBusiness());
+        assertNotNull(result.getAccount());
+        BusinessAccountDetail accountCreated = businessAccountDetailRepository.findAll().iterator().next();
+        assertNotNull(accountCreated);
+        Business businessWithAllDetails = businessAccountDetailRepository.findBusiness(createdBusiness.get().getId());
+        assertNotNull(businessWithAllDetails.getOwner().getAccount());
 
-        Optional<Business> afterOwner = businessRepository.findByExternalId(id);
-        assertNotNull(afterOwner.get());
+    }
+
+    @Transactional
+    private void updateUser(String email, Business toBeUpdatedBusiness) {
+        businessRepository.save(toBeUpdatedBusiness.toBuilder().owner(
+                User.builder()
+                        .email(email)
+                        .account(BusinessAccountDetail.builder()
+                                .externalRefId("ext")
+                                .build())
+                        .phoneNumber("77777777")
+                        .build()
+        ).build());
     }
 
     private <T> Specification<T> getEqualSpecification(String key, String value) {
@@ -168,7 +184,7 @@ public class RepositoryTest {
         for (int i = 0; i < 5; i++) {
             items.add(com.coronacarecard.model.orders.Item.builder()
                     .unitPrice(10.0)
-                    .quantity(i+1)
+                    .quantity(i + 1)
                     .build()
             );
         }
