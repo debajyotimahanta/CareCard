@@ -45,14 +45,14 @@ public class StripePaymentController {
     private String forntEndBaseUrl;
 
     @GetMapping("/success")
-    public CheckoutResponse checkout(String urlParams) {
-        return paymentService.successPayment(urlParams);
+    public void success(String transactionId) throws InternalException{
+        paymentService.confirmTransaction(transactionId);
     }
 
 
     @GetMapping("/failure")
-    public CheckoutResponse fail(String urlParams) {
-        return paymentService.failedPayment(urlParams);
+    public void fail(String transactionId) throws InternalException{
+        paymentService.confirmTransaction(transactionId);
     }
 
     @GetMapping("/business/onboard/{id}")

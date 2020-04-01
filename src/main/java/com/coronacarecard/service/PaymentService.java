@@ -4,6 +4,7 @@ import com.coronacarecard.exceptions.*;
 import com.coronacarecard.model.Business;
 import com.coronacarecard.model.CheckoutResponse;
 import com.coronacarecard.model.orders.OrderDetail;
+import com.coronacarecard.model.orders.OrderStatus;
 
 public interface PaymentService {
     /**
@@ -31,7 +32,7 @@ public interface PaymentService {
      *
      * @param transactionId
      */
-    void confirmTransaction(String transactionId);
+    OrderStatus confirmTransaction(String transactionId) throws InternalException;
 
     /**
      * Generate onboarding URL for the given payment system and business

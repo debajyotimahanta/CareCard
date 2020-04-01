@@ -16,6 +16,7 @@ import com.coronacarecard.model.orders.OrderStatus;
 import com.coronacarecard.service.PaymentService;
 import com.coronacarecard.service.ShoppingCartService;
 import com.coronacarecard.service.payment.PaymentServiceFactory;
+import com.stripe.model.checkout.Session;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,7 +48,11 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         com.coronacarecard.dao.entity.OrderDetail savedOrder = saveOrder(order);
         order.setId(savedOrder.getId());
 
-        return paymentService.generateCheckoutSession(order);
+        CheckoutResponse response= paymentService.generateCheckoutSession(order);
+        savedOrder.toBuilder().sessionId(response.getSessionId());
+
+        orderDetailRepository.save(savedOrder.toBuilder().sessionId(response.getSessionId()).build());
+        return response;
     }
 
     private com.coronacarecard.dao.entity.OrderDetail saveOrder(OrderDetail order) throws BusinessNotFoundException {

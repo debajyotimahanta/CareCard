@@ -4,6 +4,7 @@ import com.coronacarecard.dao.BusinessAccountDetailRepository;
 import com.coronacarecard.dao.BusinessRepository;
 import com.coronacarecard.dao.OrderDetailRepository;
 import com.coronacarecard.dao.UserRepository;
+import com.coronacarecard.model.CheckoutResponse;
 import com.coronacarecard.model.Currency;
 import com.coronacarecard.model.PaymentSystem;
 import com.coronacarecard.model.orders.OrderDetail;
@@ -148,10 +149,12 @@ public class RepositoryTest {
         }
 
         OrderDetail orders = getOrder(businessIds);
-        shoppingCartService.checkout(PaymentSystem.STRIPE, orders);
+        CheckoutResponse response= shoppingCartService.checkout(PaymentSystem.STRIPE, orders);
         com.coronacarecard.dao.entity.OrderDetail storedOrder =
                 orderDetailRepository.findAll().iterator().next();
         assertNotNull(storedOrder);
+        assertNotNull(response.getSessionId());
+        assertEquals(response.getSessionId(),storedOrder.getSessionId());
         assertEquals(10, storedOrder.getOrderItems().size());
         assertEquals(5, storedOrder.getOrderItems().get(0).getItems().size());
     }

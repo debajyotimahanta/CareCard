@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-@lombok.Builder
+@lombok.Builder(toBuilder = true)
 @lombok.NoArgsConstructor
 @lombok.AllArgsConstructor
 @lombok.Getter
@@ -35,6 +35,7 @@ public class OrderDetail {
     @Column(length = 32, columnDefinition = "varchar(32) default 'PENDING'")
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
+    private String sessionId;
 
     public void addOrderItem(OrderItem orderItem) {
         orderItems.add(orderItem);

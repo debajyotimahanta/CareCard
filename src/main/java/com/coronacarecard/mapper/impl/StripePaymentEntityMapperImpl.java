@@ -67,8 +67,8 @@ public class StripePaymentEntityMapperImpl implements PaymentEntityMapper {
                 .setClientReferenceId(orderDetail.getId().toString())
                 .addPaymentMethodType(SessionCreateParams.PaymentMethodType.CARD)
                 .addAllLineItem(allLineItems)
-                .setSuccessUrl(appUrl + "/payment/stripe/success")
-                .setCancelUrl(appUrl + "/payment/stripe/cancel")
+                .setSuccessUrl(forntEndBaseUrl + "/payment/confirm")
+                .setCancelUrl(forntEndBaseUrl + "/payment/cancel")
                 .setPaymentIntentData(SessionCreateParams.PaymentIntentData
                         .builder()
                         .setTransferData(SessionCreateParams.PaymentIntentData.TransferData
@@ -92,7 +92,6 @@ public class StripePaymentEntityMapperImpl implements PaymentEntityMapper {
         }
         return CheckoutResponse.builder()
                 .sessionId(((Session)session).getId())
-                .accountId(accountId)
                 .build();
     }
 

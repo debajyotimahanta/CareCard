@@ -4,6 +4,7 @@ import com.coronacarecard.config.StripeConfiguration;
 import com.coronacarecard.dao.BusinessAccountDetailRepository;
 import com.coronacarecard.dao.BusinessRepository;
 import com.coronacarecard.dao.UserRepository;
+import com.coronacarecard.dao.OrderDetailRepository;
 import com.coronacarecard.dao.entity.BusinessAccountDetail;
 import com.coronacarecard.dao.entity.User;
 import com.coronacarecard.exceptions.*;
@@ -12,10 +13,14 @@ import com.coronacarecard.mapper.PaymentEntityMapper;
 import com.coronacarecard.model.Business;
 import com.coronacarecard.model.CheckoutResponse;
 import com.coronacarecard.model.orders.OrderDetail;
+import com.coronacarecard.model.orders.OrderStatus;
+import com.coronacarecard.notifications.NotificationSender;
+import com.coronacarecard.notifications.NotificationType;
 import com.coronacarecard.service.BusinessService;
 import com.coronacarecard.service.CryptoService;
 import com.coronacarecard.service.PaymentService;
 import com.stripe.exception.StripeException;
+import com.stripe.model.PaymentIntent;
 import com.stripe.model.checkout.Session;
 import com.stripe.model.oauth.TokenResponse;
 import com.stripe.param.checkout.SessionCreateParams;
@@ -46,6 +51,12 @@ public class StripePaymentServiceImpl implements PaymentService {
     private UserRepository userRepository;
 
     @Autowired
+    private OrderDetailRepository orderRepository;
+
+    @Autowired
+    private BusinessAccountDetailRepository businessAccountDetailRepository;
+
+    @Autowired
     private BusinessService businessService;
 
     @Autowired
@@ -59,7 +70,7 @@ public class StripePaymentServiceImpl implements PaymentService {
     private BusinessEntityMapper businessEntityMapper;
 
     @Autowired
-    private BusinessAccountDetailRepository businessAccountDetailRepository;
+    private NotificationSender<OrderDetail> notificationSender;
 
     @Override
     public CheckoutResponse successPayment(String urlParams) {
@@ -73,8 +84,32 @@ public class StripePaymentServiceImpl implements PaymentService {
 
 
     @Override
-    public void confirmTransaction(String transactionId) {
+    public OrderStatus confirmTransaction(String transactionId) throws InternalException {
 
+        try {
+            Session session = Session.retrieve(transactionId);
+            Optional<com.coronacarecard.dao.entity.OrderDetail> maybeOrder = orderRepository.findById(Long.parseLong(session.getClientReferenceId()));
+            if (!maybeOrder.isPresent()) {
+                throw new InternalException("Order cannot be located");
+            }
+
+            PaymentIntent paymentIntent = PaymentIntent.retrieve(session.getPaymentIntent());
+            com.coronacarecard.dao.entity.OrderDetail order = maybeOrder.get();
+            OrderDetail orderModel = OrderDetail.builder()
+                    .id(order.getId())
+                    .customerEmail(order.getCustomerEmail())
+                    .customerMobile(order.getCustomerMobile())
+                    .total(order.getTotal())
+                    .build();
+            if ("succeeded".equals(paymentIntent.getStatus().toLowerCase())) {
+                orderRepository.save(order.toBuilder().status(OrderStatus.PAID).build());
+                notificationSender.sendNotification(NotificationType.PAYMENT_COMPLETED, orderModel);
+                return OrderStatus.PAID;
+            }
+            return order.getStatus();
+        } catch (StripeException ex) {
+            throw new InternalException(ex.getMessage());
+        }
     }
 
     @Override

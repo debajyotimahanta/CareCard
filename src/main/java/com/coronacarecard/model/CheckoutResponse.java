@@ -9,5 +9,4 @@ package com.coronacarecard.model;
 public class CheckoutResponse {
     String paymentUrl;
     String sessionId;
-    String accountId;
 }
