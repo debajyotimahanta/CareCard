@@ -36,6 +36,9 @@ public class StripePaymentEntityMapperImpl implements PaymentEntityMapper {
     @Value("${spring.app.appUrl}")
     private String appUrl;
 
+    @Value("${spring.app.forntEndBaseUrl}")
+    private String forntEndBaseUrl;
+
     @Override
     public Object toSessionCreateParams(OrderDetail orderDetail, BusinessService businessService) throws BusinessNotFoundException, PaymentAccountNotSetupException {
         //TODO:Only one busiess can be part of a checkout, so getting the details of the first

@@ -4,6 +4,7 @@ import com.coronacarecard.model.Currency;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.UUID;
 
 @lombok.Builder(toBuilder = true)
 @lombok.NoArgsConstructor
@@ -11,7 +12,7 @@ import java.util.List;
 @lombok.Getter
 @lombok.Setter
 public class OrderDetail implements Serializable {
-    private Long id;
+    private UUID id;
     private String customerEmail;
     private String customerMobile;
     private List<OrderLine> orderLine;

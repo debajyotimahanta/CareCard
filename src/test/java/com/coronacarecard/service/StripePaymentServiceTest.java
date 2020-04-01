@@ -24,6 +24,7 @@ import com.coronacarecard.model.orders.OrderLine;
 import com.coronacarecard.model.orders.OrderStatus;
 import com.coronacarecard.util.TestHelper;
 import com.stripe.model.checkout.Session;
+import com.stripe.param.checkout.SessionCreateParams;
 import jdk.nashorn.internal.ir.annotations.Ignore;
 import org.junit.Before;
 import org.junit.Test;
@@ -79,11 +80,6 @@ public class StripePaymentServiceTest {
     @Autowired
     private OrderDetailRepository orderDetailRepository;
 
-    @Before
-    public void init() throws InternalException {
-        when(cryptoService.encrypt(any())).thenReturn(business_id.getBytes());
-        when(cryptoService.decrypt(any())).thenReturn(business_id);
-    }
 
     @MockBean
     private StripeCalls stripeCalls;
@@ -137,6 +133,7 @@ public class StripePaymentServiceTest {
 
     @Test
     public void create_stripe_session() throws Exception{
+        when(stripeCalls.generateSession(any())).thenAnswer(i->Session.create((SessionCreateParams) i.getArgument(0)));
         User user = userRepository.save(User.builder()
                 .email("testuser@xyz.com")
                 .phoneNumber("12345")
@@ -154,8 +151,8 @@ public class StripePaymentServiceTest {
                 .processingFee(1.2)
                 .orderLine(createLine(business.getId()))
                 .currency(Currency.USD)
-                .id(1L)
                 .contribution(20.0)
+                .id(UUID.randomUUID())
                 .build();
 
         CheckoutResponse checkoutResponse= paymentService.generateCheckoutSession(order);
@@ -163,9 +160,8 @@ public class StripePaymentServiceTest {
 
     }
 
-    @Test
-    @Ignore
     //To test this scenario-we should use the web to make a payment and find out the sessionid and put in this test
+    @Ignore
     public void confirm_transaction_success() throws Exception {
         //save an order with id 1
         com.coronacarecard.dao.entity.OrderDetail order = com.coronacarecard.dao.entity.OrderDetail.builder()
@@ -180,9 +176,9 @@ public class StripePaymentServiceTest {
         String transactionId="cs_test_EjP1tn1zrxgsIJ3KOZOlASZnfFyar01HeLn1or3D5356GNQgX2JGX53Y";
         paymentService.confirmTransaction(transactionId);
 
-       Optional<com.coronacarecard.dao.entity.OrderDetail> updatedOrder= orderDetailRepository.findById(1L);
-       assertNotNull(updatedOrder.get());
-       assertEquals(OrderStatus.PAID,updatedOrder.get().getStatus());
+       com.coronacarecard.dao.entity.OrderDetail updatedOrder= orderDetailRepository.findAll().iterator().next();
+       assertNotNull(updatedOrder);
+       assertEquals(OrderStatus.PAID,updatedOrder.getStatus());
 
     }
 

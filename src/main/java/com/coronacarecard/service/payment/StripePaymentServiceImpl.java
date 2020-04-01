@@ -87,13 +87,13 @@ public class StripePaymentServiceImpl implements PaymentService {
     public OrderStatus confirmTransaction(String transactionId) throws InternalException {
 
         try {
-            Session session = Session.retrieve(transactionId);
+            Session session = stripeCalls.retrieveSession(transactionId);
             Optional<com.coronacarecard.dao.entity.OrderDetail> maybeOrder = orderRepository.findById(Long.parseLong(session.getClientReferenceId()));
             if (!maybeOrder.isPresent()) {
                 throw new InternalException("Order cannot be located");
             }
 
-            PaymentIntent paymentIntent = PaymentIntent.retrieve(session.getPaymentIntent());
+            PaymentIntent paymentIntent = stripeCalls.retrievePaymentIntent(session.getPaymentIntent());
             com.coronacarecard.dao.entity.OrderDetail order = maybeOrder.get();
             OrderDetail orderModel = OrderDetail.builder()
                     .id(order.getId())
@@ -123,7 +123,7 @@ public class StripePaymentServiceImpl implements PaymentService {
     @Override
     public CheckoutResponse generateCheckoutSession(OrderDetail savedOrder) throws BusinessNotFoundException, PaymentAccountNotSetupException, InternalException {
         try {
-            Session session = Session.create((SessionCreateParams) paymentMapper.toSessionCreateParams(savedOrder, businessService));
+            Session session = stripeCalls.generateSession((SessionCreateParams) paymentMapper.toSessionCreateParams(savedOrder, businessService));
             return paymentMapper.toCheckoutResponse(session, savedOrder, businessService);
         } catch (StripeException ex) {
             throw new InternalException(ex.getMessage());
