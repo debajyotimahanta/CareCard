@@ -44,14 +44,14 @@ public class StripePaymentController {
     @Value("${spring.app.forntEndBaseUrl}")
     private String forntEndBaseUrl;
 
-    @GetMapping("/success")
-    public void success(String transactionId) throws InternalException{
+    @GetMapping("/success/{transactionId}")
+    public void success(@PathVariable String transactionId) throws InternalException{
         paymentService.confirmTransaction(transactionId);
     }
 
 
-    @GetMapping("/failure")
-    public void fail(String transactionId) throws InternalException{
+    @GetMapping("/failure/{transactionId}")
+    public void fail(@PathVariable String transactionId) throws InternalException{
         paymentService.confirmTransaction(transactionId);
     }
 
