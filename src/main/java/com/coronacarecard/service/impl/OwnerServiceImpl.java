@@ -140,10 +140,20 @@ public class OwnerServiceImpl implements OwnerService {
         }
 
         if (BusinessState.Claimed.equals(businessDAO.getState())) {
-            log.info("Business is claimed now, will wait for owner to enter payment details");
-            businessDAO.setState(BusinessState.Pending);
-            businessDAO = businessRepository.save(businessDAO);
+            if (businessDAO.getOwner().getAccount() != null) {
+                log.info("Business owner has a account linked no additional verification required");
+                businessDAO.setState(BusinessState.Active);
+                businessDAO = businessRepository.save(businessDAO);
+
+            } else {
+                log.info("Business is claimed now, will wait for owner to enter payment details");
+                businessDAO.setState(BusinessState.Pending);
+                businessDAO = businessRepository.save(businessDAO);
+
+            }
+
         }
+
         String url = paymentService.generateOnBoardingUrl(businessEntityMapper.toModel(businessDAO));
         approvalNotificationSender.sendNotification(
                 NotificationType.BUSINESS_APPROVED,
@@ -153,6 +163,7 @@ public class OwnerServiceImpl implements OwnerService {
                         .build()
         );
         return url;
+
 
     }
 
