@@ -235,4 +235,25 @@ public class OwnerServiceTest {
                 businessArgumentCaptor.capture());
         assertEquals(newBusinessId, afterDecline.getExternalRefId());
     }
+
+    @Test
+    public void claim_draft_busuiness() throws BusinessNotFoundException, InternalException,
+            BusinessAlreadyClaimedException {
+        businessService.getOrCreate(newBusinessId);
+        ownerService.claimBusiness(getReq(newBusinessId, EMAIL, PHONE));
+        Business createdBusiness = businessRepository.findByExternalId(newBusinessId).get();
+        assertEquals(BusinessState.Claimed, createdBusiness.getState());
+        assertEquals(EMAIL, createdBusiness.getOwner().getEmail());
+
+    }
+
+    @Test
+    public void claim_noexistent_business() throws InternalException, BusinessNotFoundException, BusinessAlreadyClaimedException {
+        ownerService.claimBusiness(BusinessRegistrationRequest.builder()
+                .businessId(newBusinessId)
+                .description("test")
+                .email("test@gmail.com")
+                .phone("911")
+                .build());
+    }
 }

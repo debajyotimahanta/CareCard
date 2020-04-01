@@ -33,9 +33,6 @@ public class StripePaymentEntityMapperImpl implements PaymentEntityMapper {
     private final String SUCCESS_URL="success_url";
     private final String CANCEL_URL="cancel_url";
 
-    @Value("${spring.app.forntEndBaseUrl}")
-    private String forntEndBaseUrl;
-
     @Value("${spring.app.appUrl}")
     private String appUrl;
 

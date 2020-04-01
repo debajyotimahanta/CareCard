@@ -12,7 +12,7 @@ public interface CryptoService {
      * @param data
      * @return
      */
-    String encrypt(String data);
+    byte[] encrypt(String data);
 
-    String decrypt(String state) throws InternalException;
+    String decrypt(byte[] state) throws InternalException;
 }

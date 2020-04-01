@@ -76,26 +76,29 @@ public class OwnerServiceImpl implements OwnerService {
             logAndThrowBusinessClaimedException(externalId, email);
         }
 
-
+        com.coronacarecard.dao.entity.Business business;
         if (!businessDAO.isPresent()) {
-            Business business = googlePlaceService.getBusiness(externalId);
-            User owner = userRepository.findByEmail(email);
-            if (owner == null) {
-                owner = userRepository.save(User
-                        .builder()
-                        .phoneNumber(phone)
-                        .email(email)
-                        .build());
-            }
-            businessDAO = Optional.of(businessRepository.save(
-                    businessEntityMapper.toDAOBuilder(business)
-                            .state(BusinessState.Claimed)
-                            .description(request.getDescription())
-                            .owner(owner).build()));
-
-
+            business = businessEntityMapper.toDAO(googlePlaceService.getBusiness(externalId));
+        } else {
+            business = businessDAO.get();
         }
-        Business claimedBusiness = businessEntityMapper.toModel(businessDAO.get());
+
+
+        User owner = userRepository.findByEmail(email);
+        if (owner == null) {
+            owner = User
+                    .builder()
+                    .phoneNumber(phone)
+                    .email(email)
+                    .build();
+        }
+        business.setState(BusinessState.Claimed);
+        business.setDescription(request.getDescription());
+        business.setOwner(owner);
+        businessRepository.save(business);
+
+
+        Business claimedBusiness = businessEntityMapper.toModel(business);
         notificationSender.sendNotification(NotificationType.BUSINESS_CLAIMED, claimedBusiness);
         return claimedBusiness;
     }
@@ -121,7 +124,7 @@ public class OwnerServiceImpl implements OwnerService {
     @Transactional
     public String approveClaim(PaymentSystem paymentSystem, UUID id) throws CustomerException {
         Optional<com.coronacarecard.dao.entity.Business> business = businessRepository.findById(id);
-        if(!business.isPresent()) {
+        if (!business.isPresent()) {
             log.error(String.format("No business with id %s exists. You cannot approve it.", id));
             throw new BusinessNotFoundException();
         }
@@ -136,18 +139,18 @@ public class OwnerServiceImpl implements OwnerService {
             throw new BusinessClaimException("Active business is already approved");
         }
 
-        if(BusinessState.Claimed.equals(businessDAO.getState())) {
+        if (BusinessState.Claimed.equals(businessDAO.getState())) {
             log.info("Business is claimed now, will wait for owner to enter payment details");
             businessDAO.setState(BusinessState.Pending);
             businessDAO = businessRepository.save(businessDAO);
         }
-        String url = paymentService.generateOnBoardingUrl( businessEntityMapper.toModel(businessDAO));
+        String url = paymentService.generateOnBoardingUrl(businessEntityMapper.toModel(businessDAO));
         approvalNotificationSender.sendNotification(
                 NotificationType.BUSINESS_APPROVED,
                 BusinessApprovalDetails.builder()
                         .business(businessEntityMapper.toModel(businessDAO))
                         .registrationUrl(url)
-                .build()
+                        .build()
         );
         return url;
 
@@ -157,7 +160,7 @@ public class OwnerServiceImpl implements OwnerService {
     @Transactional
     public void declineClaim(UUID id) throws BusinessNotFoundException {
         Optional<com.coronacarecard.dao.entity.Business> business = businessRepository.findById(id);
-        if(!business.isPresent()) {
+        if (!business.isPresent()) {
             log.error(String.format("No business with id %s exists. You cannot decline it.", id));
             throw new BusinessNotFoundException();
         }
@@ -172,7 +175,6 @@ public class OwnerServiceImpl implements OwnerService {
         com.coronacarecard.dao.entity.Business result = businessRepository.save(business.get());
         notificationSender.sendNotification(NotificationType.BUSINESS_DECLINED,
                 businessEntityMapper.toModel(result));
-
 
 
     }

@@ -23,6 +23,8 @@ public class BusinessAccountDetail {
     @Column(name = "id", columnDefinition = "uuid")
     public  UUID   id;
     private String externalRefId;
-    private String refreshToken;
-    private String accessToken;
+    @Lob
+    private byte[] refreshToken;
+    @Lob
+    private byte[] accessToken;
 }

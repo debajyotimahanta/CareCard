@@ -3,11 +3,10 @@ package com.coronacarecard.service.payment;
 import com.coronacarecard.config.StripeConfiguration;
 import com.coronacarecard.dao.BusinessAccountDetailRepository;
 import com.coronacarecard.dao.BusinessRepository;
+import com.coronacarecard.dao.UserRepository;
 import com.coronacarecard.dao.entity.BusinessAccountDetail;
-import com.coronacarecard.exceptions.BusinessNotFoundException;
-import com.coronacarecard.exceptions.InternalException;
-import com.coronacarecard.exceptions.PayementServiceException;
-import com.coronacarecard.exceptions.PaymentAccountNotSetupException;
+import com.coronacarecard.dao.entity.User;
+import com.coronacarecard.exceptions.*;
 import com.coronacarecard.mapper.BusinessEntityMapper;
 import com.coronacarecard.mapper.PaymentEntityMapper;
 import com.coronacarecard.model.Business;
@@ -19,7 +18,6 @@ import com.coronacarecard.service.PaymentService;
 import com.stripe.exception.StripeException;
 import com.stripe.model.checkout.Session;
 import com.stripe.model.oauth.TokenResponse;
-import com.stripe.net.OAuth;
 import com.stripe.param.checkout.SessionCreateParams;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -28,8 +26,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -47,7 +43,7 @@ public class StripePaymentServiceImpl implements PaymentService {
     private BusinessRepository businessRepository;
 
     @Autowired
-    private BusinessAccountDetailRepository businessAccountDetailRepository;
+    private UserRepository userRepository;
 
     @Autowired
     private BusinessService businessService;
@@ -57,7 +53,13 @@ public class StripePaymentServiceImpl implements PaymentService {
     private PaymentEntityMapper paymentMapper;
 
     @Autowired
+    private StripeCalls stripeCalls;
+
+    @Autowired
     private BusinessEntityMapper businessEntityMapper;
+
+    @Autowired
+    private BusinessAccountDetailRepository businessAccountDetailRepository;
 
     @Override
     public CheckoutResponse successPayment(String urlParams) {
@@ -69,6 +71,7 @@ public class StripePaymentServiceImpl implements PaymentService {
         return null;
     }
 
+
     @Override
     public void confirmTransaction(String transactionId) {
 
@@ -76,9 +79,10 @@ public class StripePaymentServiceImpl implements PaymentService {
 
     @Override
     public String generateOnBoardingUrl(Business business) {
-        String state;
-        state = cryptoService.encrypt(business.getId().toString());
-        return String.format(stripeConfiguration.getConnectUrl(), stripeConfiguration.getClientId(), state);
+
+        return String.format(stripeConfiguration.getConnectUrl(),
+                stripeConfiguration.getClientId(),
+                business.getId().toString());
     }
 
     @Override
@@ -99,34 +103,39 @@ public class StripePaymentServiceImpl implements PaymentService {
     @Override
     @Transactional
     public Business importBusiness(String code, String state) throws BusinessNotFoundException,
-            PayementServiceException, InternalException {
+            PayementServiceException, BusinessAlreadyClaimedException {
         try {
             Optional<com.coronacarecard.dao.entity.Business> businessDAO =
-                    businessRepository.findById(UUID.fromString(cryptoService.decrypt(state)));
+                    businessRepository.findById(UUID.fromString(state));
             if (!businessDAO.isPresent()) {
                 throw new BusinessNotFoundException();
             }
-            BusinessAccountDetail.BusinessAccountDetailBuilder accountDetailBuilder = businessAccountDetailRepository
-                    .findBusiness(businessDAO.get().getId()).getOwner().getAccount().toBuilder();
+            com.coronacarecard.dao.entity.Business business = businessDAO.get();
+            if (business.getOwner().getAccount() != null) {
+                throw new BusinessAlreadyClaimedException();
+            }
 
-            Map<String, Object> params = new HashMap<>();
-            params.put("grant_type", "authorization_code");
-            params.put("code", code);
-            TokenResponse response = OAuth.token(params, null);
+            User businessOwner = business.getOwner();
 
+            BusinessAccountDetail.BusinessAccountDetailBuilder accountDetailBuilder = BusinessAccountDetail.builder();
+
+            TokenResponse response = stripeCalls.token(code);
             accountDetailBuilder.externalRefId(response.getStripeUserId());
             accountDetailBuilder.refreshToken(
                     cryptoService.encrypt(
-                            response.getRawJsonObject().get("refresh_token").toString()
+                            response.getRawJsonObject().get("refresh_token").getAsString()
                     ));
             accountDetailBuilder.accessToken(
                     cryptoService.encrypt(
-                            response.getRawJsonObject().get("access_token").toString()
+                            response.getRawJsonObject().get("access_token").getAsString()
                     ));
-            businessAccountDetailRepository.save(accountDetailBuilder.build());
+            BusinessAccountDetail savedAccountDetails =
+                    businessAccountDetailRepository.save(accountDetailBuilder.build());
+            businessOwner.setAccount(savedAccountDetails);
+            userRepository.save(businessOwner);
             return businessEntityMapper.toModel(businessDAO.get());
 
-        } catch (StripeException ex) {
+        } catch ( StripeException ex) {
             log.error("Unable to import business", ex);
             throw new PayementServiceException();
         }

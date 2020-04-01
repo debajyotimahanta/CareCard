@@ -6,6 +6,7 @@ import com.coronacarecard.exceptions.InternalException;
 import com.coronacarecard.mapper.BusinessEntityMapper;
 import com.coronacarecard.model.Business;
 import com.coronacarecard.model.BusinessSearchResult;
+import com.coronacarecard.model.BusinessState;
 import com.coronacarecard.model.PagedBusinessSearchResult;
 import com.coronacarecard.notifications.NotificationSender;
 import com.coronacarecard.notifications.NotificationType;
@@ -91,6 +92,7 @@ public class BusinessServiceImpl implements BusinessService {
         if (existingBusiness.isPresent()) {
             businessDAO = businessDAO.toBuilder().id(existingBusiness.get().getId()).build();
         } else {
+            businessDAO.setState(BusinessState.Draft);
             notificationSender.sendNotification(NotificationType.NEW_BUSINESS_REGISTERED, business);
         }
         com.coronacarecard.dao.entity.Business savedBusinessDAO = businessRepository.save(businessDAO);

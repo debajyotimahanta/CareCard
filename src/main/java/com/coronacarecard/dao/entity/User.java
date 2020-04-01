@@ -8,6 +8,7 @@ import java.util.UUID;
 @lombok.NoArgsConstructor
 @lombok.AllArgsConstructor
 @lombok.Getter
+@lombok.Setter
 @Entity
 @Table(
         name = "users",

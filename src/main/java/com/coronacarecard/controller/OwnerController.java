@@ -33,7 +33,7 @@ public class OwnerController {
         Business claimedBusiness = ownerService.claimBusiness(businessRegistrationRequest);
         return ClaimResult.builder()
                 .business(claimedBusiness)
-                .claimToken(cryptoService.encrypt(claimedBusiness.getId().toString()))
+                .claimToken(claimedBusiness.getId().toString())
                 .build();
 
     }

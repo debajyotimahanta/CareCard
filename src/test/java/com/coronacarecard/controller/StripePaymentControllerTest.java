@@ -3,26 +3,20 @@ package com.coronacarecard.controller;
 import com.coronacarecard.config.StripeConfiguration;
 import com.coronacarecard.dao.BusinessRepository;
 import com.coronacarecard.dao.entity.Business;
-import com.coronacarecard.exceptions.InternalException;
 import com.coronacarecard.mapper.BusinessEntityMapper;
-import com.coronacarecard.service.CryptoService;
 import com.coronacarecard.util.TestHelper;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
@@ -31,14 +25,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 public class StripePaymentControllerTest {
 
+    //TODO (deba) add test
+    @Test
+    public void confirm() {
+    }
+
     @Autowired
     private StripePaymentController controller;
 
     @Autowired
     private BusinessRepository businessRepository;
-
-    @MockBean
-    private CryptoService cryptoService;
 
     @Autowired
     private BusinessEntityMapper businessEntityMapper;
@@ -50,12 +46,6 @@ public class StripePaymentControllerTest {
     private StripeConfiguration stripeConfiguration;
 
     private String businessId="TEST-54444";
-
-    @Before
-    public void init() throws InternalException {
-        when(cryptoService.encrypt(any())).thenReturn(businessId);
-        when(cryptoService.decrypt(any())).thenReturn(businessId);
-    }
 
     @Test
     public void generate_onbaording_url_for_existing_business() throws Exception {
@@ -70,6 +60,6 @@ public class StripePaymentControllerTest {
                 .andExpect(status().isOk())
                 .andReturn();
         String onboardUrl = response.getResponse().getContentAsString();
-        assertEquals(String.format(expected, connectId, cryptoService.encrypt(businessEntityMapper.toModel(business).getId().toString())), onboardUrl);
+        assertEquals(String.format(expected, connectId, businessEntityMapper.toModel(business).getId().toString()), onboardUrl);
     }
 }

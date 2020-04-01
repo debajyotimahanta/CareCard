@@ -1,10 +1,7 @@
 package com.coronacarecard.controller;
 
 import com.coronacarecard.dao.BusinessRepository;
-import com.coronacarecard.exceptions.BusinessClaimException;
-import com.coronacarecard.exceptions.BusinessNotFoundException;
-import com.coronacarecard.exceptions.InternalException;
-import com.coronacarecard.exceptions.PayementServiceException;
+import com.coronacarecard.exceptions.*;
 import com.coronacarecard.model.Business;
 import com.coronacarecard.model.BusinessState;
 import com.coronacarecard.model.CheckoutResponse;
@@ -47,22 +44,22 @@ public class StripePaymentController {
 
     @GetMapping("/success")
     public CheckoutResponse checkout(String urlParams) {
-        return paymentService.successPayment( urlParams);
+        return paymentService.successPayment(urlParams);
     }
 
 
     @GetMapping("/failure")
     public CheckoutResponse fail(String urlParams) {
-        return paymentService.failedPayment( urlParams);
+        return paymentService.failedPayment(urlParams);
     }
 
     @GetMapping("/business/onboard/{id}")
     public String onboard(@PathVariable UUID id) throws BusinessNotFoundException, InternalException {
         try {
-            Business business=businessService.getBusiness(id);
+            Business business = businessService.getBusiness(id);
             return paymentService.generateOnBoardingUrl(business);
-        }catch(NumberFormatException ex){
-            log.error(String.format("The id %s is not in the proper format",id));
+        } catch (NumberFormatException ex) {
+            log.error(String.format("The id %s is not in the proper format", id));
             //TODO: This is a BadRequest exception
             throw new InternalException("Id is not in the proper format");
         }
@@ -73,9 +70,9 @@ public class StripePaymentController {
     public void confirm(@RequestParam(value = "code") String code,
                         @RequestParam(value = "state") String state,
                         HttpServletResponse httpServletResponse)
-            throws BusinessClaimException, BusinessNotFoundException, IOException, InternalException, PayementServiceException {
-        String   decryptedPlaceId = cryptoService.decrypt(state);
-        UUID     id               = UUID.fromString(decryptedPlaceId);
+            throws BusinessClaimException, BusinessNotFoundException, IOException, InternalException,
+            PayementServiceException, BusinessAlreadyClaimedException {
+        UUID id = UUID.fromString(state);
         Business business = paymentService.importBusiness(code, state);
         if (id.compareTo(business.getId()) != 0) {
             log.error(String.format("The business id %s and state's id %s don't match something is wrong",

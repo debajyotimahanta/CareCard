@@ -2,6 +2,7 @@ package com.coronacarecard.controller;
 
 import com.coronacarecard.dao.BusinessRepository;
 import com.coronacarecard.dao.entity.Business;
+import com.coronacarecard.exceptions.BusinessAlreadyClaimedException;
 import com.coronacarecard.exceptions.BusinessNotFoundException;
 import com.coronacarecard.exceptions.InternalException;
 import com.coronacarecard.exceptions.PayementServiceException;
@@ -10,7 +11,6 @@ import com.coronacarecard.model.BusinessApprovalDetails;
 import com.coronacarecard.model.BusinessState;
 import com.coronacarecard.notifications.NotificationSender;
 import com.coronacarecard.notifications.NotificationType;
-import com.coronacarecard.service.CryptoService;
 import com.coronacarecard.service.PaymentService;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,8 +27,10 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.io.IOException;
 import java.util.Optional;
+import java.util.UUID;
 
-import static com.coronacarecard.util.TestHelper.*;
+import static com.coronacarecard.util.TestHelper.getBusinessRegistrationRequestJson;
+import static com.coronacarecard.util.TestHelper.getPlainTextPlaceId;
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -46,7 +48,7 @@ public class OnBoardingTest {
     private static final String EMAIL    = "t@t.com";
     private static final String PHONE    = "7737322612";
     private static final String AUTHCODE = "code";
-    private static final String STATE    = getEncryptedPlaceId();
+    private static final String STATE    = UUID.randomUUID().toString();
 
     @Autowired
     private MockMvc mockMvc;
@@ -57,8 +59,6 @@ public class OnBoardingTest {
     @MockBean
     private NotificationSender<BusinessApprovalDetails> approvalNotificationSender;
 
-    @MockBean
-    private CryptoService cryptoService;
 
     @MockBean
     private PaymentService paymentService;
@@ -73,11 +73,10 @@ public class OnBoardingTest {
 
 
     @Before
-    public void init() throws InternalException, BusinessNotFoundException, PayementServiceException {
-        when(paymentService.importBusiness( AUTHCODE, STATE))
+    public void init() throws InternalException, BusinessNotFoundException, PayementServiceException,
+            BusinessAlreadyClaimedException {
+        when(paymentService.importBusiness( eq(AUTHCODE), any()))
                 .thenAnswer(invocation -> businessEntityMapper.toModel(afterRegister.get()));
-
-        when(cryptoService.decrypt(STATE)).thenAnswer(invocation -> afterRegister.get().getId().toString());
         when(paymentService.generateOnBoardingUrl(any())).thenReturn("onboarding_url");
     }
 
@@ -119,7 +118,7 @@ public class OnBoardingTest {
         assertEquals(EXTERNALPLACEID, claimBusinessDetails.getValue().getExternalRefId());
 
         mockMvc.perform(MockMvcRequestBuilders.get(
-                "/payment/stripe/business/confirm?code=" + AUTHCODE + "&state=" + STATE)
+                "/payment/stripe/business/confirm?code=" + AUTHCODE + "&state=" + afterRegister.get().getId())
                 .contentType("application/json"))
                 .andExpect(status().is3xxRedirection())
                 .andReturn();

@@ -31,12 +31,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 public class OwnerControllerTest {
 
-    private static final String PLACEID         = getPlainTextPlaceId();
     private static final String EXTERNALPLACEID = "ChIJXbraKagPkFQRR5OlYjIcCXI";
     private static final String EMAIL           = "t@t.com";
     private static final String PHONE           = "7737322612";
-    private static final String AUTHCODE        = "code";
-    private static final String STATE           = getEncryptedPlaceId();
 
     @MockBean
     private NotificationSender<com.coronacarecard.model.Business> notificationSender;

@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
-import org.springframework.util.Base64Utils;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
@@ -30,7 +29,7 @@ public class CryptoServiceImpl implements CryptoService {
     private final Map<String, String> context = Collections.singletonMap("@rtval", "#postvar");
 
     @Override
-    public String encrypt(String data) {
+    public byte[] encrypt(String data) {
         AwsCrypto cryptoClient = new AwsCrypto();
         byte[] cipherValue = null;
 
@@ -39,15 +38,14 @@ public class CryptoServiceImpl implements CryptoService {
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-        String base64EncodedStr = Base64Utils.encodeToString(cipherValue);
-        return base64EncodedStr;
+        return cipherValue;
     }
 
     @Override
-    public String decrypt(String state) throws InternalException {
+    public String decrypt(byte[] state) throws InternalException {
         AwsCrypto cryptoClient = new AwsCrypto();
 
-        CryptoResult<byte[], KmsMasterKey> decryptResult = cryptoClient.decryptData(keyProvider, Base64Utils.decode(state.getBytes()));
+        CryptoResult<byte[], KmsMasterKey> decryptResult = cryptoClient.decryptData(keyProvider, state);
         if(!decryptResult.getMasterKeyIds().get(0).equals(awsARN)) {
             throw new InternalException("Wrong key Id returned by KMS.");
         }

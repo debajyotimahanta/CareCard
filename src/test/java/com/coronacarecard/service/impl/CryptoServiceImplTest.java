@@ -2,7 +2,6 @@ package com.coronacarecard.service.impl;
 
 import com.coronacarecard.exceptions.InternalException;
 import com.coronacarecard.service.CryptoService;
-import com.coronacarecard.util.TestHelper;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -33,21 +32,21 @@ public class CryptoServiceImplTest {
         // Arrange
         String sampleData = UUID.randomUUID().toString();
         // Act
-        String result = target.encrypt(sampleData);
+        byte[] result = target.encrypt(sampleData);
 
         // Assert
         assertNotNull(result);
     }
 
     @Test
-    void decode() {
+    public void decode() {
         // Arrange
-        String cipherData = TestHelper.getEncryptedPlaceId();
+        String cipherData = UUID.randomUUID().toString();
 
         // Act
         String result = null;
         try {
-            result = target.decrypt(cipherData);
+            result = target.decrypt(cipherData.getBytes());
         } catch (InternalException e) {
             e.printStackTrace();
         }
