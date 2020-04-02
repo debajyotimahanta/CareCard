@@ -39,3 +39,10 @@ aws cloudformation --region ca-central-1 create-stack --stack-name $stackPrefix-
 ```
 
 `NOTE:` The sequence matters as the output of one stack is used in another
+
+###Database scripts
+
+```$xslt
+alter table business_account_detail modify refresh_token blob;
+alter table business_account_detail modify access_token blob;
+```

@@ -30,26 +30,26 @@ import java.util.UUID;
 public class Business {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "id", columnDefinition = "uuid")
-    private UUID          id;
-    private String        externalRefId;
-    private Double        latitude;
-    private Double        longitude;
-    private String        name;
-    private String        address;
-    private String        description;
-    private String        photoUrl;
-    private String        photoReference;
-    private String        photoAttributions;
-    private String        formattedPhoneNumber;
-    private String        internationalPhoneNumber;
-    private String        Website;
+    @GeneratedValue(generator = "uuid2")
+    @Column(name = "id", columnDefinition = "binary(16)")
+    private UUID id;
+    private String externalRefId;
+    private Double latitude;
+    private Double longitude;
+    private String name;
+    private String address;
+    private String description;
+    private String photoUrl;
+    private String photoReference;
+    private String photoAttributions;
+    private String formattedPhoneNumber;
+    private String internationalPhoneNumber;
+    private String Website;
     @Column(length = 32, columnDefinition = "varchar(32) default 'DRAFT'")
     @Enumerated(EnumType.STRING)
     private BusinessState state;
 
-    @ManyToOne(cascade=CascadeType.ALL)
+    @ManyToOne(cascade = CascadeType.ALL)
     private User owner;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "business")
