@@ -3,8 +3,8 @@ package com.coronacarecard.model;
 import com.coronacarecard.model.orders.OrderStatus;
 
 import java.io.Serializable;
-import java.util.UUID;
 import java.util.Optional;
+import java.util.UUID;
 
 @lombok.Builder(toBuilder = true)
 @lombok.NoArgsConstructor

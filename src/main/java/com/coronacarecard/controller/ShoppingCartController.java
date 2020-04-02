@@ -22,6 +22,4 @@ public class ShoppingCartController {
             PaymentAccountNotSetupException, InternalException {
         return shoppingCartService.checkout(PaymentSystem.STRIPE, order);
     }
-
-
 }
