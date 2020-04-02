@@ -35,6 +35,7 @@ dependencies {
     implementation 'com.google.maps:google-maps-services:0.11.0'
     implementation 'com.google.guava:guava:28.2-jre'
     compile "com.stripe:stripe-java:18.10.0"
+    implementation 'com.h2database:h2:1.4.200'
 
     implementation platform('software.amazon.awssdk:bom:2.5.29')
     implementation 'software.amazon.awssdk:kinesis'
@@ -59,7 +60,6 @@ dependencies {
     testImplementation 'org.hibernate:hibernate-core:5.4.12.Final'
     testImplementation 'org.xerial:sqlite-jdbc:3.30.1'
     testImplementation 'com.github.gwenn:sqlite-dialect:0.1.0'
-    testImplementation 'com.h2database:h2:1.4.200'
 }
 
 apply plugin: SpringBootPlugin
