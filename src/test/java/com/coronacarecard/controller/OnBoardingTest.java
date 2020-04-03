@@ -21,6 +21,7 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -87,6 +88,7 @@ public class OnBoardingTest {
      * 4. Call confirm and pass state
      * 5. Confirm move the state to Active
      */
+    @WithMockUser("spring")
     @Test
     public void onboarding_happy_case() throws Exception, IOException {
         Optional<Business> beforeRegister = businessRepository.findByExternalId(PLACEID);
