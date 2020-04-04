@@ -14,7 +14,7 @@ public interface BusinessService {
 
     Business getOrCreate(String id) throws BusinessNotFoundException, InternalException;
 
-    Business getBusiness(String externalId) throws BusinessNotFoundException, InternalException;
+    Business getBusiness(String externalId) throws BusinessNotFoundException;
 
     Business getBusiness(UUID id) throws BusinessNotFoundException;
 

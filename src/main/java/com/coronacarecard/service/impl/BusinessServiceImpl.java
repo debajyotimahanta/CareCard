@@ -60,8 +60,12 @@ public class BusinessServiceImpl implements BusinessService {
     }
 
     @Override
-    public Business getBusiness(String externalId) throws BusinessNotFoundException ,InternalException{
-        return getOrCreate(externalId);
+    public Business getBusiness(String externalId) throws BusinessNotFoundException {
+        Optional<com.coronacarecard.dao.entity.Business> businessDAO=businessRepository.findByExternalId(externalId);
+        if(!businessDAO.isPresent()){
+            throw new BusinessNotFoundException();
+        }
+        return businessEntityMapper.toModel(businessDAO.get());
     }
 
     @Override

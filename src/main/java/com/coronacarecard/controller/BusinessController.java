@@ -28,7 +28,7 @@ public class BusinessController {
     @RequestMapping(value = "/{externalId}", method = RequestMethod.GET)
     public Business getBusiness(@PathVariable String externalId) throws
             BusinessNotFoundException, InternalException {
-        return businessService.getBusiness(externalId);
+        return businessService.getOrCreate(externalId);
     }
 
     @GetMapping("/update")

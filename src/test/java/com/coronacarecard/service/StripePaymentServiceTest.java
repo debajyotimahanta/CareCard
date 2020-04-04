@@ -133,6 +133,7 @@ public class StripePaymentServiceTest {
 
     @Test
     public void create_stripe_session() throws Exception{
+        String externalId="ch1234";
         when(stripeCalls.generateSession(any())).thenAnswer(i->Session.create((SessionCreateParams) i.getArgument(0)));
         User user = userRepository.save(User.builder()
                 .email("testuser@xyz.com")
@@ -143,15 +144,16 @@ public class StripePaymentServiceTest {
                 .build());
         com.coronacarecard.dao.entity.Business business = TestHelper.createEntry(businessRepository,"23456789" ,
                 "1234", "Food for Friends");
-        businessRepository.save(business.toBuilder().owner(user).build());
+        businessRepository.save(business.toBuilder().owner(user).externalRefId(externalId).build());
         OrderDetail order= OrderDetail.builder()
                 .customerEmail("cust@email.com")
                 .customerMobile("773")
                 .status(OrderStatus.PENDING)
                 .processingFee(1.2)
-                .orderLine(createLine(business.getId()))
+                .orderLine(createLine(externalId))
                 .currency(Currency.USD)
-                .contribution(20.0)
+                .contribution(2.5)
+                .total(520.0)
                 .id(UUID.randomUUID())
                 .build();
 
@@ -196,7 +198,7 @@ public class StripePaymentServiceTest {
                 .build());
         return items;
     }
-    private List<OrderLine> createLine(UUID id){
+    private List<OrderLine> createLine(String id){
         ArrayList<OrderLine> line=new ArrayList<>();
         for(int i=0;i<2;i++){
             line.add(OrderLine.builder()

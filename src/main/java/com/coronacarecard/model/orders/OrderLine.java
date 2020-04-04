@@ -10,7 +10,7 @@ import java.util.UUID;
 @lombok.Getter
 public class OrderLine  implements Serializable {
     private String businessName;
-    private UUID businessId;
+    private String businessId;
     private List<Item> items;
     private Double     tip;
 }

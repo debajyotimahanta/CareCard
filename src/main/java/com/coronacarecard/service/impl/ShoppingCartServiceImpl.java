@@ -68,7 +68,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
                         .build();
 
         for (OrderLine line : order.getOrderLine()) {
-            Optional<Business> business = businessRepository.findById(line.getBusinessId());
+            Optional<Business> business = businessRepository.findByExternalId(line.getBusinessId());
             if (!business.isPresent()) {
                 log.error(String.format("Cannot find business for %s", line.getBusinessId()));
                 throw new BusinessNotFoundException();

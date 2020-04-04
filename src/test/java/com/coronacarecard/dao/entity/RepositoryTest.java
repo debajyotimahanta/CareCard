@@ -141,14 +141,16 @@ public class RepositoryTest {
                         .build())
                 .build());
         List<UUID> businessIds = new ArrayList<>();
+        List<String> businessExternalIds=new ArrayList<>();
         for (int i = 0; i < 10; i++) {
             Business business = TestHelper.createEntry(businessRepository, INTERNATIONAL_PHONE_NUMBER + i,
                     idPrefix + i, "Food for Friends" + i);
             businessIds.add(business.getId());
-            businessRepository.save(business.toBuilder().owner(user).build());
+            businessRepository.save(business.toBuilder().owner(user).externalRefId("ch"+i).build());
+            businessExternalIds.add("ch"+i);
         }
 
-        OrderDetail orders = getOrder(businessIds);
+        OrderDetail orders = getOrder(businessExternalIds);
         CheckoutResponse response= shoppingCartService.checkout(PaymentSystem.STRIPE, orders);
         com.coronacarecard.dao.entity.OrderDetail storedOrder =
                 orderDetailRepository.findAll().iterator().next();
@@ -159,12 +161,12 @@ public class RepositoryTest {
         assertEquals(5, storedOrder.getOrderItems().get(0).getItems().size());
     }
 
-    private OrderDetail getOrder(List<UUID> businessIds) {
+    private OrderDetail getOrder(List<String> businessIds) {
         List<OrderLine> line = new ArrayList<>();
-        for (UUID id : businessIds) {
+        for (String id : businessIds) {
 
             line.add(OrderLine.builder()
-                    .businessId(id)
+                    .businessId(id.toString())
                     .tip(10.0)
                     .items(getItems())
                     .build());
@@ -176,6 +178,7 @@ public class RepositoryTest {
                 .customerMobile("773")
                 .status(OrderStatus.PENDING)
                 .processingFee(1.2)
+                .contribution(2.5)
                 .total(500.23)
                 .orderLine(line)
                 .currency(Currency.USD)

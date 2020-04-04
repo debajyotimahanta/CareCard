@@ -57,14 +57,6 @@ public class StripePaymentEntityMapperImpl implements PaymentEntityMapper {
                 .map(ol -> createLineItems(orderDetail, ol))
                 .flatMap(Collection::stream)
                 .collect(Collectors.toList());
-        if (orderDetail.getContribution() > 0) {
-            allLineItems.add(SessionCreateParams.LineItem.builder()
-                    .setCurrency(orderDetail.getCurrency().toString().toLowerCase())
-                    .setQuantity(1L)
-                    .setAmount(((Double) (orderDetail.getContribution() * 100)).longValue())
-                    .setName("Contribution to the platform")
-                    .build());
-        }
         return SessionCreateParams.builder()
                 .setCustomerEmail(maybeUser.get().getEmail())
                 .setClientReferenceId(orderDetail.getId().toString())
@@ -78,7 +70,7 @@ public class StripePaymentEntityMapperImpl implements PaymentEntityMapper {
                                 .builder()
                                 .setDestination(accountId)
                                 .build())
-                        .setApplicationFeeAmount(((Double) (orderDetail.getProcessingFee() * 100)).longValue())
+                        .setApplicationFeeAmount(((Double) (orderDetail.getContribution() * orderDetail.getTotal())).longValue())
                         .build())
                 .build();
     }
