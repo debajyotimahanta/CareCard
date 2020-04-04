@@ -90,7 +90,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         //TODO tie this to user table when we support registration
         UserDetails user =
                 User.withDefaultPasswordEncoder()
-                        .username("user")
+                        .username("admin")
                         .password("umil7qcgPa")
                         .roles("USER")
                         .build();

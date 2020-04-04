@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <style>
+table{width:100%;}
+table td, table th { border: 1px solid grey;}
+table th { background: #eee;}
+.pagination-div{user-select: none;}
+.pagination-div span{border-radius:3px;border:1px solid #999;
+   padding:5px;margin:10px 0px 0px 10px;display:inline-block}
+span.selected{background:#ccf;}
+
+    </style>
+</head>
+<body>
+<h2>Business</h2>
+<table>
+    <tr>
+        <th>Id</th>
+        <th>Google Place Id</th>
+        <th>Name</th>
+        <th>Phone</th>
+        <th>Status</th>
+        <th></th>
+    </tr>
+    <tr th:each="business : ${page.content}">
+        <td th:text="${business.id}"></td>
+        <td th:text="${business.externalRefId}"></td>
+        <td th:text="${business.name}"></td>
+        <td th:text="${business.formattedPhoneNumber}"></td>
+        <td th:text="${business.state}"></td>
+        <td>
+            <a th:href="${'/admin/web/business/' + {business.id} + '/approve'}">Approve</a>
+            <a th:href="${'/admin/web/business/' + {business.id} + '/decline'}">Decline</a>
+        </td>
+    </tr>
+</table>
+
+<div class="pagination-div">
+    <span th:if="${page.hasPrevious()}">
+        <a th:href="@{/admin/web/business(page=${page.number-1},size=${page.size})}">Previous</a>
+    </span>
+    <th:block th:each="i: ${#numbers.sequence(0, page.totalPages - 1)}">
+        <span th:if="${page.number == i}" class="selected">[[${i}+1]]</span>
+        <span th:unless="${page.number == i}">
+             <a th:href="@{/admin/web/business(page=${i},size=${page.size})}">[[${i}+1]]</a>
+        </span>
+    </th:block>
+    <span th:if="${page.hasNext()}">
+        <a th:href="@{/admin/web/business(page=${page.number+1},size=${page.size})}">Next</a>
+    </span>
+</div>
+</body>
+</html>
