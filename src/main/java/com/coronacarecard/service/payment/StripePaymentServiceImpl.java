@@ -138,7 +138,7 @@ public class StripePaymentServiceImpl implements PaymentService {
     @Override
     @Transactional
     public Business importBusiness(String code, String state) throws BusinessNotFoundException,
-            PayementServiceException, BusinessAlreadyClaimedException {
+            PaymentServiceException, BusinessAlreadyClaimedException {
         try {
             Optional<com.coronacarecard.dao.entity.Business> businessDAO =
                     businessRepository.findById(UUID.fromString(state));
@@ -172,7 +172,7 @@ public class StripePaymentServiceImpl implements PaymentService {
 
         } catch ( StripeException ex) {
             log.error("Unable to import business", ex);
-            throw new PayementServiceException();
+            throw new PaymentServiceException("Unable to import business. Error retrieving details from Payment Service");
         }
 
     }

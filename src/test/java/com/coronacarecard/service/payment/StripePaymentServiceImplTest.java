@@ -9,7 +9,7 @@ import com.coronacarecard.dao.entity.User;
 import com.coronacarecard.exceptions.BusinessAlreadyClaimedException;
 import com.coronacarecard.exceptions.BusinessNotFoundException;
 import com.coronacarecard.exceptions.InternalException;
-import com.coronacarecard.exceptions.PayementServiceException;
+import com.coronacarecard.exceptions.PaymentServiceException;
 import com.coronacarecard.service.CryptoService;
 import com.coronacarecard.service.PaymentService;
 import org.junit.Before;
@@ -76,7 +76,7 @@ public class StripePaymentServiceImplTest {
     }
 
     @Test
-    public void importBusiness() throws InternalException, PayementServiceException, BusinessNotFoundException,
+    public void importBusiness() throws InternalException, PaymentServiceException, BusinessNotFoundException,
             BusinessAlreadyClaimedException {
         String authCode = "ac_H0csVTWLWupJQ3P8wOiw2uWZQk3T70XQ";
         com.coronacarecard.model.Business result = paymentService.importBusiness(authCode, "state");

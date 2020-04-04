@@ -2,31 +2,30 @@ package com.coronacarecard.service;
 
 import com.coronacarecard.config.StripeConfiguration;
 import com.coronacarecard.dao.BusinessRepository;
-import com.coronacarecard.exceptions.BusinessAlreadyClaimedException;
-import com.coronacarecard.exceptions.BusinessNotFoundException;
 import com.coronacarecard.dao.OrderDetailRepository;
 import com.coronacarecard.dao.UserRepository;
 import com.coronacarecard.dao.entity.BusinessAccountDetail;
 import com.coronacarecard.dao.entity.User;
+import com.coronacarecard.exceptions.BusinessAlreadyClaimedException;
+import com.coronacarecard.exceptions.BusinessNotFoundException;
 import com.coronacarecard.exceptions.InternalException;
-import com.coronacarecard.exceptions.PayementServiceException;
+import com.coronacarecard.exceptions.PaymentServiceException;
 import com.coronacarecard.model.Business;
 import com.coronacarecard.model.BusinessRegistrationRequest;
-import com.coronacarecard.service.payment.StripeCalls;
-import com.google.gson.JsonObject;
-import com.stripe.exception.StripeException;
-import com.stripe.model.oauth.TokenResponse;
 import com.coronacarecard.model.CheckoutResponse;
 import com.coronacarecard.model.Currency;
 import com.coronacarecard.model.orders.Item;
 import com.coronacarecard.model.orders.OrderDetail;
 import com.coronacarecard.model.orders.OrderLine;
 import com.coronacarecard.model.orders.OrderStatus;
+import com.coronacarecard.service.payment.StripeCalls;
 import com.coronacarecard.util.TestHelper;
+import com.google.gson.JsonObject;
+import com.stripe.exception.StripeException;
 import com.stripe.model.checkout.Session;
+import com.stripe.model.oauth.TokenResponse;
 import com.stripe.param.checkout.SessionCreateParams;
 import jdk.nashorn.internal.ir.annotations.Ignore;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,17 +35,14 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.util.UUID;
-
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.mock;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(SpringRunner.class)
@@ -103,7 +99,7 @@ public class StripePaymentServiceTest {
     }
 
     @Test
-    public void importBusinessTest() throws InternalException, PayementServiceException,
+    public void importBusinessTest() throws InternalException, PaymentServiceException,
             BusinessNotFoundException, BusinessAlreadyClaimedException, StripeException {
         Business calimedBusiness = ownerService.claimBusiness(BusinessRegistrationRequest.builder()
                 .businessId(business_id)

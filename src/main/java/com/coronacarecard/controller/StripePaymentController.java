@@ -4,7 +4,6 @@ import com.coronacarecard.dao.BusinessRepository;
 import com.coronacarecard.exceptions.*;
 import com.coronacarecard.model.Business;
 import com.coronacarecard.model.BusinessState;
-import com.coronacarecard.model.CheckoutResponse;
 import com.coronacarecard.service.BusinessService;
 import com.coronacarecard.service.CryptoService;
 import com.coronacarecard.service.PaymentService;
@@ -18,8 +17,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -73,7 +70,7 @@ public class StripePaymentController {
                         @RequestParam(value = "state") String state,
                         HttpServletResponse httpServletResponse)
             throws BusinessClaimException, BusinessNotFoundException, IOException, InternalException,
-            PayementServiceException, BusinessAlreadyClaimedException {
+            PaymentServiceException, BusinessAlreadyClaimedException {
         UUID id = UUID.fromString(state);
         Business business = paymentService.importBusiness(code, state);
         if (id.compareTo(business.getId()) != 0) {

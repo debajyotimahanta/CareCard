@@ -58,5 +58,5 @@ public interface PaymentService {
      */
     void validate(com.coronacarecard.model.orders.OrderDetail order);
 
-    Business importBusiness(String code, String state) throws BusinessNotFoundException, PayementServiceException, InternalException, BusinessAlreadyClaimedException;
+    Business importBusiness(String code, String state) throws BusinessNotFoundException, PaymentServiceException, InternalException, BusinessAlreadyClaimedException;
 }
