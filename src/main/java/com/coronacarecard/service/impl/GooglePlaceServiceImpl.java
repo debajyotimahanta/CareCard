@@ -8,6 +8,7 @@ import com.coronacarecard.model.BusinessSearchResult;
 import com.coronacarecard.service.GooglePlaceService;
 import com.google.maps.*;
 import com.google.maps.errors.ApiException;
+import com.google.maps.errors.NotFoundException;
 import com.google.maps.model.LatLng;
 import com.google.maps.model.PlaceDetails;
 import com.google.maps.model.PlacesSearchResponse;
@@ -44,6 +45,8 @@ public class GooglePlaceServiceImpl implements GooglePlaceService {
         try {
             result = request.await();
             // Handle successful request.
+        } catch (NotFoundException notFoundException) {
+            throw new BusinessNotFoundException("Unable to find the business in Google Places.");
         } catch (Exception e) {
             log.error(e);
             throw new InternalException("Unable to search place");
@@ -86,7 +89,7 @@ public class GooglePlaceServiceImpl implements GooglePlaceService {
 
         ImageResult result = null;
         try {
-             result = request.await();
+            result = request.await();
         } catch (ApiException e) {
             log.error("Error while requesting image with id : " + photoReference);
             throw new InternalException(e.getMessage());

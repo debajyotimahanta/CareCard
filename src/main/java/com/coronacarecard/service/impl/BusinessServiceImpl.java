@@ -63,7 +63,7 @@ public class BusinessServiceImpl implements BusinessService {
     public Business getBusiness(String externalId) throws BusinessNotFoundException {
         Optional<com.coronacarecard.dao.entity.Business> businessDAO=businessRepository.findByExternalId(externalId);
         if(!businessDAO.isPresent()){
-            throw new BusinessNotFoundException();
+            throw new BusinessNotFoundException("No such business registered with us. Please contact administrator.");
         }
         return businessEntityMapper.toModel(businessDAO.get());
     }
@@ -72,7 +72,7 @@ public class BusinessServiceImpl implements BusinessService {
     public Business getBusiness(UUID id) throws BusinessNotFoundException  {
         Optional<com.coronacarecard.dao.entity.Business> businessDAO=businessRepository.findById(id);
         if(!businessDAO.isPresent()){
-            throw new BusinessNotFoundException();
+            throw new BusinessNotFoundException("No such business");
         }
         return businessEntityMapper.toModel(businessDAO.get());
     }

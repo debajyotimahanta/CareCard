@@ -143,7 +143,7 @@ public class StripePaymentServiceImpl implements PaymentService {
             Optional<com.coronacarecard.dao.entity.Business> businessDAO =
                     businessRepository.findById(UUID.fromString(state));
             if (!businessDAO.isPresent()) {
-                throw new BusinessNotFoundException();
+                throw new BusinessNotFoundException("Business not registered with us. Please contact the administrator.");
             }
             com.coronacarecard.dao.entity.Business business = businessDAO.get();
             if (business.getOwner().getAccount() != null) {

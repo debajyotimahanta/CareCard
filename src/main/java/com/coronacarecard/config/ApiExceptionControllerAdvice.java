@@ -68,15 +68,15 @@ public class ApiExceptionControllerAdvice extends ResponseEntityExceptionHandler
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
-//    @ExceptionHandler(CustomerException.class)
-//    protected ResponseEntity<Object> handleCustomerExceptions(CustomerException exp) {
-//        ApiError error = new ApiError();
-//        error.code = 400;
-//        error.status = HttpStatus.BAD_REQUEST.toString();
-//        error.message = exp.getMessage();
-//
-//        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
-//    }
+    @ExceptionHandler(BusinessNotFoundException.class)
+    protected ResponseEntity<Object> handleBusinessNotFoundExceptionExceptions(BusinessNotFoundException exp) {
+        ApiError error = new ApiError();
+        error.code = 404;
+        error.status = HttpStatus.NOT_FOUND.toString();
+        error.message = exp.getMessage();
+
+        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+    }
 
     @ExceptionHandler(PaymentServiceException.class)
     protected ResponseEntity<Object> handlePaymentServiceExceptions(PaymentServiceException exp) {

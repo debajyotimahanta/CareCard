@@ -15,8 +15,6 @@ import com.coronacarecard.model.orders.OrderLine;
 import com.coronacarecard.model.orders.OrderStatus;
 import com.coronacarecard.service.PaymentService;
 import com.coronacarecard.service.ShoppingCartService;
-import com.coronacarecard.service.payment.PaymentServiceFactory;
-import com.stripe.model.checkout.Session;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,7 +69,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
             Optional<Business> business = businessRepository.findByExternalId(line.getBusinessId());
             if (!business.isPresent()) {
                 log.error(String.format("Cannot find business for %s", line.getBusinessId()));
-                throw new BusinessNotFoundException();
+                throw new BusinessNotFoundException("Business not registered with us. Please contact the administrator.");
             }
 
             OrderItem orderItem =

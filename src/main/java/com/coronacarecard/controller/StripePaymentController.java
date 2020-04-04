@@ -82,7 +82,7 @@ public class StripePaymentController {
 
         if (!businessDAO.isPresent()) {
             log.error(String.format("The business %s does not exists in the system", id));
-            throw new BusinessNotFoundException();
+            throw new BusinessNotFoundException("Business not registered with us. Please contact the administrator.");
         }
         businessDAO.get().setState(BusinessState.Active);
         businessDAO.get().setExternalRefId(business.getExternalRefId());

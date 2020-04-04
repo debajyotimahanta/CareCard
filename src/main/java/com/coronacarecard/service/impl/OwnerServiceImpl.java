@@ -126,7 +126,7 @@ public class OwnerServiceImpl implements OwnerService {
         Optional<com.coronacarecard.dao.entity.Business> business = businessRepository.findById(id);
         if (!business.isPresent()) {
             log.error(String.format("No business with id %s exists. You cannot approve it.", id));
-            throw new BusinessNotFoundException();
+            throw new BusinessNotFoundException("Business not registered with us. Please contact the administrator.");
         }
         com.coronacarecard.dao.entity.Business businessDAO = business.get();
         if (BusinessState.Draft.equals(businessDAO.getState())) {
@@ -173,7 +173,7 @@ public class OwnerServiceImpl implements OwnerService {
         Optional<com.coronacarecard.dao.entity.Business> business = businessRepository.findById(id);
         if (!business.isPresent()) {
             log.error(String.format("No business with id %s exists. You cannot decline it.", id));
-            throw new BusinessNotFoundException();
+            throw new BusinessNotFoundException("Business not registered with us. Please contact the administrator.");
         }
 
         if (BusinessState.Draft.equals(business.get().getState())) {
