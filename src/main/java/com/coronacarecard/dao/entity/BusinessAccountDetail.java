@@ -22,6 +22,8 @@ public class BusinessAccountDetail {
     @Column(name="id")
     public  Long   id;
     private String externalRefId;
+    @Lob
     private byte[] refreshToken;
+    @Lob
     private byte[] accessToken;
 }
