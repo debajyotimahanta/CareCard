@@ -36,6 +36,16 @@ Parameters:
     MinLength: 1
     MaxLength: 255
     AllowedPattern: ^[a-zA-Z][-a-zA-Z0-9]*$
+  FrontEndUrl:
+    Description: The base url of the front end
+    Type: String
+    AllowedPattern: ^https?://.*$
+    ConstraintDescription: "must be a valid URL."
+  ApiUrl:
+    Description: The url of the API endpoint
+    Type: String
+    AllowedPattern: ^https?://.*$
+    ConstraintDescription: "must be a valid URL."
 Resources:
   WebApp:
     Type: AWS::ElasticBeanstalk::Application
@@ -149,3 +159,9 @@ Resources:
           OptionName: IMAGE_BUCKET_NAME
           Value:
             Fn::ImportValue: !Sub '${InfraStackName}:ImageBucket'
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: FRONT_END_URL
+          Value: !Ref FrontEndUrl
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: API_URL
+          Value: !Ref ApiUrl

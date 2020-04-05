@@ -70,7 +70,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         final CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(asList(forntEndBaseUrl));
+        //TODO (deba) remove this once we have the correct envs
+        configuration.setAllowedOrigins(asList(forntEndBaseUrl, "https://www.beta.coronacarecard.com"
+                , "https://www.coronacarecard.com"));
         configuration.setAllowedMethods(asList("HEAD",
                 "GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         // setAllowCredentials(true) is important, otherwise:

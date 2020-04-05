@@ -87,7 +87,7 @@ public class StripePaymentController {
         businessDAO.get().setState(BusinessState.Active);
         businessDAO.get().setExternalRefId(business.getExternalRefId());
         businessRepository.save(businessDAO.get());
-        httpServletResponse.sendRedirect(forntEndBaseUrl + "/" + businessDAO.get().getExternalRefId() + "?confirm=true");
+        httpServletResponse.sendRedirect(forntEndBaseUrl + "/businesses/" + businessDAO.get().getExternalRefId() + "?confirm=true");
 
     }
 }

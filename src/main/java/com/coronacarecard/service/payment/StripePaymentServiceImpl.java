@@ -28,6 +28,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -71,6 +72,9 @@ public class StripePaymentServiceImpl implements PaymentService {
 
     @Autowired
     private NotificationSender<OrderDetail> notificationSender;
+
+    @Value("${spring.app.apiBaseUrl}")
+    private String apiUrl;
 
     @Override
     public CheckoutResponse successPayment(String urlParams) {
@@ -117,7 +121,8 @@ public class StripePaymentServiceImpl implements PaymentService {
 
         return String.format(stripeConfiguration.getConnectUrl(),
                 stripeConfiguration.getClientId(),
-                business.getId().toString());
+                business.getId().toString(),
+                apiUrl);
     }
 
     @Override

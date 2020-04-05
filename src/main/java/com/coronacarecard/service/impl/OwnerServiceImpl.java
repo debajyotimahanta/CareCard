@@ -8,13 +8,16 @@ import com.coronacarecard.mapper.BusinessEntityMapper;
 import com.coronacarecard.model.*;
 import com.coronacarecard.notifications.NotificationSender;
 import com.coronacarecard.notifications.NotificationType;
+import com.coronacarecard.service.CloudStorageService;
 import com.coronacarecard.service.GooglePlaceService;
 import com.coronacarecard.service.OwnerService;
 import com.coronacarecard.service.PaymentService;
+import com.google.maps.ImageResult;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,6 +36,13 @@ public class OwnerServiceImpl implements OwnerService {
 
     @Autowired
     private GooglePlaceService googlePlaceService;
+
+    @Autowired
+    private CloudStorageService cloudStorageService;
+
+    // TODO (arun) Move this to CloudStorage as its a S3 detail not a owner service details
+    @Value("${spring.app.s3imageBucket}")
+    private String imageBucketName;
 
     @Autowired
     private BusinessEntityMapper businessEntityMapper;
@@ -78,7 +88,11 @@ public class OwnerServiceImpl implements OwnerService {
 
         com.coronacarecard.dao.entity.Business business;
         if (!businessDAO.isPresent()) {
-            business = businessEntityMapper.toDAO(googlePlaceService.getBusiness(externalId));
+            business =
+                    businessEntityMapper.toDAO(
+                            storeDefaultBusinessImage(
+                                    googlePlaceService.getBusiness(externalId)));
+
         } else {
             business = businessDAO.get();
         }
@@ -188,5 +202,30 @@ public class OwnerServiceImpl implements OwnerService {
                 businessEntityMapper.toModel(result));
 
 
+    }
+
+    //TODO (arun) duplicate code need to move this somewhere commin probably photo service or something
+    private Business storeDefaultBusinessImage(Business business) throws InternalException {
+        ImageResult photo = googlePlaceService.getPhoto(business.getPhoto().getPhotoReference());
+        String imageExtension = getImageExtensionFromContentType(photo.contentType);
+        String imageName = new StringBuilder("")
+                .append(business.getExternalRefId())
+                .toString();
+        // Store image
+        cloudStorageService.uploadImage(imageBucketName,
+                imageName,
+                photo.imageData,
+                Optional.of(photo.contentType));
+
+        // Get the image url
+        String s3PhotoUrl = cloudStorageService.getObjectUrl(imageBucketName, imageName);
+
+        return business.toBuilder().photo(business.getPhoto().toBuilder()
+                .photoUrl(s3PhotoUrl)
+                .build()).build();
+    }
+
+    private String getImageExtensionFromContentType(String contentType) {
+        return contentType.substring(contentType.indexOf("/")).replace("/", ".");
     }
 }

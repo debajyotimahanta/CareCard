@@ -60,6 +60,6 @@ public class StripePaymentControllerTest {
                 .andExpect(status().isOk())
                 .andReturn();
         String onboardUrl = response.getResponse().getContentAsString();
-        assertEquals(String.format(expected, connectId, businessEntityMapper.toModel(business).getId().toString()), onboardUrl);
+        assertEquals(String.format(expected, connectId, businessEntityMapper.toModel(business).getId().toString(), "http://localhost:5000"), onboardUrl);
     }
 }

@@ -19,6 +19,6 @@ public class StripeConfiguration {
     }
 
     public String getConnectUrl(){
-        return "https://connect.stripe.com/express/oauth/authorize?client_id=%1$s&state=%2$s&scope=read_write&response_type=code";
+        return "https://connect.stripe.com/express/oauth/authorize?client_id=%1$s&state=%2$s&scope=read_write&response_type=code&redirect_uri=%3$s/payment/stripe/business/confirm";
     }
 }

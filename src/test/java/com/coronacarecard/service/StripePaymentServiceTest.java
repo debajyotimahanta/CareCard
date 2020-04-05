@@ -30,6 +30,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -86,6 +87,9 @@ public class StripePaymentServiceTest {
     @Autowired
     private CryptoService cryptoService;
 
+    @Value("${spring.app.apiBaseUrl}")
+    private String apiBaseUrl;
+
     @Test
     public void generate_onboarding_url() {
         String connectId = stripeConfiguration.getClientId();
@@ -94,7 +98,7 @@ public class StripePaymentServiceTest {
         Business business = Business.builder().id(UUID.randomUUID()).externalRefId(business_id).build();
         String onboardingUrl = paymentService.generateOnBoardingUrl(business);
         System.out.println(onboardingUrl);
-        assertEquals(String.format(expected, connectId, (business.getId().toString())), onboardingUrl);
+        assertEquals(String.format(expected, connectId, (business.getId().toString()), apiBaseUrl), onboardingUrl);
 
     }
 

@@ -69,6 +69,9 @@ span.selected{background:#ccf;}
         <th>Google Place Id</th>
         <th>Name</th>
         <th>Phone</th>
+        <th>Description</th>
+        <th>Owner Email</th>
+        <th>Owner Phone</th>
         <th>Status</th>
         <th></th>
     </tr>
@@ -77,11 +80,14 @@ span.selected{background:#ccf;}
         <td th:text="${business.externalRefId}"></td>
         <td th:text="${business.name}"></td>
         <td th:text="${business.formattedPhoneNumber}"></td>
+        <td th:text="${business.description}"></td>
+        <td th:text="${business.owner!=null}?${business.owner.email}:'N/A'"></td>
+        <td th:text="${business.owner!=null}?${business.owner.phoneNumber}:'N/A'"></td>
         <td th:text="${business.state}"></td>
         <td>
             <a th:href="${'/admin/web/business/' + {business.id} + '/approve'}" th:if="${business.state.toString() == 'Claimed'}">Approve</a>
             <a th:href="${'/admin/web/business/' + {business.id} + '/decline'}" th:if="${business.state.toString() == 'Claimed'}">Decline</a>
-            <button th:attr="onclick=|getOnboardingUrl('${business.id}')|" th:if="${business.state.toString() == 'Claimed'}" >Onboarding Link</button>
+            <button th:attr="onclick=|getOnboardingUrl('${business.id}')|" th:if="${business.state.toString() == 'Pending'}" >Onboarding Link</button>
         </td>
     </tr>
 </table>
