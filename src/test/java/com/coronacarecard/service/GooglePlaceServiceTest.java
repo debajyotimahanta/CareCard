@@ -3,6 +3,7 @@ package com.coronacarecard.service;
 import com.coronacarecard.config.GoogleConfiguration;
 import com.coronacarecard.exceptions.BusinessNotFoundException;
 import com.coronacarecard.exceptions.InternalException;
+import com.coronacarecard.config.LocalSecretsDataStore;
 import com.coronacarecard.mapper.impl.BusinessEntityMapperImpl;
 import com.coronacarecard.model.Business;
 import com.coronacarecard.model.BusinessSearchResult;
@@ -20,7 +21,8 @@ import java.util.Optional;
 import static org.junit.Assert.*;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = {BusinessEntityMapperImpl.class, GooglePlaceServiceImpl.class, GoogleConfiguration.class})
+@SpringBootTest(classes = {BusinessEntityMapperImpl.class, GooglePlaceServiceImpl.class,
+        GoogleConfiguration.class, LocalSecretsDataStore.class})
 public class GooglePlaceServiceTest {
     public static final String ID = "ChIJicMwN4lskFQR9brCQh07Xyo";
     @Autowired

@@ -1,21 +1,25 @@
 package com.coronacarecard.config;
 
 import com.stripe.Stripe;
-import org.springframework.context.annotation.Bean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
+
+import static com.coronacarecard.config.SecretKey.STRIPE_CLIENT_ID;
+import static com.coronacarecard.config.SecretKey.STRIPE_KEY;
 
 @Configuration
 public class StripeConfiguration {
+    private final SecretsDataStore secretsDataStore;
 
-    private final SecretsDataStore secretsDataStore=new ConfigFileDataStoreImpl();
+    @Autowired
+    public StripeConfiguration(SecretsDataStore secretsDataStore) {
+        this.secretsDataStore = secretsDataStore;
+        Stripe.apiKey= secretsDataStore.getValue(STRIPE_KEY);
 
-    @Bean
-    public void init(){
-        Stripe.apiKey= secretsDataStore.getValue("STRIPE_KEY");
     }
 
     public String getClientId(){
-        return secretsDataStore.getValue("STRIPE_CLIENT_ID");
+        return secretsDataStore.getValue(STRIPE_CLIENT_ID);
     }
 
     public String getConnectUrl(){

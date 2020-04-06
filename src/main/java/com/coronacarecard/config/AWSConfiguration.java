@@ -5,6 +5,8 @@ import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 import com.amazonaws.encryptionsdk.kms.KmsMasterKeyProvider;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import com.amazonaws.services.secretsmanager.AWSSecretsManager;
+import com.amazonaws.services.secretsmanager.AWSSecretsManagerClientBuilder;
 import com.amazonaws.services.sns.AmazonSNS;
 import com.amazonaws.services.sns.AmazonSNSClientBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +43,15 @@ public class AWSConfiguration {
                 .builder()
                 .withCredentials(awsCredentialsProvider)
                 .withKeysForEncryption(awsARN).build();
+    }
+
+    @Bean
+    @Lazy
+    @Autowired
+    public AWSSecretsManager awsSecretsManager(AWSCredentialsProvider awsCredentialsProvider) {
+        return AWSSecretsManagerClientBuilder.standard()
+                .withCredentials(awsCredentialsProvider)
+                .build();
     }
 
     @Bean

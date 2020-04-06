@@ -38,6 +38,7 @@ Resources:
         - !Ref DBSecretPolicy
         - !Ref CloudWatchLogPolicy
         - !Ref S3Policy
+        - !Ref AppSecretPolicy
   S3Policy:
     Type: AWS::IAM::ManagedPolicy
     Properties:
@@ -108,6 +109,19 @@ Resources:
               - 'secretsmanager:DescribeSecret'
             Resource:
               - Fn::ImportValue: !Sub '${DbStackName}:DatabaseSecret'
+  AppSecretPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      ManagedPolicyName: !Join [ '-', [ !Ref 'AWS::StackName', '-ws-app-secret-policy' ] ]
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: 'AllowSecert'
+            Effect: Allow
+            Action:
+              - 'secretsmanager:GetSecretValue'
+              - 'secretsmanager:DescribeSecret'
+            Resource: !Sub 'arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:CCCAppSecret-*'
 
 Outputs:
   WebServerInstanceProfile:

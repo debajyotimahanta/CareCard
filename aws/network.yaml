@@ -7,6 +7,19 @@ Parameters:
     Type: AWS::EC2::KeyPair::KeyName
     ConstraintDescription: must be the name of an existing EC2 KeyPair.
 Mappings:
+  RegionMap:
+    us-east-1:
+      AMALINUX: ami-0fc61db8544a617ed
+    us-east-2:
+      AMALINUX: ami-0e01ce4ee18447327
+    us-west-1:
+      AMALINUX: ami-09a7fe78668f1e2c0
+    us-west-2:
+      AMALINUX: ami-0ce21b51cb31a48b8
+    sa-east-1:
+      AMALINUX: ami-0b032e878a66c3b68
+    ca-central-1:
+      AMALINUX: ami-0bf54ac1b628cf143
   # Hard values for the subnet masks. These masks define
   # the range of internal IP addresses that can be assigned.
   # The VPC can have all IP's from 10.0.0.0 to 10.0.255.255
@@ -37,7 +50,7 @@ Mappings:
       CIDR: '10.0.5.0/24'
   DatabaseConfig:
     MySQL:
-      Port: 1509
+      Port: 3306
   Application:
     Web:
       Port: 5000
@@ -270,7 +283,7 @@ Resources:
     Type: AWS::EC2::Instance
     Properties:
       InstanceType: t2.small
-      ImageId: 'ami-0bf54ac1b628cf143'
+      ImageId: !FindInMap [RegionMap, !Ref "AWS::Region", AMALINUX] # Dynamic mapping + Pseudo Parameter
       SecurityGroupIds:
         - !Ref BastionSecurityGroup
       SubnetId: !Ref PublicSubnetOne
