@@ -48,3 +48,7 @@ aws cloudformation --region $region create-stack --stack-name $stackPrefix-6-ebs
 alter table business_account_detail modify refresh_token blob;
 alter table business_account_detail modify access_token blob;
 ```
+
+###Post live steps
+1. Enable logs for EBS to cloudwatch
+1. Setup alarms
