@@ -70,8 +70,8 @@ class ApiExceptionControllerAdviceTest {
         ResponseEntity<Object> result = target.handleBusinessAlreadyClaimedExceptions(new BusinessAlreadyClaimedException());
 
         // Assert
-        assertTrue(result.getStatusCode().equals(HttpStatus.BAD_REQUEST));
-        assertTrue(result.getStatusCodeValue() == 400);
+        assertTrue(result.getStatusCode().equals(HttpStatus.CONFLICT));
+        assertTrue(result.getStatusCodeValue() == 409);
     }
 
     @Test

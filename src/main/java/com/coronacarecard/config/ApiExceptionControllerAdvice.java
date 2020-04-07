@@ -50,12 +50,11 @@ public class ApiExceptionControllerAdvice extends ResponseEntityExceptionHandler
     @ExceptionHandler(BusinessAlreadyClaimedException.class)
     protected ResponseEntity<Object> handleBusinessAlreadyClaimedExceptions(BusinessAlreadyClaimedException exp) {
         ApiError error = new ApiError();
-        error.code = 400;
+        error.code = 409;
         error.status = HttpStatus.BAD_REQUEST.toString();
-//        error.message = "Business has already been claimed. Please contact administrator for assistance.";
-        error.message = exp.getMessage();
+        error.message = "Business has already been claimed. Please contact administrator for assistance.";
 
-        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(error, HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(BusinessClaimException.class)

@@ -52,3 +52,4 @@ alter table business_account_detail modify access_token blob;
 ###Post live steps
 1. Enable logs for EBS to cloudwatch
 1. Setup alarms
+1. Enable http to https redirect by using rule for ALB [more details](https://github.com/awsdocs/elastic-beanstalk-samples/blob/master/configuration-files/aws-provided/security-configuration/https-redirect/java-tomcat/https-redirect-nginx-java-tomcat/nginx/conf.d/elasticbeanstalk/00_application.conf)
