@@ -21,23 +21,26 @@ part of the last push. You can ignore it by doing `git reset --hard`
 We are using cloud formation to setup the entire stack. All the cloud formation templates are located in the `aws` folder. 
 Here are is sequence in which it needs to run.
 ```$xslt
-# I am assuming ssh_key exists alread in this region. Without this key you wont be able to ssh into the bastions
-export stackPrefix=dev
-export region=ca-central-1 
-export ec2Key=deba
-aws cloudformation --region $region create-stack --stack-name $stackPrefix-1-network-v1 --template-body file://network.yaml --parameters ParameterKey=KeyName,ParameterValue=$ec2Key
+# I am assuming ssh_key exists already in this region. Without this key you wont be able to ssh into the bastions
+export AWS_DEFAULT_REGION=ca-central-1
+export stackPrefix=dev 
+export ec2Key=<EC2 keyPair Name>
+export serverCertArn=<certificate ARN>
 
-aws cloudformation --region $region create-stack --stack-name $stackPrefix-2-infra-v1 --template-body file://infra.yaml
+aws cloudformation create-stack --stack-name $stackPrefix-1-network-v1 --template-body file://network.yaml --parameters ParameterKey=KeyName,ParameterValue=$ec2Key
 
-aws cloudformation --region $region create-stack --stack-name $stackPrefix-3-db-v1 --template-body file://db.yaml --parameters ParameterKey=NetworkStackName,ParameterValue=$stackPrefix-1-network-v1
+aws cloudformation create-stack --stack-name $stackPrefix-2-infra-v1 --template-body file://infra.yaml
 
-aws cloudformation --region $region create-stack --stack-name $stackPrefix-4-iam-v1 --template-body file://iam.yaml --parameters ParameterKey=InfraStackName,ParameterValue=$stackPrefix-2-infra-v1 ParameterKey=DbStackName,ParameterValue=$stackPrefix-3-db-v1 --capabilities CAPABILITY_NAMED_IAM
+aws cloudformation create-stack --stack-name $stackPrefix-3-db-v1 --template-body file://db.yaml --parameters ParameterKey=NetworkStackName,ParameterValue=$stackPrefix-1-network-v1
 
-aws cloudformation --region $region create-stack --stack-name $stackPrefix-5-secrets-v1 --template-body file://secrets.yaml --parameters ParameterKey=IamStackName,ParameterValue=$stackPrefix-4-iam-v1
-# Upload jar to S3 location created in infra stack
-aws cloudformation --region $region create-stack --stack-name $stackPrefix-6-ebs-v1 --template-body file://ebs.yaml --parameters ParameterKey=NetworkStackName,ParameterValue=$stackPrefix-1-network-v1 ParameterKey=InfraStackName,ParameterValue=$stackPrefix-2-infra-v1  ParameterKey=DbStackName,ParameterValue=$stackPrefix-3-db-v1 ParameterKey=IamStackName,ParameterValue=$stackPrefix-4-iam-v1 ParameterKey=SecretsStackName,ParameterValue=$stackPrefix-5-secrets-v1 ParameterKey=KeyName,ParameterValue=$ec2Key ParameterKey=ApiUrl,ParameterValue=https://api.dev.coronacarecard.com ParameterKey=FrontEndUrl,ParameterValue=https://localhost:3000
- 
- 
+aws cloudformation create-stack --stack-name $stackPrefix-4-iam-v1 --template-body file://iam.yaml --parameters ParameterKey=InfraStackName,ParameterValue=$stackPrefix-2-infra-v1 ParameterKey=DbStackName,ParameterValue=$stackPrefix-3-db-v1 --capabilities CAPABILITY_NAMED_IAM
+
+aws cloudformation create-stack --stack-name $stackPrefix-5-secrets-v1 --template-body file://secrets.yaml --parameters ParameterKey=IamStackName,ParameterValue=$stackPrefix-4-iam-v1
+
+# NOTE: Upload jar to S3 location created in infra stack before the next step
+
+aws cloudformation create-stack --stack-name $stackPrefix-6-eb-v1 --template-body file://eb.yaml --parameters ParameterKey=NetworkStackName,ParameterValue=$stackPrefix-1-network-v1 ParameterKey=InfraStackName,ParameterValue=$stackPrefix-2-infra-v1  ParameterKey=DbStackName,ParameterValue=$stackPrefix-3-db-v1 ParameterKey=IamStackName,ParameterValue=$stackPrefix-4-iam-v1 ParameterKey=SecretsStackName,ParameterValue=$stackPrefix-5-secrets-v1 ParameterKey=KeyName,ParameterValue=$ec2Key ParameterKey=ApiUrl,ParameterValue=https://api.dev.coronacarecard.com ParameterKey=FrontEndUrl,ParameterValue=https://localhost:3000 ParameterKey=CertificateArn,ParameterValue=$serverCertArn
+
 ```
 
 `NOTE:` The sequence matters as the output of one stack is used in another
@@ -50,6 +53,5 @@ alter table business_account_detail modify access_token blob;
 ```
 
 ###Post live steps
-1. Enable logs for EBS to cloudwatch
+1. Enable logs for EB to cloudwatch
 1. Setup alarms
-1. Enable http to https redirect by using rule for ALB [more details](https://github.com/awsdocs/elastic-beanstalk-samples/blob/master/configuration-files/aws-provided/security-configuration/https-redirect/java-tomcat/https-redirect-nginx-java-tomcat/nginx/conf.d/elasticbeanstalk/00_application.conf)

@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: Cloudformation template for setting up the Web App via EBS
+Description: Cloudformation template for setting up the Web App via EB
 Parameters:
   NetworkStackName:
     Description: Name of an active CloudFormation stack that contains the networking resources
@@ -46,6 +46,11 @@ Parameters:
     Type: String
     AllowedPattern: ^https?://.*$
     ConstraintDescription: "must be a valid URL."
+  CertificateArn:
+    Description: The certificate for the endpoint
+    Type: String
+    AllowedPattern: ^arn:.*certificate\/.*$
+    ConstraintDescription: "must be a valid certificate ARN."
 Resources:
   WebApp:
     Type: AWS::ElasticBeanstalk::Application
@@ -89,14 +94,26 @@ Resources:
           OptionName: SecurityGroups
           Value:
             Fn::ImportValue: !Sub '${NetworkStackName}:PrivateSecurityGroup'
-        - Namespace: aws:elb:loadbalancer
+        - Namespace: aws:elasticbeanstalk:environment
+          OptionName: LoadBalancerType
+          Value: application
+        - Namespace: aws:elbv2:loadbalancer
           OptionName: ManagedSecurityGroup
           Value:
             Fn::ImportValue: !Sub '${NetworkStackName}:PublicSecurityGroup'
-        - Namespace: aws:elb:loadbalancer
+        - Namespace: aws:elbv2:loadbalancer
           OptionName: SecurityGroups
           Value:
             Fn::ImportValue: !Sub '${NetworkStackName}:PublicSecurityGroup'
+        - Namespace: aws:elbv2:listener:default
+          OptionName: ListenerEnabled
+          Value: false
+        - Namespace: aws:elbv2:listener:443
+          OptionName: Protocol
+          Value: HTTPS
+        - Namespace: aws:elbv2:listener:443
+          OptionName: SSLCertificateArns
+          Value: !Ref CertificateArn
         - Namespace: aws:autoscaling:asg
           OptionName: MinSize
           Value: "1"
