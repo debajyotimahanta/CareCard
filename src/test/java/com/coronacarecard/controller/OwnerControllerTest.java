@@ -100,11 +100,9 @@ public class OwnerControllerTest {
 
 
     @Test
-    public void validate_input_data() throws Exception {
-        // Arrange
+    public void validate_businessId_should_not_be_null_or_empty() throws Exception {
         BusinessRegistrationRequest registrationRequest = BusinessRegistrationRequest.builder()
-                .businessId("jkbcvnkljbsljw")
-                .email("sometnje")
+                .businessId("")
                 .build();
 
         String content = objectMapper.writeValueAsString(registrationRequest);
@@ -114,6 +112,69 @@ public class OwnerControllerTest {
         .andExpect(status().isBadRequest())
         .andReturn();
 
-        System.out.println(result.getResponse().getContentAsString());
+        assertTrue(result.getResponse().getContentAsString().contains("must not be empty"));
+
+        registrationRequest = BusinessRegistrationRequest.builder()
+                .businessId("")
+                .build();
+
+        content = objectMapper.writeValueAsString(registrationRequest);
+
+        result = mockMvc.perform(post("/owner/claim")
+                .contentType("application/json").content(content))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+
+        assertTrue(result.getResponse().getContentAsString().contains("must not be null"));
+    }
+
+    @Test
+    public void validate_email_should_not_be_null_or_empty() throws Exception {
+        BusinessRegistrationRequest registrationRequest = BusinessRegistrationRequest.builder()
+                .businessId("dljkfbaljkbd")
+                .email("")
+                .build();
+
+        String content = objectMapper.writeValueAsString(registrationRequest);
+
+        MvcResult result = mockMvc.perform(post("/owner/claim")
+                .contentType("application/json").content(content))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+
+        assertTrue(result.getResponse().getContentAsString().contains("must not be empty"));
+
+        registrationRequest = BusinessRegistrationRequest.builder()
+                .businessId("dljkfbaljkbd")
+                .email(null)
+                .build();
+
+        content = objectMapper.writeValueAsString(registrationRequest);
+
+        result = mockMvc.perform(post("/owner/claim")
+                .contentType("application/json").content(content))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+
+        assertTrue(result.getResponse().getContentAsString().contains("must not be null"));
+
+    }
+
+    @Test
+    public void validate_email_should_not_be_wellformed() throws Exception {
+        // Arrange
+        BusinessRegistrationRequest registrationRequest = BusinessRegistrationRequest.builder()
+                .businessId("djkbnlajkdf")
+                .email("bad_email")
+                .build();
+
+        String content = objectMapper.writeValueAsString(registrationRequest);
+
+        MvcResult result = mockMvc.perform(post("/owner/claim")
+                .contentType("application/json").content(content))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+
+        assertTrue(result.getResponse().getContentAsString().contains("must be a well-formed email address"));
     }
 }

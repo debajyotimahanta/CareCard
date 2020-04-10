@@ -40,7 +40,6 @@ class ApiExceptionControllerAdviceTest {
     final String PAYMENT_SERVICE_ERROR                      = "Payment service could not process the request";
     final String VENDOR_NOT_REGISTERED_WITH_PAYMENT_SERVICE = "Vendor is not registered with Payment Service";
     final String UNABLE_TO_CLAIM_BUSINESS                   = "Unable to import business. Error retrieving details from Payment Service";
-    final String BUSINESS_NOT_FOUND                         = "Unable to find the business";
 
     void setUp() throws Exception {
 
@@ -57,7 +56,7 @@ class ApiExceptionControllerAdviceTest {
     @Test
     void handleInternalExceptions() {
         // Act
-        ResponseEntity<Object> result = target.handleInternalExceptions(new InternalException(INTERNAL_SERVER_ERROR));
+        ResponseEntity<Object> result = target.handleInternalException(new InternalException(INTERNAL_SERVER_ERROR));
 
         // Assert
         assertTrue(result.getStatusCode().equals(HttpStatus.INTERNAL_SERVER_ERROR));
@@ -67,7 +66,7 @@ class ApiExceptionControllerAdviceTest {
     @Test
     void handleBusinessAlreadyClaimedExceptions() {
         // Act
-        ResponseEntity<Object> result = target.handleBusinessAlreadyClaimedExceptions(new BusinessAlreadyClaimedException());
+        ResponseEntity<Object> result = target.handleBusinessAlreadyClaimedException(new BusinessAlreadyClaimedException());
 
         // Assert
         assertTrue(result.getStatusCode().equals(HttpStatus.CONFLICT));
@@ -84,20 +83,10 @@ class ApiExceptionControllerAdviceTest {
         assertTrue(result.getStatusCodeValue() == 400);
     }
 
-//    @Test
-//    void handleCustomerExceptions() {
-//        // Act
-//        ResponseEntity<Object> result = target.handleCustomerExceptions(new CustomerException(INTERNAL_SERVER_ERROR));
-//
-//        // Assert
-//        assertTrue(result.getStatusCode().equals(HttpStatus.INTERNAL_SERVER_ERROR));
-//        assertTrue(result.getStatusCodeValue() == 500);
-//    }
-
     @Test
     void handlePaymentServiceExceptions() {
         // Act
-        ResponseEntity<Object> result = target.handlePaymentServiceExceptions(new PaymentServiceException(PAYMENT_SERVICE_ERROR));
+        ResponseEntity<Object> result = target.handlePaymentServiceException(new PaymentServiceException(PAYMENT_SERVICE_ERROR));
 
         // Assert
         assertTrue(result.getStatusCode().equals(HttpStatus.INTERNAL_SERVER_ERROR));

@@ -26,6 +26,7 @@ public class AdminController {
         return ownerService.approveClaim(paymentSystem, id);
     }
 
+    // TODO (Deba) refactor the method name.
     @RequestMapping(value = "business/{id}/decline", method = RequestMethod.GET)
     public void approveBusiness(@PathVariable UUID id) throws
             BusinessNotFoundException, InternalException {

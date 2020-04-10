@@ -4,6 +4,7 @@ import com.coronacarecard.exceptions.*;
 import com.google.maps.errors.ApiError;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
+import org.springframework.core.convert.ConversionFailedException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -50,7 +51,7 @@ public class ApiExceptionControllerAdvice extends ResponseEntityExceptionHandler
     }
 
     @ExceptionHandler(InternalException.class)
-    protected ResponseEntity<Object> handleInternalExceptions(InternalException exp) {
+    protected ResponseEntity<Object> handleInternalException(InternalException exp) {
         ApiError error = new ApiError();
         error.code = 500;
         error.status = HttpStatus.INTERNAL_SERVER_ERROR.toString();
@@ -61,7 +62,7 @@ public class ApiExceptionControllerAdvice extends ResponseEntityExceptionHandler
     }
 
     @ExceptionHandler(BusinessAlreadyClaimedException.class)
-    protected ResponseEntity<Object> handleBusinessAlreadyClaimedExceptions(BusinessAlreadyClaimedException exp) {
+    protected ResponseEntity<Object> handleBusinessAlreadyClaimedException(BusinessAlreadyClaimedException exp) {
         ApiError error = new ApiError();
         error.code = 409;
         error.status = HttpStatus.CONFLICT.toString();
@@ -81,7 +82,7 @@ public class ApiExceptionControllerAdvice extends ResponseEntityExceptionHandler
     }
 
     @ExceptionHandler(BusinessNotFoundException.class)
-    protected ResponseEntity<Object> handleBusinessNotFoundExceptionExceptions(BusinessNotFoundException exp) {
+    protected ResponseEntity<Object> handleBusinessNotFoundException(BusinessNotFoundException exp) {
         ApiError error = new ApiError();
         error.code = 404;
         error.status = HttpStatus.NOT_FOUND.toString();
@@ -91,7 +92,7 @@ public class ApiExceptionControllerAdvice extends ResponseEntityExceptionHandler
     }
 
     @ExceptionHandler(PaymentServiceException.class)
-    protected ResponseEntity<Object> handlePaymentServiceExceptions(PaymentServiceException exp) {
+    protected ResponseEntity<Object> handlePaymentServiceException(PaymentServiceException exp) {
         ApiError error = new ApiError();
         error.code = 500;
         error.status = HttpStatus.INTERNAL_SERVER_ERROR.toString();
@@ -101,7 +102,7 @@ public class ApiExceptionControllerAdvice extends ResponseEntityExceptionHandler
     }
 
     @ExceptionHandler(PaymentAccountNotSetupException.class)
-    protected ResponseEntity<Object> handlePaymentAccountNotSetupExceptionExceptions(PaymentAccountNotSetupException exp) {
+    protected ResponseEntity<Object> handlePaymentAccountNotSetupException(PaymentAccountNotSetupException exp) {
         ApiError error = new ApiError();
         error.code = 400;
         error.status = HttpStatus.BAD_REQUEST.toString();
@@ -145,5 +146,15 @@ public class ApiExceptionControllerAdvice extends ResponseEntityExceptionHandler
         });
 
         return new ResponseEntity<>(constraintErrors, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(ConversionFailedException.class)
+    protected ResponseEntity<Object> handleConversionFailedException(ConversionFailedException exp) {
+        ApiError error = new ApiError();
+        error.code = 400;
+        error.status = HttpStatus.BAD_REQUEST.toString();
+        error.message = "Invalid value provided.";
+
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 }
