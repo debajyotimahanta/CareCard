@@ -48,7 +48,7 @@ public class ShoppingCartControllerTest {
                 .andExpect(status().isBadRequest())
                 .andReturn();
 
-        assertTrue(result.getResponse().getContentAsString().contains("must not be null"));
+        assertTrue(result.getResponse().getContentAsString().contains("must not be empty"));
 
         orderDetail = OrderDetail.builder()
                 .customerEmail("")
@@ -56,7 +56,7 @@ public class ShoppingCartControllerTest {
 
         content = objectMapper.writeValueAsString(orderDetail);
 
-        result = mockMvc.perform(post("/owner/claim")
+        result = mockMvc.perform(post("/cart/checkout")
                 .contentType("application/json").content(content))
                 .andExpect(status().isBadRequest())
                 .andReturn();
@@ -72,16 +72,16 @@ public class ShoppingCartControllerTest {
 
         String content = objectMapper.writeValueAsString(orderDetail);
 
-        MvcResult result = mockMvc.perform(post("/owner/claim")
+        MvcResult result = mockMvc.perform(post("/cart/checkout")
                 .contentType("application/json").content(content))
                 .andExpect(status().isBadRequest())
                 .andReturn();
-
+        System.out.println(result.getResponse().getContentAsString());
         assertTrue(result.getResponse().getContentAsString().contains("must be a well-formed email address"));
     }
 
     @Test
-    public void validate_orderline_is_not_null() throws Exception {
+    public void validate_orderline_is_not_empty() throws Exception {
         OrderDetail orderDetail = OrderDetail.builder()
                 .orderLine(null)
                 .build();
@@ -98,7 +98,7 @@ public class ShoppingCartControllerTest {
     }
 
     @Test
-    public void validate_total_is_not_null() throws Exception {
+    public void validate_total_is_not_empty() throws Exception {
         OrderDetail orderDetail = OrderDetail.builder()
                 .total(null)
                 .build();
@@ -111,7 +111,7 @@ public class ShoppingCartControllerTest {
                 .andReturn();
 
         System.out.println(result.getResponse().getContentAsString());
-        assertTrue(result.getResponse().getContentAsString().contains("must not be null"));
+        assertTrue(result.getResponse().getContentAsString().contains("must not be empty"));
     }
 
     @Test
