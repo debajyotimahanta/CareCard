@@ -11,6 +11,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.UUID;
 
 @RestController
@@ -22,7 +23,7 @@ public class ShoppingCartController {
     private ShoppingCartService shoppingCartService;
 
     @PostMapping("/checkout")
-    public CheckoutResponse checkout(@RequestBody OrderDetail order) throws BusinessNotFoundException,
+    public CheckoutResponse checkout(@Valid @RequestBody OrderDetail order) throws BusinessNotFoundException,
             PaymentAccountNotSetupException, InternalException, PaymentServiceException {
         return shoppingCartService.checkout(PaymentSystem.STRIPE, order);
     }
