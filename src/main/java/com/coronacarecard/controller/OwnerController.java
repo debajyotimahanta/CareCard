@@ -9,13 +9,17 @@ import com.coronacarecard.model.ClaimResult;
 import com.coronacarecard.service.CryptoService;
 import com.coronacarecard.service.OwnerService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.Valid;
+
 @RestController
 @RequestMapping("owner")
+@Validated
 public class OwnerController {
 
     @Autowired
@@ -24,10 +28,8 @@ public class OwnerController {
     @Autowired
     private CryptoService cryptoService;
 
-
-
     @PostMapping("/claim")
-    public ClaimResult claim(@RequestBody BusinessRegistrationRequest businessRegistrationRequest)
+    public ClaimResult claim(@Valid @RequestBody BusinessRegistrationRequest businessRegistrationRequest)
             throws BusinessNotFoundException, InternalException, BusinessAlreadyClaimedException {
 
         Business claimedBusiness = ownerService.claimBusiness(businessRegistrationRequest);
@@ -35,9 +37,5 @@ public class OwnerController {
                 .business(claimedBusiness)
                 .claimToken(claimedBusiness.getId().toString())
                 .build();
-
     }
-
-
-
 }

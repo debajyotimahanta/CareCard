@@ -3,8 +3,10 @@ package com.coronacarecard.controller;
 import com.coronacarecard.dao.BusinessRepository;
 import com.coronacarecard.dao.UserRepository;
 import com.coronacarecard.dao.entity.Business;
+import com.coronacarecard.model.BusinessRegistrationRequest;
 import com.coronacarecard.model.ClaimResult;
 import com.coronacarecard.notifications.NotificationSender;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -16,13 +18,14 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.util.Optional;
 
-import static com.coronacarecard.util.TestHelper.*;
+import static com.coronacarecard.util.TestHelper.getBusinessRegistrationRequestJson;
+import static com.coronacarecard.util.TestHelper.parseResponse;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
@@ -50,6 +53,9 @@ public class OwnerControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
+    @Autowired
+    ObjectMapper objectMapper;
+
     @After
     public void cleanup() {
         businessRepository.deleteAll();
@@ -59,7 +65,7 @@ public class OwnerControllerTest {
 
     @Test
     public void claim_valid_business() throws Exception {
-        MvcResult response = mockMvc.perform(MockMvcRequestBuilders.post("/owner/claim")
+        MvcResult response = mockMvc.perform(post("/owner/claim")
                 .content(getBusinessRegistrationRequestJson(EXTERNALPLACEID, EMAIL, PHONE))
                 .contentType("application/json"))
                 .andExpect(status().isOk())
@@ -74,14 +80,14 @@ public class OwnerControllerTest {
 
     @Test
     public void re_claim_same_business() throws Exception {
-        MvcResult response1 = mockMvc.perform(MockMvcRequestBuilders.post("/owner/claim")
+        MvcResult response1 = mockMvc.perform(post("/owner/claim")
                 .content(getBusinessRegistrationRequestJson(EXTERNALPLACEID, EMAIL, PHONE))
                 .contentType("application/json"))
                 .andExpect(status().isOk())
                 .andReturn();
         Optional<Business> businessDAO = businessRepository.findByExternalId(EXTERNALPLACEID);
         assertTrue(businessDAO.isPresent());
-        MvcResult response2 = mockMvc.perform(MockMvcRequestBuilders.post("/owner/claim")
+        MvcResult response2 = mockMvc.perform(post("/owner/claim")
                 .content(getBusinessRegistrationRequestJson(EXTERNALPLACEID, EMAIL, PHONE))
                 .contentType("application/json"))
                 .andExpect(status().isOk())
@@ -90,5 +96,24 @@ public class OwnerControllerTest {
 //        assertTrue(response2.getResponse().getContentAsString().contains("\"id\":2"));
         businessDAO = businessRepository.findByExternalId(EXTERNALPLACEID);
         assertTrue(businessDAO.isPresent());
+    }
+
+
+    @Test
+    public void validate_input_data() throws Exception {
+        // Arrange
+        BusinessRegistrationRequest registrationRequest = BusinessRegistrationRequest.builder()
+                .businessId("jkbcvnkljbsljw")
+                .email("sometnje")
+                .build();
+
+        String content = objectMapper.writeValueAsString(registrationRequest);
+
+        MvcResult result = mockMvc.perform(post("/owner/claim")
+                .contentType("application/json").content(content))
+        .andExpect(status().isBadRequest())
+        .andReturn();
+
+        System.out.println(result.getResponse().getContentAsString());
     }
 }

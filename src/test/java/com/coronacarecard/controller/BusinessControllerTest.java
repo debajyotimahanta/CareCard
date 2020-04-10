@@ -24,6 +24,7 @@ import java.util.Optional;
 
 import static com.coronacarecard.util.TestHelper.parseResponse;
 import static org.junit.Assert.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
@@ -184,4 +185,48 @@ public class BusinessControllerTest {
 
     }
 
+    @Test
+    public void validate_bad_request_if_search_text_isNullOrEmpty() throws Exception {
+        MvcResult result = mockMvc.perform(get("/business/search")
+        .param("searchtext", "")
+        .contentType("application/json"))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+
+        assertTrue(result.getResponse().getContentAsString().contains("must not be empty"));
+    }
+
+
+    @Test
+    public void validate_bad_request_if_searchexternal_text_isNullOrEmpty() throws Exception {
+        MvcResult result = mockMvc.perform(get("/business/searchexternal")
+                .param("searchtext", "")
+                .contentType("application/json"))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+
+        assertTrue(result.getResponse().getContentAsString().contains("must not be empty"));
+    }
+
+    @Test
+    public void validate_bad_request_if_update_param_isNullOrEmpty() throws Exception {
+        MvcResult result = mockMvc.perform(get("/business/update")
+                .param("googleplaceid", "")
+                .contentType("application/json"))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+
+        assertTrue(result.getResponse().getContentAsString().contains("must not be empty"));
+    }
+
+    @Test
+    public void validate_bad_request_if_import_param_isNullOrEmpty() throws Exception {
+        MvcResult result = mockMvc.perform(get("/business/import")
+                .param("googleplaceid", "")
+                .contentType("application/json"))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+
+        assertTrue(result.getResponse().getContentAsString().contains("must not be empty"));
+    }
 }
