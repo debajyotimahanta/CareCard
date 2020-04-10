@@ -13,15 +13,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.util.Optional;
 import java.util.UUID;
 
 @RestController
 @RequestMapping("payment/stripe")
+@Validated
 public class StripePaymentController {
     private static Log log = LogFactory.getLog(StripePaymentController.class);
 
@@ -66,8 +70,8 @@ public class StripePaymentController {
 
     @GetMapping("/business/confirm")
     @Transactional
-    public void confirm(@RequestParam(value = "code") String code,
-                        @RequestParam(value = "state") String state,
+    public void confirm(@NotEmpty @NotNull @RequestParam(value = "code") String code,
+                        @NotEmpty @NotNull @RequestParam(value = "state") String state,
                         HttpServletResponse httpServletResponse)
             throws BusinessClaimException, BusinessNotFoundException, IOException, InternalException,
             PaymentServiceException, BusinessAlreadyClaimedException {
