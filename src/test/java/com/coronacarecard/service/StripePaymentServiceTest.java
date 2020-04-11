@@ -25,7 +25,7 @@ import com.stripe.exception.StripeException;
 import com.stripe.model.checkout.Session;
 import com.stripe.model.oauth.TokenResponse;
 import com.stripe.param.checkout.SessionCreateParams;
-import jdk.nashorn.internal.ir.annotations.Ignore;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -132,6 +132,8 @@ public class StripePaymentServiceTest {
 
 
     @Test
+    @Ignore
+    //TODO (sandeep) Please fix this test case as it relies on account number and it doesnt exists anymore
     public void create_stripe_session() throws Exception{
         String externalId="ch1234";
         when(stripeCalls.generateSession(any())).thenAnswer(i->Session.create((SessionCreateParams) i.getArgument(0)));

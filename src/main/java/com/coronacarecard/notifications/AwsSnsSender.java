@@ -5,6 +5,7 @@ import com.amazonaws.services.sns.AmazonSNS;
 import com.amazonaws.services.sns.model.CreateTopicRequest;
 import com.amazonaws.services.sns.model.PublishRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Maps;
 import lombok.SneakyThrows;
@@ -27,7 +28,8 @@ public class AwsSnsSender<T extends Serializable> implements NotificationSender<
     @Autowired
     private AmazonSNS snsClient;
 
-    private final ObjectMapper objectSerializer = new ObjectMapper();
+    private final ObjectMapper objectSerializer = new ObjectMapper()
+            .registerModule(new Jdk8Module());
 
     private final Map<NotificationType, String> topicArns = Maps.newHashMap();
 
@@ -39,6 +41,7 @@ public class AwsSnsSender<T extends Serializable> implements NotificationSender<
     @Override
     public void sendNotification(final NotificationType type, final T payload) {
         try {
+            log.info(String.format("Publishing notification for %s to %s", type.name(), getTopicArn(type)));
             snsClient.publish(new PublishRequest()
                             .withTopicArn(getTopicArn(type))
                             .withSubject(payload.getClass().getSimpleName())

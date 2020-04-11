@@ -39,6 +39,7 @@ dependencies {
     implementation 'com.h2database:h2:1.4.200'
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf:2.2.6.RELEASE'
     implementation 'software.amazon.awssdk:secretsmanager:2.11.9'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.10.2'
 
     implementation platform('software.amazon.awssdk:bom:2.5.29')
     implementation 'software.amazon.awssdk:kinesis'

@@ -1,3 +1,9 @@
+###AWS Env reference
+us-west-2=local
+ca-central-1=dev
+us-west-1=beta
+us-east-2=live
+
 ### Local dev
 The entire stack should run locally without the need to setup anything. 
 Things like SNS Notification, Key encrypt/decryption might not work. But we should be able to run test and mock
