@@ -2,6 +2,8 @@ package com.coronacarecard.config;
 
 import com.coronacarecard.exceptions.*;
 import com.google.maps.errors.ApiError;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpHeaders;
@@ -16,6 +18,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @ControllerAdvice
 public class ApiExceptionControllerAdvice extends ResponseEntityExceptionHandler {
+    private static Log log = LogFactory.getLog(ApiExceptionControllerAdvice.class);
 
     /**
      * Customize the response for HttpMessageNotReadableException.
@@ -38,17 +41,17 @@ public class ApiExceptionControllerAdvice extends ResponseEntityExceptionHandler
 
     @ExceptionHandler(InternalException.class)
     protected ResponseEntity<Object> handleInternalExceptions(InternalException exp) {
+        log.error("Internal exception occurred", exp);
         ApiError error = new ApiError();
         error.code = 500;
         error.status = HttpStatus.INTERNAL_SERVER_ERROR.toString();
         error.message = "Uh oh! something went wrong processing your request. Please try again or advise the administrator.";
-
-
         return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @ExceptionHandler(BusinessAlreadyClaimedException.class)
     protected ResponseEntity<Object> handleBusinessAlreadyClaimedExceptions(BusinessAlreadyClaimedException exp) {
+        log.error("Business has already been claimed", exp);
         ApiError error = new ApiError();
         error.code = 409;
         error.status = HttpStatus.BAD_REQUEST.toString();

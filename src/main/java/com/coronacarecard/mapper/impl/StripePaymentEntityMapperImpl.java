@@ -64,15 +64,21 @@ public class StripePaymentEntityMapperImpl implements PaymentEntityMapper {
                 .addAllLineItem(allLineItems)
                 .setSuccessUrl(forntEndBaseUrl + "/payment/confirm")
                 .setCancelUrl(forntEndBaseUrl + "/payment/cancel")
-                .setPaymentIntentData(SessionCreateParams.PaymentIntentData
-                        .builder()
-                        .setTransferData(SessionCreateParams.PaymentIntentData.TransferData
-                                .builder()
-                                .setDestination(accountId)
-                                .build())
-                        .setApplicationFeeAmount(((Double) (orderDetail.getContribution() * orderDetail.getTotal())).longValue())
-                        .build())
+                .setPaymentIntentData(getPayementIntent(orderDetail, accountId))
                 .build();
+    }
+
+    private SessionCreateParams.PaymentIntentData getPayementIntent(OrderDetail orderDetail, String accountId) {
+        SessionCreateParams.PaymentIntentData.Builder intent = SessionCreateParams.PaymentIntentData
+                .builder()
+                .setTransferData(SessionCreateParams.PaymentIntentData.TransferData
+                        .builder()
+                        .setDestination(accountId)
+                        .build());
+            if (orderDetail.getContribution() > 0 ) {
+               intent.setApplicationFeeAmount(orderDetail.getContribution().longValue() * 100);
+            }
+            return intent.build();
     }
 
     @Override

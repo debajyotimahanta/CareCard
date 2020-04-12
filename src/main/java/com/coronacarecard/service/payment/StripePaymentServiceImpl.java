@@ -131,6 +131,7 @@ public class StripePaymentServiceImpl implements PaymentService {
             Session session = stripeCalls.generateSession((SessionCreateParams) paymentMapper.toSessionCreateParams(savedOrder, businessService));
             return paymentMapper.toCheckoutResponse(session, savedOrder, businessService);
         } catch (StripeException ex) {
+            log.error("Cannot generate session", ex);
             throw new InternalException(ex.getMessage());
         }
     }
