@@ -17,6 +17,8 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
@@ -61,5 +63,29 @@ public class StripePaymentControllerTest {
                 .andReturn();
         String onboardUrl = response.getResponse().getContentAsString();
         assertEquals(String.format(expected, connectId, businessEntityMapper.toModel(business).getId().toString(), "http://localhost:5000"), onboardUrl);
+    }
+
+    @Test
+    public void validate_confirm_code_is_not_nullOrEmpty() throws Exception {
+        MvcResult result = mockMvc.perform(get("/payment/stripe/business/confirm")
+        .contentType("application/json")
+        .param("code", "")
+        .param("state", "somerandomvalue"))
+                  .andExpect(status().isBadRequest())
+                .andReturn();
+
+        assertTrue(result.getResponse().getContentAsString().contains("must not be empty"));
+    }
+
+    @Test
+    public void validate_confirm_state_is_not_nullOrEmpty() throws Exception {
+        MvcResult result = mockMvc.perform(get("/payment/stripe/business/confirm")
+                .contentType("application/json")
+                .param("code", "somerandomvalue")
+                .param("state", ""))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+
+        assertTrue(result.getResponse().getContentAsString().contains("must not be empty"));
     }
 }

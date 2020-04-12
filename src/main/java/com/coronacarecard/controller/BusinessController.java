@@ -7,20 +7,24 @@ import com.coronacarecard.model.BusinessSearchResult;
 import com.coronacarecard.model.PagedBusinessSearchResult;
 import com.coronacarecard.service.BusinessService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Optional;
 
 @RestController
 @RequestMapping("business")
+@Validated
 public class BusinessController {
 
     @Autowired
     private BusinessService businessService;
 
     @GetMapping("/import")
-    public Business importFromGoogle(@RequestParam(value = "googleplaceid") String googlePlaceId)
+    public Business importFromGoogle(@NotEmpty @NotNull @RequestParam(value = "googleplaceid") String googlePlaceId)
             throws BusinessNotFoundException, InternalException {
         return businessService.getOrCreate(googlePlaceId);
     }
@@ -32,15 +36,15 @@ public class BusinessController {
     }
 
     @GetMapping("/update")
-    public Business updateFromGoogle(@RequestParam(value = "googleplaceid") String googlePlaceId)
+    public Business updateFromGoogle(@NotEmpty @NotNull @RequestParam(value = "googleplaceid") String googlePlaceId)
             throws BusinessNotFoundException, InternalException {
         return businessService.createOrUpdate(googlePlaceId);
     }
 
     @GetMapping("/searchexternal")
-    public List<BusinessSearchResult> searchExternal(@RequestParam(value = "searchtext") String searchText,
-                                             @RequestParam(value = "latitude") Optional<Double> latitude,
-                                             @RequestParam(value = "longitude") Optional<Double> longitude)
+    public List<BusinessSearchResult> searchExternal(@NotNull @NotEmpty @RequestParam(value = "searchtext") String searchText,
+                                                     @RequestParam(value = "latitude") Optional<Double> latitude,
+                                                     @RequestParam(value = "longitude") Optional<Double> longitude)
             throws InternalException {
 
         return businessService.externalSearch(searchText,
@@ -49,8 +53,8 @@ public class BusinessController {
     }
 
     @GetMapping("/search")
-    public PagedBusinessSearchResult search(@RequestParam(value = "searchtext") String searchText,
-                                            @RequestParam(value = "page", defaultValue = "1") Integer page ,
+    public PagedBusinessSearchResult search(@NotNull @NotEmpty @RequestParam(value = "searchtext") String searchText,
+                                            @RequestParam(value = "page", defaultValue = "1") Integer page,
                                             @RequestParam(value = "count", defaultValue = "10") Integer count) {
         return businessService.search(searchText, page, count);
     }

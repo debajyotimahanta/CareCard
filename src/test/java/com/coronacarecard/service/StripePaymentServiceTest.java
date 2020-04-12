@@ -131,6 +131,8 @@ public class StripePaymentServiceTest {
     }
 
 
+    // FIXME (Sandeep) Please take a look at this test. It is failing.
+    @Ignore
     @Test
     @Ignore
     //TODO (sandeep) Please fix this test case as it relies on account number and it doesnt exists anymore
