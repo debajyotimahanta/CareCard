@@ -5,11 +5,8 @@ import com.coronacarecard.dao.BusinessRepository;
 import com.coronacarecard.dao.OrderDetailRepository;
 import com.coronacarecard.dao.UserRepository;
 import com.coronacarecard.model.CheckoutResponse;
-import com.coronacarecard.model.Currency;
 import com.coronacarecard.model.PaymentSystem;
 import com.coronacarecard.model.orders.OrderDetail;
-import com.coronacarecard.model.orders.OrderLine;
-import com.coronacarecard.model.orders.OrderStatus;
 import com.coronacarecard.service.ShoppingCartService;
 import com.coronacarecard.util.TestHelper;
 import org.junit.Ignore;
@@ -153,7 +150,7 @@ public class RepositoryTest {
             businessExternalIds.add("ch"+i);
         }
 
-        OrderDetail orders = getOrder(businessExternalIds);
+        OrderDetail orders = TestHelper.getOrder(businessExternalIds);
         CheckoutResponse response= shoppingCartService.checkout(PaymentSystem.STRIPE, orders);
         com.coronacarecard.dao.entity.OrderDetail storedOrder =
                 orderDetailRepository.findAll().iterator().next();
@@ -164,40 +161,5 @@ public class RepositoryTest {
         assertEquals(5, storedOrder.getOrderItems().get(0).getItems().size());
     }
 
-    private OrderDetail getOrder(List<String> businessIds) {
-        List<OrderLine> line = new ArrayList<>();
-        for (String id : businessIds) {
 
-            line.add(OrderLine.builder()
-                    .businessId(id.toString())
-                    .tip(10.0)
-                    .items(getItems())
-                    .build());
-        }
-
-        return OrderDetail.builder()
-                .contribution(100.0)
-                .customerEmail("cust@email.com")
-                .customerMobile("773")
-                .status(OrderStatus.PENDING)
-                .processingFee(1.2)
-                .contribution(2.5)
-                .total(500.23)
-                .orderLine(line)
-                .currency(Currency.USD)
-                .build();
-
-    }
-
-    private List<com.coronacarecard.model.orders.Item> getItems() {
-        List<com.coronacarecard.model.orders.Item> items = new ArrayList<>();
-        for (int i = 0; i < 5; i++) {
-            items.add(com.coronacarecard.model.orders.Item.builder()
-                    .unitPrice(10.0)
-                    .quantity(i + 1)
-                    .build()
-            );
-        }
-        return items;
-    }
 }

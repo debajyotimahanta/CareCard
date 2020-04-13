@@ -48,6 +48,16 @@ public class ApiExceptionControllerAdvice extends ResponseEntityExceptionHandler
         error.message = "Uh oh! something went wrong processing your request. Please try again or advise the administrator.";
         return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
+    @ExceptionHandler(OrderNotFoundException.class)
+    protected ResponseEntity<Object> orderNotFoundException(OrderNotFoundException exp) {
+        log.error("Order Id not found", exp);
+        ApiError error = new ApiError();
+        error.code = 404;
+        error.status = HttpStatus.NOT_FOUND.toString();
+        error.message = "Order does not exists";
+
+        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+    }
 
     @ExceptionHandler(BusinessAlreadyClaimedException.class)
     protected ResponseEntity<Object> handleBusinessAlreadyClaimedExceptions(BusinessAlreadyClaimedException exp) {

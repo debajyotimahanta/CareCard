@@ -92,7 +92,7 @@ public class StripePaymentServiceImpl implements PaymentService {
 
         try {
             Session session = stripeCalls.retrieveSession(transactionId);
-            Optional<com.coronacarecard.dao.entity.OrderDetail> maybeOrder = orderRepository.findById(Long.parseLong(session.getClientReferenceId()));
+            Optional<com.coronacarecard.dao.entity.OrderDetail> maybeOrder = orderRepository.findById(UUID.fromString(session.getClientReferenceId()));
             if (!maybeOrder.isPresent()) {
                 throw new InternalException("Order cannot be located");
             }

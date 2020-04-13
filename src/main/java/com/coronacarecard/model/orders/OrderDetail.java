@@ -11,6 +11,7 @@ import java.util.UUID;
 @lombok.AllArgsConstructor
 @lombok.Getter
 @lombok.Setter
+@lombok.EqualsAndHashCode
 public class OrderDetail implements Serializable {
     private UUID id;
     private String customerEmail;

@@ -15,7 +15,9 @@ import com.stripe.param.checkout.SessionCreateParams;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component("StripeEntityMapper")
@@ -62,7 +64,7 @@ public class StripePaymentEntityMapperImpl implements PaymentEntityMapper {
                 .setClientReferenceId(orderDetail.getId().toString())
                 .addPaymentMethodType(SessionCreateParams.PaymentMethodType.CARD)
                 .addAllLineItem(allLineItems)
-                .setSuccessUrl(forntEndBaseUrl + "/payment/confirm")
+                .setSuccessUrl(forntEndBaseUrl + "/payment/confirm?orderId=" + orderDetail.getId())
                 .setCancelUrl(forntEndBaseUrl + "/payment/cancel")
                 .setPaymentIntentData(getPayementIntent(orderDetail, accountId))
                 .build();
@@ -95,6 +97,7 @@ public class StripePaymentEntityMapperImpl implements PaymentEntityMapper {
                 .sessionId(((Session)session).getId())
                 .build();
     }
+
 
     private List<SessionCreateParams.LineItem> createLineItems(OrderDetail header,OrderLine orderLine) {
         List<SessionCreateParams.LineItem> lineItems = orderLine.getItems()

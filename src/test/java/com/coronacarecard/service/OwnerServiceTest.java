@@ -192,6 +192,7 @@ public class OwnerServiceTest {
         verify(approvalNotificationSender).sendNotification(eq(NotificationType.BUSINESS_APPROVED),
                 approvalDetails.capture());
         assertEquals(onboardURL, approvalDetails.getValue().getRegistrationUrl());
+        createdBusines.setStatus(BusinessState.Pending);
         assertEquals(createdBusines, approvalDetails.getValue().getBusiness());
         Business storedBusiness = businessRepository.findById(createdBusines.getId()).get();
         assertEquals(BusinessState.Pending, storedBusiness.getState());

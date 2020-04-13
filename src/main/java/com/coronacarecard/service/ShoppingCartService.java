@@ -2,10 +2,13 @@ package com.coronacarecard.service;
 
 import com.coronacarecard.exceptions.BusinessNotFoundException;
 import com.coronacarecard.exceptions.InternalException;
+import com.coronacarecard.exceptions.OrderNotFoundException;
 import com.coronacarecard.exceptions.PaymentAccountNotSetupException;
 import com.coronacarecard.model.CheckoutResponse;
 import com.coronacarecard.model.orders.OrderDetail;
 import com.coronacarecard.model.PaymentSystem;
+
+import java.util.UUID;
 
 public interface ShoppingCartService {
     /**
@@ -18,4 +21,12 @@ public interface ShoppingCartService {
      * @return
      */
     CheckoutResponse checkout(PaymentSystem paymentSystem, OrderDetail order) throws BusinessNotFoundException, PaymentAccountNotSetupException, InternalException;
+
+    /**
+     * Use by successfully payment method. We log the success of the payment. However the final confirmation is done
+     * via backend stripe interaction
+     * @param id
+     * @return
+     */
+   OrderDetail getOrder(UUID id) throws OrderNotFoundException;
 }

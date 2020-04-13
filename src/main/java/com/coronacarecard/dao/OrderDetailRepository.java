@@ -9,7 +9,7 @@ import org.springframework.data.repository.query.Param;
 import java.util.UUID;
 
 public interface OrderDetailRepository
-        extends PagingAndSortingRepository<OrderDetail, Long>, JpaSpecificationExecutor<OrderDetail> {
+        extends PagingAndSortingRepository<OrderDetail, UUID>, JpaSpecificationExecutor<OrderDetail> {
 
     @Query("SELECT o FROM OrderDetail o JOIN FETCH o.orderItems WHERE o.id = (:id)")
     public OrderDetail findByIdAndFetchEagrly(@Param("id") UUID id);

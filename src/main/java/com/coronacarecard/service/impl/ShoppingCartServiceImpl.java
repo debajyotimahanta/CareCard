@@ -6,7 +6,9 @@ import com.coronacarecard.dao.entity.Business;
 import com.coronacarecard.dao.entity.OrderItem;
 import com.coronacarecard.exceptions.BusinessNotFoundException;
 import com.coronacarecard.exceptions.InternalException;
+import com.coronacarecard.exceptions.OrderNotFoundException;
 import com.coronacarecard.exceptions.PaymentAccountNotSetupException;
+import com.coronacarecard.mapper.OrderDetailMapper;
 import com.coronacarecard.model.CheckoutResponse;
 import com.coronacarecard.model.PaymentSystem;
 import com.coronacarecard.model.orders.Item;
@@ -15,6 +17,7 @@ import com.coronacarecard.model.orders.OrderLine;
 import com.coronacarecard.model.orders.OrderStatus;
 import com.coronacarecard.service.PaymentService;
 import com.coronacarecard.service.ShoppingCartService;
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class ShoppingCartServiceImpl implements ShoppingCartService {
@@ -37,6 +41,9 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     @Autowired
     @Qualifier("StripePaymentService")
     private PaymentService paymentService;
+
+    @Autowired
+    private OrderDetailMapper orderDetailMapper;
 
     @Override
     @Transactional
@@ -53,7 +60,19 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         return response;
     }
 
-    private com.coronacarecard.dao.entity.OrderDetail saveOrder(OrderDetail order) throws BusinessNotFoundException {
+    @Override
+    public OrderDetail getOrder(UUID id) throws OrderNotFoundException {
+        Optional<com.coronacarecard.dao.entity.OrderDetail> orderDAO = orderDetailRepository.findById(id);
+        if(!orderDAO.isPresent()) {
+            log.error(String.format("Order with id %s not found", id));
+            throw new OrderNotFoundException();
+        }
+
+        return orderDetailMapper.toOrder(orderDAO.get());
+    }
+
+    @VisibleForTesting
+    public com.coronacarecard.dao.entity.OrderDetail saveOrder(OrderDetail order) throws BusinessNotFoundException {
         com.coronacarecard.dao.entity.OrderDetail orderDetail =
                 com.coronacarecard.dao.entity.OrderDetail.builder()
                         .contribution(order.getContribution())
