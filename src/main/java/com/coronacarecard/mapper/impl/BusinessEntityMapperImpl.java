@@ -5,7 +5,6 @@ import com.coronacarecard.mapper.BusinessEntityMapper;
 import com.coronacarecard.model.*;
 import com.google.maps.model.PlaceDetails;
 import com.google.maps.model.PlacesSearchResult;
-import org.checkerframework.checker.nullness.Opt;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -58,6 +57,7 @@ public class BusinessEntityMapperImpl implements BusinessEntityMapper {
                 .latitude(business.getLatitude())
                 .address(business.getAddress())
                 .description(business.getDescription())
+                .status(business.getState())
                 .Website(business.getWebsite())
                 .internationalPhoneNumber(business.getInternationalPhoneNumber())
                 .formattedPhoneNumber(business.getFormattedPhoneNumber())

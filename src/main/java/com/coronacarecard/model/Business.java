@@ -1,7 +1,5 @@
 package com.coronacarecard.model;
 
-import com.coronacarecard.model.orders.OrderStatus;
-
 import java.io.Serializable;
 import java.util.Optional;
 import java.util.UUID;
@@ -25,7 +23,7 @@ public class Business implements Serializable {
     private String internationalPhoneNumber;
     private String Website;
     private boolean isActive;
-    private OrderStatus status;
+    private BusinessState status;
     private Optional<User> owner;
 
 }

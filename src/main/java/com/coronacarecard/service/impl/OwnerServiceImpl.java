@@ -63,7 +63,7 @@ public class OwnerServiceImpl implements OwnerService {
     public Business claimBusiness(BusinessRegistrationRequest request) throws
             BusinessAlreadyClaimedException, InternalException, BusinessNotFoundException {
         String externalId = request.getBusinessId();
-        String email = request.getEmail();
+        String email = request.getEmail().toLowerCase();
         String phone = request.getPhone();
         Optional<com.coronacarecard.dao.entity.Business> businessDAO =
                 businessRepository.findByExternalId(externalId);
@@ -124,7 +124,7 @@ public class OwnerServiceImpl implements OwnerService {
     }
 
     private boolean isSameOwner(User owner, String email, String phone) {
-        return owner.getEmail().equals(email)
+        return owner.getEmail().equalsIgnoreCase(email)
                 && owner.getPhoneNumber().equals(phone);
 
     }
