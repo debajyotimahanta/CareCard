@@ -132,8 +132,6 @@ public class StripePaymentServiceTest {
 
 
     @Test
-    @Ignore
-    //TODO (sandeep) Please fix this test case as it relies on account number and it doesnt exists anymore
     public void create_stripe_session() throws Exception{
         String externalId="ch1234";
         when(stripeCalls.generateSession(any())).thenAnswer(i->Session.create((SessionCreateParams) i.getArgument(0)));
@@ -141,7 +139,7 @@ public class StripePaymentServiceTest {
                 .email("testuser@xyz.com")
                 .phoneNumber("12345")
                 .account(BusinessAccountDetail.builder()
-                        .externalRefId("acct_1GSRdxIsoQ5ULXuu")
+                        .externalRefId("acct_1GVS21ANS82v412Y")
                         .build())
                 .build());
         com.coronacarecard.dao.entity.Business business = TestHelper.createEntry(businessRepository,"23456789" ,
@@ -151,11 +149,11 @@ public class StripePaymentServiceTest {
                 .customerEmail("cust@email.com")
                 .customerMobile("773")
                 .status(OrderStatus.PENDING)
-                .processingFee(1.2)
+                .processingFee(paymentService.calculateProcessingFee(OrderDetail.builder().total(522.5).build()))
                 .orderLine(createLine(externalId))
                 .currency(Currency.USD)
                 .contribution(2.5)
-                .total(520.0)
+                .total(522.5)
                 .id(UUID.randomUUID())
                 .build();
 
@@ -205,6 +203,7 @@ public class StripePaymentServiceTest {
         for(int i=0;i<2;i++){
             line.add(OrderLine.builder()
                     .businessId(id)
+                    .businessName("business"+i)
                     .tip(10.0)
                     .items(createItems())
                     .build());

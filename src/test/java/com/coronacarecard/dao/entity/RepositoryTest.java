@@ -128,8 +128,6 @@ public class RepositoryTest {
     }
 
     @Test
-    @Ignore
-    //TODO (sandeep) Please fix this test case as it relies on account number and it doesnt exists anymore
     public void createCart() throws Exception {
         String idPrefix = "78255b5db1ca027c669ca49e9576d7a26b40f7f";
         String email = "test@test.com";
@@ -137,7 +135,7 @@ public class RepositoryTest {
                 .email(email)
                 .phoneNumber("12345")
                 .account(BusinessAccountDetail.builder()
-                        .externalRefId("acct_1GSRdxIsoQ5ULXuu")
+                        .externalRefId("acct_1GVS21ANS82v412Y")
                         .build())
                 .build());
         List<UUID> businessIds = new ArrayList<>();

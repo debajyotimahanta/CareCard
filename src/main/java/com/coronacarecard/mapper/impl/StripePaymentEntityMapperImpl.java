@@ -59,6 +59,26 @@ public class StripePaymentEntityMapperImpl implements PaymentEntityMapper {
                 .map(ol -> createLineItems(orderDetail, ol))
                 .flatMap(Collection::stream)
                 .collect(Collectors.toList());
+        if (orderDetail.getContribution() > 0) {
+            allLineItems.add(
+                    SessionCreateParams.LineItem.builder()
+                            .setAmount(((Double) (orderDetail.getContribution() * 100)).longValue())//Convert from cent to dollar
+                            .setQuantity(1L)
+                            .setCurrency(orderDetail.getCurrency().toString())
+                            .setName("Contribution to the platform")
+                            .build()
+            );
+        }
+
+        allLineItems.add(
+                SessionCreateParams.LineItem.builder()
+                        .setAmount(((Double) (orderDetail.getProcessingFee() * 100)).longValue())//Convert from cent to dollar
+                        .setQuantity(1L)
+                        .setCurrency(orderDetail.getCurrency().toString())
+                        .setName("Processing Fee")
+                        .build()
+        );
+
         return SessionCreateParams.builder()
                 .setCustomerEmail(orderDetail.getCustomerEmail())
                 .setClientReferenceId(orderDetail.getId().toString())
@@ -66,22 +86,9 @@ public class StripePaymentEntityMapperImpl implements PaymentEntityMapper {
                 .addAllLineItem(allLineItems)
                 .setSuccessUrl(forntEndBaseUrl + "/payment/confirm?orderId=" + orderDetail.getId())
                 .setCancelUrl(forntEndBaseUrl + "/payment/cancel")
-                .setPaymentIntentData(getPayementIntent(orderDetail, accountId))
                 .build();
     }
 
-    private SessionCreateParams.PaymentIntentData getPayementIntent(OrderDetail orderDetail, String accountId) {
-        SessionCreateParams.PaymentIntentData.Builder intent = SessionCreateParams.PaymentIntentData
-                .builder()
-                .setTransferData(SessionCreateParams.PaymentIntentData.TransferData
-                        .builder()
-                        .setDestination(accountId)
-                        .build());
-            if (orderDetail.getContribution() > 0 ) {
-               intent.setApplicationFeeAmount(orderDetail.getContribution().longValue() * 100);
-            }
-            return intent.build();
-    }
 
     @Override
     public CheckoutResponse toCheckoutResponse(Object session,OrderDetail orderDetail,BusinessService businessService) throws BusinessNotFoundException,PaymentAccountNotSetupException{
@@ -107,16 +114,16 @@ public class StripePaymentEntityMapperImpl implements PaymentEntityMapper {
                             .setAmount(((Double) (item.getUnitPrice() * 100)).longValue())//Convert from cent to dollar
                             .setQuantity(item.getQuantity().longValue())
                             .setCurrency(header.getCurrency().toString())
-                            .setName("Gift Card")
+                            .setName((orderLine.getBusinessName()!=null?orderLine.getBusinessName():orderLine.getBusinessId())+ "-Gift Card")
                             .build();
                 })
                 .collect(Collectors.toList());
         if (orderLine.getTip() > 0) {
             lineItems.add(SessionCreateParams.LineItem.builder()
-                    .setAmount(((Double) (orderLine.getTip()* 100)).longValue())//Convert from cent to dollar
+                    .setAmount(((Double) (orderLine.getTip() * 100)).longValue())//Convert from cent to dollar
                     .setQuantity(1L)
                     .setCurrency(header.getCurrency().toString())
-                    .setName("Tip")
+                    .setName((orderLine.getBusinessName() != null ? orderLine.getBusinessName() : orderLine.getBusinessId()) + "-Tip")
                     .build()
             );
         }

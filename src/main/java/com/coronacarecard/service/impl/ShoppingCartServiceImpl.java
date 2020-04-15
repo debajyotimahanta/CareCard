@@ -49,7 +49,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     @Transactional
     public CheckoutResponse checkout(PaymentSystem paymentSystem, OrderDetail order) throws BusinessNotFoundException, PaymentAccountNotSetupException, InternalException {
 
-        paymentService.validate(order);
+//        paymentService.validate(order);
         com.coronacarecard.dao.entity.OrderDetail savedOrder = saveOrder(order);
         order.setId(savedOrder.getId());
 
