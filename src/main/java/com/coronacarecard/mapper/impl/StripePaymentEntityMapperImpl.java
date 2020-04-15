@@ -60,7 +60,7 @@ public class StripePaymentEntityMapperImpl implements PaymentEntityMapper {
                 .flatMap(Collection::stream)
                 .collect(Collectors.toList());
         return SessionCreateParams.builder()
-                .setCustomerEmail(maybeUser.get().getEmail())
+                .setCustomerEmail(orderDetail.getCustomerEmail())
                 .setClientReferenceId(orderDetail.getId().toString())
                 .addPaymentMethodType(SessionCreateParams.PaymentMethodType.CARD)
                 .addAllLineItem(allLineItems)
