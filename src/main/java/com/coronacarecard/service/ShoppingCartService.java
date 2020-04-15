@@ -1,9 +1,6 @@
 package com.coronacarecard.service;
 
-import com.coronacarecard.exceptions.BusinessNotFoundException;
-import com.coronacarecard.exceptions.InternalException;
-import com.coronacarecard.exceptions.OrderNotFoundException;
-import com.coronacarecard.exceptions.PaymentAccountNotSetupException;
+import com.coronacarecard.exceptions.*;
 import com.coronacarecard.model.CheckoutResponse;
 import com.coronacarecard.model.orders.OrderDetail;
 import com.coronacarecard.model.PaymentSystem;
@@ -20,7 +17,7 @@ public interface ShoppingCartService {
      * @param order
      * @return
      */
-    CheckoutResponse checkout(PaymentSystem paymentSystem, OrderDetail order) throws BusinessNotFoundException, PaymentAccountNotSetupException, InternalException;
+    CheckoutResponse checkout(PaymentSystem paymentSystem, OrderDetail order) throws BusinessNotFoundException, PaymentAccountNotSetupException, InternalException, PaymentServiceException;
 
     /**
      * Use by successfully payment method. We log the success of the payment. However the final confirmation is done

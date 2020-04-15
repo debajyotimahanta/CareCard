@@ -1,9 +1,6 @@
 package com.coronacarecard.controller;
 
-import com.coronacarecard.exceptions.BusinessNotFoundException;
-import com.coronacarecard.exceptions.InternalException;
-import com.coronacarecard.exceptions.OrderNotFoundException;
-import com.coronacarecard.exceptions.PaymentAccountNotSetupException;
+import com.coronacarecard.exceptions.*;
 import com.coronacarecard.model.CheckoutResponse;
 import com.coronacarecard.model.OrderConfirmationResponse;
 import com.coronacarecard.model.PaymentSystem;
@@ -26,7 +23,7 @@ public class ShoppingCartController {
 
     @PostMapping("/checkout")
     public CheckoutResponse checkout(@RequestBody OrderDetail order) throws BusinessNotFoundException,
-            PaymentAccountNotSetupException, InternalException {
+            PaymentAccountNotSetupException, InternalException, PaymentServiceException {
         return shoppingCartService.checkout(PaymentSystem.STRIPE, order);
     }
 

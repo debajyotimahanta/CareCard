@@ -93,11 +93,11 @@ public class ApiExceptionControllerAdvice extends ResponseEntityExceptionHandler
     @ExceptionHandler(PaymentServiceException.class)
     protected ResponseEntity<Object> handlePaymentServiceExceptions(PaymentServiceException exp) {
         ApiError error = new ApiError();
-        error.code = 500;
-        error.status = HttpStatus.INTERNAL_SERVER_ERROR.toString();
+        error.code = 400;
+        error.status = HttpStatus.BAD_REQUEST.toString();
         error.message = exp.getMessage();
 
-        return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(PaymentAccountNotSetupException.class)

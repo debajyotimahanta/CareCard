@@ -78,9 +78,9 @@ public class TestHelper {
                 .customerEmail("cust@email.com")
                 .customerMobile("773")
                 .status(OrderStatus.PENDING)
-                .processingFee(1.2)
+                .processingFee(48.17)
                 .contribution(2.5)
-                .total(500.23)
+                .total(1602.5)
                 .orderLine(line)
                 .currency(Currency.USD)
                 .build();

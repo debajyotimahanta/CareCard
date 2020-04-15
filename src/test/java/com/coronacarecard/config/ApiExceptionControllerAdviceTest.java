@@ -100,8 +100,8 @@ class ApiExceptionControllerAdviceTest {
         ResponseEntity<Object> result = target.handlePaymentServiceExceptions(new PaymentServiceException(PAYMENT_SERVICE_ERROR));
 
         // Assert
-        assertTrue(result.getStatusCode().equals(HttpStatus.INTERNAL_SERVER_ERROR));
-        assertTrue(result.getStatusCodeValue() == 500);
+        assertTrue(result.getStatusCode().equals(HttpStatus.BAD_REQUEST));
+        assertTrue(result.getStatusCodeValue() == 400);
     }
 
     @Test
