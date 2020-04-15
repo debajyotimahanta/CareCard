@@ -3,8 +3,8 @@ package com.coronacarecard.service.payment;
 import com.coronacarecard.config.StripeConfiguration;
 import com.coronacarecard.dao.BusinessAccountDetailRepository;
 import com.coronacarecard.dao.BusinessRepository;
-import com.coronacarecard.dao.UserRepository;
 import com.coronacarecard.dao.OrderDetailRepository;
+import com.coronacarecard.dao.UserRepository;
 import com.coronacarecard.dao.entity.BusinessAccountDetail;
 import com.coronacarecard.dao.entity.User;
 import com.coronacarecard.exceptions.*;
@@ -33,11 +33,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
 @Service("StripePaymentService")
 public class StripePaymentServiceImpl implements PaymentService {
+    public static final String ORDER_ID = "ORDER_ID";
     private static Log log = LogFactory.getLog(StripePaymentServiceImpl.class);
 
     @Autowired
@@ -134,11 +137,21 @@ public class StripePaymentServiceImpl implements PaymentService {
     public CheckoutResponse generateCheckoutSession(OrderDetail savedOrder) throws BusinessNotFoundException, PaymentAccountNotSetupException, InternalException {
         try {
             Session session = stripeCalls.generateSession((SessionCreateParams) paymentMapper.toSessionCreateParams(savedOrder, businessService));
+            updateIntentWithOrderId(session.getPaymentIntent(), savedOrder.getId());
             return paymentMapper.toCheckoutResponse(session, savedOrder, businessService);
         } catch (StripeException ex) {
             log.error("Cannot generate session", ex);
             throw new InternalException(ex.getMessage());
         }
+    }
+
+    private void updateIntentWithOrderId(String paymentIntent, UUID id) throws StripeException {
+        PaymentIntent intent = stripeCalls.retrievePaymentIntent(paymentIntent);
+        Map<String, String> metadata = new HashMap<String, String>();
+        metadata.put(ORDER_ID, id.toString());
+        Map<String, Object> params = new HashMap<>();
+        params.put("metadata", metadata);
+        intent.update(params);
     }
 
     @Override
