@@ -56,7 +56,9 @@ public interface PaymentService {
      *
      * @param order
      */
-    void validate(com.coronacarecard.model.orders.OrderDetail order);
+    void validate(com.coronacarecard.model.orders.OrderDetail order) throws PaymentServiceException;
+
+    Double calculateProcessingFee(OrderDetail orderDetail);
 
     Business importBusiness(String code, String state) throws BusinessNotFoundException, PaymentServiceException, InternalException, BusinessAlreadyClaimedException;
 }

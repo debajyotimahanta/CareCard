@@ -13,6 +13,7 @@ import com.coronacarecard.mapper.PaymentEntityMapper;
 import com.coronacarecard.model.Business;
 import com.coronacarecard.model.CheckoutResponse;
 import com.coronacarecard.model.orders.OrderDetail;
+import com.coronacarecard.model.orders.OrderLine;
 import com.coronacarecard.model.orders.OrderStatus;
 import com.coronacarecard.notifications.NotificationSender;
 import com.coronacarecard.notifications.NotificationType;
@@ -76,6 +77,10 @@ public class StripePaymentServiceImpl implements PaymentService {
     @Value("${spring.app.apiBaseUrl}")
     private String apiUrl;
 
+    private Double STRIPE_PROCESSING_FEE_VARIABLE_PERCENT=0.029;
+    private Double STRIPE_PROCESSING_FEE_FIXED=0.3;
+    private Double EQUALITY_CHECK_LIMIT=0.0001;
+
     @Override
     public CheckoutResponse successPayment(String urlParams) {
         return null;
@@ -137,8 +142,33 @@ public class StripePaymentServiceImpl implements PaymentService {
     }
 
     @Override
-    public void validate(OrderDetail order) {
+    public void validate(OrderDetail order) throws PaymentServiceException {
 
+        Double total=0.0;
+        for(OrderLine line: order.getOrderLine()){
+            total+=line.getTip();
+            total+=line.getItems()
+                    .stream()
+                    .map(li->li.getQuantity()*li.getUnitPrice())
+                    .reduce(0.0,(e1,e2)->e1+e2);
+
+        }
+        total+=order.getContribution();
+        if(Math.abs(total-order.getTotal())>EQUALITY_CHECK_LIMIT) {
+            throw new PaymentServiceException(String.format("Total does not match with line items, expected:%1$s, received:%2$s"
+                    , total.toString(), order.getTotal().toString()));
+        }
+        if(Math.abs(order.getProcessingFee()-calculateProcessingFee(order))>EQUALITY_CHECK_LIMIT){
+            throw new PaymentServiceException(String.format("Processing fee does not match for the payment service, expected:%1$s, received:%2$s",
+                    calculateProcessingFee(order).toString(),order.getProcessingFee().toString()));
+        }
+    }
+
+    @Override
+    public Double calculateProcessingFee(OrderDetail orderDetail) {
+        Double processingFee = ((orderDetail.getTotal() + STRIPE_PROCESSING_FEE_FIXED) / (Double) (1 - STRIPE_PROCESSING_FEE_VARIABLE_PERCENT));
+        Double result= (Math.round(((processingFee-orderDetail.getTotal()) * 100.0)) / 100.0) ;
+        return result;
     }
 
     @Override
