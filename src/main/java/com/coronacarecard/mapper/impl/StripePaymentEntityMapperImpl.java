@@ -15,10 +15,10 @@ import com.stripe.param.checkout.SessionCreateParams;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.coronacarecard.service.payment.StripePaymentServiceImpl.ORDER_ID;
 
 @Component("StripeEntityMapper")
 public class StripePaymentEntityMapperImpl implements PaymentEntityMapper {
@@ -86,7 +86,14 @@ public class StripePaymentEntityMapperImpl implements PaymentEntityMapper {
                 .addAllLineItem(allLineItems)
                 .setSuccessUrl(forntEndBaseUrl + "/payment/confirm?orderId=" + orderDetail.getId())
                 .setCancelUrl(forntEndBaseUrl + "/payment/cancel")
+                .putAllMetadata(getMetaDataForOrder(orderDetail))
                 .build();
+    }
+
+    private Map<String, String> getMetaDataForOrder(OrderDetail orderDetail) {
+        Map<String, String> metadata = new HashMap<String, String>();
+        metadata.put(ORDER_ID, orderDetail.getId().toString());
+        return metadata;
     }
 
 
