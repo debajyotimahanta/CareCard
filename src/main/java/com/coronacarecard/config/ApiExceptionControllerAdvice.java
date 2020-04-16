@@ -55,7 +55,7 @@ public class ApiExceptionControllerAdvice extends ResponseEntityExceptionHandler
 
     @ExceptionHandler(InternalException.class)
     protected ResponseEntity<Object> handleInternalException(InternalException exp) {
-            log.error("Internal exception occurred", exp);
+        log.error("Internal exception occurred", exp);
 
         ApiError error = new ApiError();
         error.code = 500;
@@ -78,8 +78,8 @@ public class ApiExceptionControllerAdvice extends ResponseEntityExceptionHandler
     @ExceptionHandler(BusinessAlreadyClaimedException.class)
     protected ResponseEntity<Object> handleBusinessAlreadyClaimedException(BusinessAlreadyClaimedException exp) {
 
-                log.error("Business has already been claimed", exp);
-                ApiError error = new ApiError();
+        log.error("Business has already been claimed", exp);
+        ApiError error = new ApiError();
         error.code = 409;
         error.status = HttpStatus.CONFLICT.toString();
         error.message = exp.getMessage();
@@ -131,7 +131,7 @@ public class ApiExceptionControllerAdvice extends ResponseEntityExceptionHandler
      * Customize the response for MethodArgumentNotValidException.
      * <p>This method delegates to {@link #handleExceptionInternal}.
      *
-     * @param exp      the exception
+     * @param exp     the exception
      * @param headers the headers to be written to the response
      * @param status  the selected response status
      * @param request the current request
@@ -141,7 +141,7 @@ public class ApiExceptionControllerAdvice extends ResponseEntityExceptionHandler
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException exp,
                                                                   HttpHeaders headers, HttpStatus status, WebRequest request) {
         Map<String, String> fieldErrorMap = new HashMap<>();
-        List<ObjectError>   fieldErrors   = exp.getBindingResult().getAllErrors();
+        List<ObjectError> fieldErrors = exp.getBindingResult().getAllErrors();
         fieldErrors.forEach((error) -> {
             String errMessage = error.getDefaultMessage();
             String fieldId = ((FieldError) error).getField();
@@ -152,8 +152,8 @@ public class ApiExceptionControllerAdvice extends ResponseEntityExceptionHandler
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
-    protected ResponseEntity<Object>  handleConstraintViolationException(ConstraintViolationException exp) {
-        Map<String, String>         constraintErrors        = new HashMap<>();
+    protected ResponseEntity<Object> handleConstraintViolationException(ConstraintViolationException exp) {
+        Map<String, String> constraintErrors = new HashMap<>();
         Set<ConstraintViolation<?>> constraintViolations = exp.getConstraintViolations();
         constraintViolations.forEach((constraintViolation) -> {
             String errMessage = constraintViolation.getMessage();
@@ -170,6 +170,16 @@ public class ApiExceptionControllerAdvice extends ResponseEntityExceptionHandler
         error.code = 400;
         error.status = HttpStatus.BAD_REQUEST.toString();
         error.message = "Invalid value provided.";
+
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(StripeWebHookError.class)
+    protected ResponseEntity<Object> stripeWebHookError(StripeWebHookError exp) {
+        ApiError error = new ApiError();
+        error.code = 400;
+        error.status = HttpStatus.BAD_REQUEST.toString();
+        error.message = "Cannot process Stripe event";
 
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }

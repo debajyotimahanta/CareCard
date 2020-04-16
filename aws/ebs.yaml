@@ -46,6 +46,12 @@ Parameters:
     Type: String
     AllowedPattern: ^https?://.*$
     ConstraintDescription: "must be a valid URL."
+  QueueStackName:
+    Description: The name of the stack which has the web hook queue
+    Type: String
+    MinLength: 1
+    MaxLength: 255
+    AllowedPattern: ^[a-zA-Z][-a-zA-Z0-9]*$
 Resources:
   WebApp:
     Type: AWS::ElasticBeanstalk::Application
@@ -165,3 +171,7 @@ Resources:
         - Namespace: aws:elasticbeanstalk:application:environment
           OptionName: API_URL
           Value: !Ref ApiUrl
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: SQS_WEB_HOOK_URL
+          Value:
+            Fn::ImportValue: !Sub '${QueueStackName}:StripeWebHookQueueURL'

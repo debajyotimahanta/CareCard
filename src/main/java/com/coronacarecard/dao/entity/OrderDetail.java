@@ -9,10 +9,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-@lombok.Builder(toBuilder = true)
+@lombok.Builder
 @lombok.NoArgsConstructor
 @lombok.AllArgsConstructor
 @lombok.Getter
+@lombok.Setter
 @Entity
 public class OrderDetail {
 

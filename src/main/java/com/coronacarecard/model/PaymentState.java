@@ -3,23 +3,17 @@ package com.coronacarecard.model;
 public enum PaymentState {
 
     /**
-     * When the Payment is first created
+     * When the Payment is first created and the business has not received the amount
      */
-    DRAFT,
+    Draft,
 
     /**
-     * We have sent the payment to the processing system
+     * The payment is passed to the business
      */
-    DISPATCHED,
+    Processed
 
-    /**
-     * The payment is processed by the payment system and we received confirmation from it
-     */
-    PROCESSED,
 
-    /**
-     * The user has been notified about the purchase and its payment.
-     */
-    CONFIRMED
+
+
 
 }

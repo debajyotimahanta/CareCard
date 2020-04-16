@@ -9,7 +9,6 @@ import com.coronacarecard.model.PaymentSystem;
 import com.coronacarecard.model.orders.OrderDetail;
 import com.coronacarecard.service.ShoppingCartService;
 import com.coronacarecard.util.TestHelper;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -128,7 +127,6 @@ public class RepositoryTest {
     }
 
     // FIXME {Sandeep) Please take a look at this test. It is failing.
-    @Ignore
     @Test
     public void createCart() throws Exception {
         String idPrefix = "78255b5db1ca027c669ca49e9576d7a26b40f7f";
@@ -152,13 +150,17 @@ public class RepositoryTest {
 
         OrderDetail orders = TestHelper.getOrder(businessExternalIds);
         CheckoutResponse response= shoppingCartService.checkout(PaymentSystem.STRIPE, orders);
-        com.coronacarecard.dao.entity.OrderDetail storedOrder =
+        com.coronacarecard.dao.entity.OrderDetail findAll =
                 orderDetailRepository.findAll().iterator().next();
+
+        com.coronacarecard.dao.entity.OrderDetail storedOrder = orderDetailRepository.findById(findAll.getId()).get();
         assertNotNull(storedOrder);
         assertNotNull(response.getSessionId());
         assertEquals(response.getSessionId(),storedOrder.getSessionId());
         assertEquals(10, storedOrder.getOrderItems().size());
         assertEquals(5, storedOrder.getOrderItems().get(0).getItems().size());
+        assertEquals(2, storedOrder.getOrderItems().get(0).getItems().get(1).getGiftCards().size());
+        assertEquals(10.0, storedOrder.getOrderItems().get(0).getItems().get(1).getGiftCards().get(0).getAmount().doubleValue(), 0.0);
     }
 
 

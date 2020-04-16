@@ -1,12 +1,22 @@
 package com.coronacarecard.controller;
 
+import com.coronacarecard.config.StripeConfiguration;
 import com.coronacarecard.dao.BusinessRepository;
 import com.coronacarecard.exceptions.*;
 import com.coronacarecard.model.Business;
 import com.coronacarecard.model.BusinessState;
+import com.coronacarecard.model.SuccessPaymentNotification;
+import com.coronacarecard.queue.QueuePublisher;
 import com.coronacarecard.service.BusinessService;
 import com.coronacarecard.service.CryptoService;
 import com.coronacarecard.service.PaymentService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.google.gson.JsonSyntaxException;
+import com.stripe.exception.SignatureVerificationException;
+import com.stripe.model.Event;
+import com.stripe.model.EventDataObjectDeserializer;
+import com.stripe.model.checkout.Session;
+import com.stripe.net.Webhook;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +44,13 @@ public class StripePaymentController {
     private PaymentService paymentService;
 
     @Autowired
+    private QueuePublisher<SuccessPaymentNotification> queuePublisher;
+
+    @Autowired
     private CryptoService cryptoService;
+
+    @Autowired
+    private StripeConfiguration stripeConfiguration;
 
     @Autowired
     private BusinessRepository businessRepository;
@@ -45,16 +61,55 @@ public class StripePaymentController {
     @Value("${spring.app.forntEndBaseUrl}")
     private String forntEndBaseUrl;
 
-    @GetMapping("/success/{transactionId}")
-    public void success(@PathVariable String transactionId) throws InternalException{
-        paymentService.confirmTransaction(transactionId);
+
+    @ResponseBody
+    @RequestMapping(consumes = "application/json",
+            produces = "application/json",
+            method = RequestMethod.POST,
+            value = "webhook")
+    public String stripeWebhookEndpoint(@RequestBody String payload,
+                                        @RequestHeader("Stripe-Signature") String sigHeader)
+            throws StripeWebHookError {
+
+        Event event;
+        try {
+            event = Webhook.constructEvent(
+                    payload, sigHeader, stripeConfiguration.getWebHookSecret()
+            );
+        } catch (JsonSyntaxException e) {
+            // Invalid payload
+            log.error("Unable to parse stripe json", e);
+            throw new StripeWebHookError();
+        } catch (SignatureVerificationException e) {
+            // Invalid signature
+            log.error("Cannot validate stripe payload", e);
+            throw new StripeWebHookError();
+        }
+        if ("checkout.session.completed".equals(event.getType())) {
+            // Deserialize the nested object inside the event
+            EventDataObjectDeserializer dataObjectDeserializer = event.getDataObjectDeserializer();
+            if (dataObjectDeserializer.getObject().isPresent()) {
+                Session checkoutSession = (Session) dataObjectDeserializer.getObject().get();
+                try {
+                    queuePublisher.publishEvent(getPayLoad(checkoutSession));
+                } catch (JsonProcessingException e) {
+                    log.error("Queue cannot send event", e);
+                    throw new StripeWebHookError();
+                }
+            }
+        } else {
+            log.info(String.format("Ignoring event %s of type %s", event.getId(), event.getType()));
+        }
+        return null;
     }
 
-
-    @GetMapping("/failure/{transactionId}")
-    public void fail(@PathVariable String transactionId) throws InternalException{
-        paymentService.confirmTransaction(transactionId);
+    private SuccessPaymentNotification getPayLoad(Session checkoutSession) {
+        return SuccessPaymentNotification.builder()
+                .orderId(UUID.fromString(checkoutSession.getClientReferenceId()))
+                .paymentId(checkoutSession.getId())
+                .build();
     }
+
 
     @GetMapping("/business/onboard/{id}")
     public String onboard(@PathVariable UUID id) throws BusinessNotFoundException, InternalException {

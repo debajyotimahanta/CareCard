@@ -6,8 +6,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 
-import static com.coronacarecard.config.SecretKey.STRIPE_CLIENT_ID;
-import static com.coronacarecard.config.SecretKey.STRIPE_KEY;
+import static com.coronacarecard.config.SecretKey.*;
 
 @Configuration
 public class StripeConfiguration {
@@ -28,5 +27,9 @@ public class StripeConfiguration {
 
     public String getConnectUrl(){
         return "https://connect.stripe.com/express/oauth/authorize?client_id=%1$s&state=%2$s&scope=read_write&response_type=code&redirect_uri=%3$s/payment/stripe/business/confirm";
+    }
+
+    public String getWebHookSecret() {
+        return secretsDataStore.getValue(STRIPE_WEB_HOOK_SECRET);
     }
 }

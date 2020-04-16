@@ -163,7 +163,7 @@ public class StripePaymentServiceTest {
         assertNotNull(checkoutResponse.getSessionId());
 
     }
-
+    //TODO (sandeep_hook) Make this test case work for one and we are good
     //To test this scenario-we should use the web to make a payment and find out the sessionid and put in this test
     @Ignore
     public void confirm_transaction_success() throws Exception {
@@ -177,8 +177,9 @@ public class StripePaymentServiceTest {
                 .contribution(20.0)
                 .build();
         order=orderDetailRepository.save(order);
-        String transactionId="cs_test_EjP1tn1zrxgsIJ3KOZOlASZnfFyar01HeLn1or3D5356GNQgX2JGX53Y";
-        paymentService.confirmTransaction(transactionId);
+        //save an order with id 1
+        String transactionId = "cs_test_lxVDYwCFz19g10Ak8q8iHlQysMvpfFYxejrqb5qwozFokIVpGGtSBULr";
+        paymentService.confirmTransaction(transactionId, order.getId());
 
        com.coronacarecard.dao.entity.OrderDetail updatedOrder= orderDetailRepository.findAll().iterator().next();
        assertNotNull(updatedOrder);

@@ -12,6 +12,8 @@ import com.amazonaws.services.sns.AmazonSNS;
 import com.amazonaws.services.sns.AmazonSNSClientBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import com.amazonaws.services.sqs.AmazonSQS;
+import com.amazonaws.services.sqs.AmazonSQSClientBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -34,6 +36,14 @@ public class AWSConfiguration {
     @Autowired
     public AmazonSNS snsClient(AWSCredentialsProvider awsCredentialsProvider) {
         return AmazonSNSClientBuilder.standard()
+                .withCredentials(awsCredentialsProvider)
+                .build();
+    }
+
+    @Bean
+    @Autowired
+    public AmazonSQS amazonSQS(AWSCredentialsProvider awsCredentialsProvider) {
+        return AmazonSQSClientBuilder.standard()
                 .withCredentials(awsCredentialsProvider)
                 .build();
     }
