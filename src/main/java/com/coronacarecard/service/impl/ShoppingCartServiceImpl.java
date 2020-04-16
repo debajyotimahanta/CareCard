@@ -3,10 +3,12 @@ package com.coronacarecard.service.impl;
 import com.coronacarecard.dao.BusinessRepository;
 import com.coronacarecard.dao.OrderDetailRepository;
 import com.coronacarecard.dao.entity.Business;
+import com.coronacarecard.dao.entity.GiftCard;
 import com.coronacarecard.dao.entity.OrderItem;
 import com.coronacarecard.exceptions.*;
 import com.coronacarecard.mapper.OrderDetailMapper;
 import com.coronacarecard.model.CheckoutResponse;
+import com.coronacarecard.model.GiftCardState;
 import com.coronacarecard.model.PaymentSystem;
 import com.coronacarecard.model.orders.Item;
 import com.coronacarecard.model.orders.OrderDetail;
@@ -98,10 +100,17 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
             orderDetail.addOrderItem(orderItem);
             for (Item item : line.getItems()) {
-                orderItem.addItem(com.coronacarecard.dao.entity.Item.builder()
+                com.coronacarecard.dao.entity.Item itemDAO = com.coronacarecard.dao.entity.Item.builder()
                         .quantity(item.getQuantity())
                         .unitPrice(item.getUnitPrice())
-                        .build());
+                        .build();
+                for (int i = 0; i < item.getQuantity() ; i++) {
+                   itemDAO.addGiftCard(GiftCard.builder()
+                           .amount(item.getUnitPrice())
+                           .state(GiftCardState.Draft)
+                           .build());
+                }
+                orderItem.addItem(itemDAO);
             }
         }
 

@@ -1,5 +1,6 @@
 package com.coronacarecard.mapper.impl;
 
+import com.coronacarecard.dao.entity.GiftCard;
 import com.coronacarecard.dao.entity.Item;
 import com.coronacarecard.dao.entity.OrderItem;
 import com.coronacarecard.mapper.OrderDetailMapper;
@@ -41,6 +42,15 @@ public class OrderDetailMapperImpl implements OrderDetailMapper {
         return com.coronacarecard.model.orders.Item.builder()
                 .quantity(item.getQuantity())
                 .unitPrice(item.getUnitPrice())
+                .giftCards(item.getGiftCards().stream().map(g->mapGiftCards(g)).collect(Collectors.toList()))
+                .build();
+    }
+
+    private com.coronacarecard.model.orders.GiftCard mapGiftCards(GiftCard giftCard) {
+        return com.coronacarecard.model.orders.GiftCard.builder()
+                .amount(giftCard.getAmount())
+                .id(giftCard.getId())
+                .state(giftCard.getState())
                 .build();
     }
 }

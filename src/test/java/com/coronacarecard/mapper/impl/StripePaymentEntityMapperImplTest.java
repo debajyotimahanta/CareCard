@@ -86,7 +86,5 @@ public class StripePaymentEntityMapperImplTest {
         orders.setOrderLine(newOrderLines);
         assertEquals(orders, mappedOrder);
 
-
-
     }
 }

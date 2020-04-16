@@ -22,18 +22,18 @@ import static com.coronacarecard.service.payment.StripePaymentServiceImpl.ORDER_
 
 @Component("StripeEntityMapper")
 public class StripePaymentEntityMapperImpl implements PaymentEntityMapper {
-    private final String PAYMENT_METHOD_TYPES="payment_method_types";
-    private final String LINE_ITEMS="line_items";
+    private final String PAYMENT_METHOD_TYPES = "payment_method_types";
+    private final String LINE_ITEMS = "line_items";
 
-    private final String LINE_ITEM_NAME="name";
-    private final String LINE_ITEM_AMOUNT="amount";
-    private final String LINE_ITEM_CURRENCY="currency";
-    private final String LINE_ITEM_QUANTITY="quantity";
-    private final String DESTINATION="destination";
-    private final String TRANSFER_DATA="transfer_data";
-    private final String PAYMENT_INTENT_DATA="payment_intent_data";
-    private final String SUCCESS_URL="success_url";
-    private final String CANCEL_URL="cancel_url";
+    private final String LINE_ITEM_NAME = "name";
+    private final String LINE_ITEM_AMOUNT = "amount";
+    private final String LINE_ITEM_CURRENCY = "currency";
+    private final String LINE_ITEM_QUANTITY = "quantity";
+    private final String DESTINATION = "destination";
+    private final String TRANSFER_DATA = "transfer_data";
+    private final String PAYMENT_INTENT_DATA = "payment_intent_data";
+    private final String SUCCESS_URL = "success_url";
+    private final String CANCEL_URL = "cancel_url";
 
     @Value("${spring.app.appUrl}")
     private String appUrl;
@@ -85,7 +85,7 @@ public class StripePaymentEntityMapperImpl implements PaymentEntityMapper {
                 .addPaymentMethodType(SessionCreateParams.PaymentMethodType.CARD)
                 .addAllLineItem(allLineItems)
                 .setSuccessUrl(forntEndBaseUrl + "/payment/confirm?orderId=" + orderDetail.getId())
-                .setCancelUrl(forntEndBaseUrl + "/payment/cancel")
+                .setCancelUrl(forntEndBaseUrl + "/business/" + business.getId() + "?alert=cancelled-payment")
                 .putAllMetadata(getMetaDataForOrder(orderDetail))
                 .build();
     }
@@ -98,22 +98,22 @@ public class StripePaymentEntityMapperImpl implements PaymentEntityMapper {
 
 
     @Override
-    public CheckoutResponse toCheckoutResponse(Object session,OrderDetail orderDetail,BusinessService businessService) throws BusinessNotFoundException,PaymentAccountNotSetupException{
+    public CheckoutResponse toCheckoutResponse(Object session, OrderDetail orderDetail, BusinessService businessService) throws BusinessNotFoundException, PaymentAccountNotSetupException {
         Business business = businessService.getBusiness(orderDetail.getOrderLine().get(0).getBusinessId());
         String accountId = business.getOwner()
                 .flatMap(User::getBusinessAccountDetail)
                 .map(BusinessAccountDetail::getExternalRefId)
                 .orElse(null);
-        if(accountId==null){
+        if (accountId == null) {
             throw new PaymentAccountNotSetupException();
         }
         return CheckoutResponse.builder()
-                .sessionId(((Session)session).getId())
+                .sessionId(((Session) session).getId())
                 .build();
     }
 
 
-    private List<SessionCreateParams.LineItem> createLineItems(OrderDetail header,OrderLine orderLine) {
+    private List<SessionCreateParams.LineItem> createLineItems(OrderDetail header, OrderLine orderLine) {
         List<SessionCreateParams.LineItem> lineItems = orderLine.getItems()
                 .stream()
                 .map(item -> {
@@ -121,7 +121,7 @@ public class StripePaymentEntityMapperImpl implements PaymentEntityMapper {
                             .setAmount(((Double) (item.getUnitPrice() * 100)).longValue())//Convert from cent to dollar
                             .setQuantity(item.getQuantity().longValue())
                             .setCurrency(header.getCurrency().toString())
-                            .setName((orderLine.getBusinessName()!=null?orderLine.getBusinessName():orderLine.getBusinessId())+ "-Gift Card")
+                            .setName((orderLine.getBusinessName() != null ? orderLine.getBusinessName() : orderLine.getBusinessId()) + "-Gift Card")
                             .build();
                 })
                 .collect(Collectors.toList());
