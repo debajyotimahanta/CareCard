@@ -5,6 +5,9 @@ import com.coronacarecard.model.Business;
 import com.coronacarecard.model.CheckoutResponse;
 import com.coronacarecard.model.orders.OrderDetail;
 import com.coronacarecard.model.orders.OrderStatus;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.UUID;
 
 public interface PaymentService {
     /**
@@ -30,9 +33,9 @@ public interface PaymentService {
      * We email the user the gift card code for each of the gifts purchased
      * We also mark the transaction as Completed, because
      *
-     * @param transactionId
      */
-    OrderStatus confirmTransaction(String transactionId) throws InternalException;
+    @Transactional
+    OrderStatus confirmTransaction(String paymentIntentId, UUID orderId) throws InternalException, PaymentServiceException;
 
     /**
      * Generate onboarding URL for the given payment system and business

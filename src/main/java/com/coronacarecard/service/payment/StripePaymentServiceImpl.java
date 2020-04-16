@@ -6,6 +6,7 @@ import com.coronacarecard.dao.BusinessRepository;
 import com.coronacarecard.dao.OrderDetailRepository;
 import com.coronacarecard.dao.UserRepository;
 import com.coronacarecard.dao.entity.BusinessAccountDetail;
+import com.coronacarecard.dao.entity.OrderItem;
 import com.coronacarecard.dao.entity.User;
 import com.coronacarecard.exceptions.*;
 import com.coronacarecard.mapper.BusinessEntityMapper;
@@ -25,6 +26,8 @@ import com.stripe.model.PaymentIntent;
 import com.stripe.model.checkout.Session;
 import com.stripe.model.oauth.TokenResponse;
 import com.stripe.param.checkout.SessionCreateParams;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,10 +36,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service("StripePaymentService")
 public class StripePaymentServiceImpl implements PaymentService {
@@ -96,32 +97,76 @@ public class StripePaymentServiceImpl implements PaymentService {
 
 
     @Override
-    public OrderStatus confirmTransaction(String transactionId) throws InternalException {
+    @Transactional
+    public OrderStatus confirmTransaction(String paymentIntentId, UUID orderId)
+            throws InternalException, PaymentServiceException {
 
         try {
-            Session session = stripeCalls.retrieveSession(transactionId);
-            Optional<com.coronacarecard.dao.entity.OrderDetail> maybeOrder = orderRepository.findById(UUID.fromString(session.getClientReferenceId()));
+            Optional<com.coronacarecard.dao.entity.OrderDetail> maybeOrder = orderRepository.findById(orderId);
             if (!maybeOrder.isPresent()) {
                 throw new InternalException("Order cannot be located");
             }
-
-            PaymentIntent paymentIntent = stripeCalls.retrievePaymentIntent(session.getPaymentIntent());
             com.coronacarecard.dao.entity.OrderDetail order = maybeOrder.get();
-            OrderDetail orderModel = OrderDetail.builder()
-                    .id(order.getId())
-                    .customerEmail(order.getCustomerEmail())
-                    .customerMobile(order.getCustomerMobile())
-                    .total(order.getTotal())
-                    .build();
+
+            PaymentIntent paymentIntent = stripeCalls.retrievePaymentIntent(paymentIntentId);
             if ("succeeded".equals(paymentIntent.getStatus().toLowerCase())) {
+                validateSuccessPayment(order, paymentIntent);
+                transferFunds(order);
                 orderRepository.save(order.toBuilder().status(OrderStatus.PAID).build());
+                OrderDetail orderModel = buildOrderDetail(order);
                 notificationSender.sendNotification(NotificationType.PAYMENT_COMPLETED, orderModel);
                 return OrderStatus.PAID;
+            } else {
+                log.info(String.format("Ignoring intent %s of type %s", paymentIntentId, paymentIntent.getStatus()));
             }
             return order.getStatus();
         } catch (StripeException ex) {
             throw new InternalException(ex.getMessage());
         }
+    }
+
+    private void transferFunds(com.coronacarecard.dao.entity.OrderDetail order) throws StripeException {
+        List<Pair<String, Long>> fundsToTransfer = order.getOrderItems().stream()
+                .map(o -> mapPerBusinessAmt(o))
+                .collect(Collectors.toList());
+        for(Pair<String, Long> p: fundsToTransfer) {
+            stripeCalls.transferFund(p.getLeft(), p.getRight(), order.getId(), order.getCurrency());
+        }
+    }
+
+    private Pair<String, Long> mapPerBusinessAmt(OrderItem item) {
+        return new ImmutablePair<String, Long>(item.getBusiness().getOwner().getAccount().getExternalRefId(),
+                item.getItems().stream()
+                .mapToLong(li->(li.getQuantity()*li.getUnitPrice().longValue()))
+                .sum()
+        );
+    }
+
+    private OrderDetail buildOrderDetail(com.coronacarecard.dao.entity.OrderDetail order) {
+        return OrderDetail.builder()
+                            .id(order.getId())
+                            .customerEmail(order.getCustomerEmail())
+                            .customerMobile(order.getCustomerMobile())
+                            .total(order.getTotal())
+                            .build();
+    }
+
+    private void validateSuccessPayment(com.coronacarecard.dao.entity.OrderDetail order, PaymentIntent paymentIntent) throws PaymentServiceException {
+        UUID paymentOrderId = getOrderIdFromPaymentIntent(paymentIntent);
+        if (order.getId() != paymentOrderId) {
+            log.error(String.format("The order id %s is not the same as payment order id %s", order.getId(), paymentOrderId));
+            throw new PaymentServiceException("The stripe  details and the order details dont match");
+        }
+
+        if(order.getTotal().longValue() != paymentIntent.getAmount()) {
+            log.error(String.format("The order total %s doesnt match payment total %s", order.getTotal(), paymentIntent.getAmount()));
+            throw  new PaymentServiceException("Totals dont match");
+        }
+
+    }
+
+    private UUID getOrderIdFromPaymentIntent(PaymentIntent paymentIntent) {
+        return UUID.fromString(paymentIntent.getMetadata().get(ORDER_ID));
     }
 
     @Override
