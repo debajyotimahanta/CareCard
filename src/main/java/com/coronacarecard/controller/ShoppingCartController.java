@@ -6,8 +6,8 @@ import com.coronacarecard.model.OrderConfirmationResponse;
 import com.coronacarecard.model.PaymentSystem;
 import com.coronacarecard.model.orders.OrderDetail;
 import com.coronacarecard.service.ShoppingCartService;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,7 +17,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("cart")
 public class ShoppingCartController {
-    private static Log log = LogFactory.getLog(ShoppingCartController.class);
+    private static final Logger log = LogManager.getLogger(ShoppingCartController.class);
 
     @Autowired
     private ShoppingCartService shoppingCartService;

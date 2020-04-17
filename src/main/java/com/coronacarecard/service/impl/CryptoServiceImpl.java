@@ -6,6 +6,8 @@ import com.amazonaws.encryptionsdk.kms.KmsMasterKey;
 import com.amazonaws.encryptionsdk.kms.KmsMasterKeyProvider;
 import com.coronacarecard.exceptions.InternalException;
 import com.coronacarecard.service.CryptoService;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
@@ -18,6 +20,8 @@ import java.util.Map;
 
 @Service
 public class CryptoServiceImpl implements CryptoService {
+
+    private static final Logger log = LogManager.getLogger(CryptoServiceImpl.class);
 
     @Value("${MASTER_KEY_ID}")
     private String awsARN;

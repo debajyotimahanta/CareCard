@@ -6,6 +6,8 @@ import com.coronacarecard.model.Business;
 import com.coronacarecard.model.BusinessSearchResult;
 import com.coronacarecard.model.PagedBusinessSearchResult;
 import com.coronacarecard.service.BusinessService;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -20,8 +22,9 @@ import java.util.Optional;
 @Validated
 public class BusinessController {
 
+    private static final Logger log = LogManager.getLogger(BusinessController.class);
     @Autowired
-    private BusinessService businessService;
+    private        BusinessService businessService;
 
     @GetMapping("/import")
     public Business importFromGoogle(@NotEmpty @NotNull @RequestParam(value = "googleplaceid") String googlePlaceId)
@@ -46,7 +49,7 @@ public class BusinessController {
                                                      @RequestParam(value = "latitude") Optional<Double> latitude,
                                                      @RequestParam(value = "longitude") Optional<Double> longitude)
             throws InternalException {
-
+        log.info("Search for business with search text : " + searchText);
         return businessService.externalSearch(searchText,
                 latitude,
                 longitude);

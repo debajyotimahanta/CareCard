@@ -12,8 +12,8 @@ import com.google.maps.errors.NotFoundException;
 import com.google.maps.model.LatLng;
 import com.google.maps.model.PlaceDetails;
 import com.google.maps.model.PlacesSearchResponse;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class GooglePlaceServiceImpl implements GooglePlaceService {
-    private static Log log = LogFactory.getLog(GooglePlaceServiceImpl.class);
+    private static final Logger log = LogManager.getLogger(GooglePlaceServiceImpl.class);
 
     @Value("${google.photo.maxwidth}")
     private int imageMaxWidth;

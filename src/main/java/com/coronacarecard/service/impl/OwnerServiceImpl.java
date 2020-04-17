@@ -13,8 +13,8 @@ import com.coronacarecard.service.GooglePlaceService;
 import com.coronacarecard.service.OwnerService;
 import com.coronacarecard.service.PaymentService;
 import com.google.maps.ImageResult;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,9 +27,9 @@ import java.util.UUID;
 
 @Service
 public class OwnerServiceImpl implements OwnerService {
-    private static Log log = LogFactory.getLog(OwnerServiceImpl.class);
+    private static final Logger             log = LogManager.getLogger(OwnerServiceImpl.class);
     @Autowired
-    private BusinessRepository businessRepository;
+    private              BusinessRepository businessRepository;
 
     @Autowired
     private UserRepository userRepository;

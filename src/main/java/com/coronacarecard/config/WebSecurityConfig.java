@@ -1,5 +1,7 @@
 package com.coronacarecard.config;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,8 +21,10 @@ import static java.util.Arrays.asList;
 @Configuration
 @EnableWebSecurity
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+
+    private static final Logger  log = LogManager.getLogger(WebSecurityConfig.class);
     @Value("${spring.h2.console.enabled}")
-    private boolean isH2ConsoleEnabled;
+    private              boolean isH2ConsoleEnabled;
 
     @Value("${spring.app.forntEndBaseUrl}")
     private String forntEndBaseUrl;

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<configuration monitorInterval="30">
+    <appender name="ConsoleJSONAppender" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
+            <layout class="ch.qos.logback.contrib.json.classic.JsonLayout">
+                <timestampFormat>yyyy-MM-dd'T'HH:mm:ss.SSSX</timestampFormat>
+                <timestampFormatTimezoneId>Etc/UTC</timestampFormatTimezoneId>
+
+                <jsonFormatter class="ch.qos.logback.contrib.jackson.JacksonJsonFormatter">
+                    <prettyPrint>true</prettyPrint>
+                </jsonFormatter>
+            </layout>
+        </encoder>
+    </appender>
+    <appender name="RollingFileJsonAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${logfolder}/Applogs.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- daily rollover -->
+            <fileNamePattern>${logarchivefolder}/Applogs.%d{yyyy-MM-dd-HH-mm}.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
+            <layout class="ch.qos.logback.contrib.json.classic.JsonLayout">
+                <timestampFormat>yyyy-MM-dd'T'HH:mm:ss.SSSX</timestampFormat>
+                <timestampFormatTimezoneId>Etc/UTC</timestampFormatTimezoneId>
+
+                <jsonFormatter class="ch.qos.logback.contrib.jackson.JacksonJsonFormatter">
+                    <prettyPrint>true</prettyPrint>
+                </jsonFormatter>
+            </layout>
+        </encoder>
+    </appender>
+
+    <root level="debug">
+        <appender-ref ref="ConsoleJSONAppender"/>
+        <appender-ref ref="RollingFileJsonAppender"/>
+    </root>
+</configuration>

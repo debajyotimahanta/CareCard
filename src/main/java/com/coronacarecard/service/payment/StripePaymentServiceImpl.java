@@ -25,8 +25,8 @@ import com.stripe.model.PaymentIntent;
 import com.stripe.model.checkout.Session;
 import com.stripe.model.oauth.TokenResponse;
 import com.stripe.param.checkout.SessionCreateParams;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -40,8 +40,8 @@ import java.util.UUID;
 
 @Service("StripePaymentService")
 public class StripePaymentServiceImpl implements PaymentService {
-    public static final String ORDER_ID = "ORDER_ID";
-    private static Log log = LogFactory.getLog(StripePaymentServiceImpl.class);
+    public static final  String ORDER_ID = "ORDER_ID";
+    private static final Logger log      = LogManager.getLogger(StripePaymentServiceImpl.class);
 
     @Autowired
     private StripeConfiguration stripeConfiguration;

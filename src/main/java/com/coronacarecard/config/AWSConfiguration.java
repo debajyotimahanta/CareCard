@@ -9,6 +9,8 @@ import com.amazonaws.services.secretsmanager.AWSSecretsManager;
 import com.amazonaws.services.secretsmanager.AWSSecretsManagerClientBuilder;
 import com.amazonaws.services.sns.AmazonSNS;
 import com.amazonaws.services.sns.AmazonSNSClientBuilder;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -18,8 +20,10 @@ import org.springframework.context.annotation.Lazy;
 @Configuration
 public class AWSConfiguration {
 
+    private static final Logger log = LogManager.getLogger(AWSConfiguration.class);
+
     @Value("${MASTER_KEY_ID}")
-    private String awsARN;
+    private              String awsARN;
 
     @Bean
     @Autowired

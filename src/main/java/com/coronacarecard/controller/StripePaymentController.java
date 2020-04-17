@@ -7,8 +7,8 @@ import com.coronacarecard.model.BusinessState;
 import com.coronacarecard.service.BusinessService;
 import com.coronacarecard.service.CryptoService;
 import com.coronacarecard.service.PaymentService;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,7 +27,7 @@ import java.util.UUID;
 @RequestMapping("payment/stripe")
 @Validated
 public class StripePaymentController {
-    private static Log log = LogFactory.getLog(StripePaymentController.class);
+    private static final Logger log = LogManager.getLogger(StripePaymentController.class);
 
     @Autowired
     @Qualifier("StripePaymentService")

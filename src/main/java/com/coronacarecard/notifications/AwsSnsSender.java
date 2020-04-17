@@ -4,13 +4,14 @@ import com.amazonaws.SdkClientException;
 import com.amazonaws.services.sns.AmazonSNS;
 import com.amazonaws.services.sns.model.CreateTopicRequest;
 import com.amazonaws.services.sns.model.PublishRequest;
+import com.coronacarecard.Application;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Maps;
 import lombok.SneakyThrows;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -23,7 +24,7 @@ import java.util.Map;
  */
 @Component
 public class AwsSnsSender<T extends Serializable> implements NotificationSender<T> {
-    private static Log log = LogFactory.getLog(AwsSnsSender.class);
+    private static final Logger log = LogManager.getLogger(Application.class);
 
     @Autowired
     private AmazonSNS snsClient;
