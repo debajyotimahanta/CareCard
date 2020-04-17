@@ -43,19 +43,21 @@ public class StripeCallsImpl implements StripeCalls {
     }
 
     @Override
-    public void transferFund(String stripeBusinessId, Long dollarAmount, UUID orderId, Currency currency) throws StripeException {
+    public String transferFund(String stripeBusinessId, Double dollarAmount, UUID orderId, Currency currency,
+                               String sourceTransactionId) throws StripeException {
         TransferCreateParams transferParams =
                 TransferCreateParams.builder()
-                        .setAmount(dollarAmount * 100)
+                        .setAmount(dollarAmount.longValue() * 100)
                         .setCurrency(currency.name())
                         .setDestination(stripeBusinessId)
                         .setTransferGroup(orderId.toString())
+                        .setSourceTransaction(sourceTransactionId)
                         .build();
 
         RequestOptions options = RequestOptions.getDefault().toBuilder()
                 .setIdempotencyKey(orderId + "-" + stripeBusinessId)
                 .build();
-        Transfer.create(transferParams, options);
+        return Transfer.create(transferParams, options).getId();
 
     }
 }

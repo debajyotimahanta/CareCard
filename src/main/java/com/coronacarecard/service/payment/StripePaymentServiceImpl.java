@@ -13,6 +13,7 @@ import com.coronacarecard.mapper.BusinessEntityMapper;
 import com.coronacarecard.mapper.PaymentEntityMapper;
 import com.coronacarecard.model.Business;
 import com.coronacarecard.model.CheckoutResponse;
+import com.coronacarecard.model.PaymentState;
 import com.coronacarecard.model.orders.OrderDetail;
 import com.coronacarecard.model.orders.OrderLine;
 import com.coronacarecard.model.orders.OrderStatus;
@@ -26,8 +27,6 @@ import com.stripe.model.PaymentIntent;
 import com.stripe.model.checkout.Session;
 import com.stripe.model.oauth.TokenResponse;
 import com.stripe.param.checkout.SessionCreateParams;
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,8 +35,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service("StripePaymentService")
 public class StripePaymentServiceImpl implements PaymentService {
@@ -81,9 +82,9 @@ public class StripePaymentServiceImpl implements PaymentService {
     @Value("${spring.app.apiBaseUrl}")
     private String apiUrl;
 
-    private Double STRIPE_PROCESSING_FEE_VARIABLE_PERCENT=0.029;
-    private Double STRIPE_PROCESSING_FEE_FIXED=0.3;
-    private Double EQUALITY_CHECK_LIMIT=0.0001;
+    private Double STRIPE_PROCESSING_FEE_VARIABLE_PERCENT = 0.029;
+    private Double STRIPE_PROCESSING_FEE_FIXED = 0.3;
+    private Double EQUALITY_CHECK_LIMIT = 0.0001;
 
     @Override
     public CheckoutResponse successPayment(String urlParams) {
@@ -111,9 +112,12 @@ public class StripePaymentServiceImpl implements PaymentService {
             PaymentIntent paymentIntent = stripeCalls.retrievePaymentIntent(paymentIntentId);
             if ("succeeded".equals(paymentIntent.getStatus().toLowerCase())) {
                 validateSuccessPayment(order, paymentIntent);
-                transferFunds(order);
-                orderRepository.save(order.toBuilder().status(OrderStatus.PAID).build());
+                transferFunds(order, paymentIntent.getCharges().getData().get(0).getId());
+                order.setStatus(OrderStatus.PAID);
+                orderRepository.save(order);
                 OrderDetail orderModel = buildOrderDetail(order);
+                //TODO (sandeep_hook) Dont pass orderModel here it has too much info just pass what we need to send the email
+                // like the business email, customer email, gift card ids, and probably amount?
                 notificationSender.sendNotification(NotificationType.PAYMENT_COMPLETED, orderModel);
                 return OrderStatus.PAID;
             } else {
@@ -125,30 +129,28 @@ public class StripePaymentServiceImpl implements PaymentService {
         }
     }
 
-    private void transferFunds(com.coronacarecard.dao.entity.OrderDetail order) throws StripeException {
-        List<Pair<String, Long>> fundsToTransfer = order.getOrderItems().stream()
-                .map(o -> mapPerBusinessAmt(o))
-                .collect(Collectors.toList());
-        for(Pair<String, Long> p: fundsToTransfer) {
-            stripeCalls.transferFund(p.getLeft(), p.getRight(), order.getId(), order.getCurrency());
+    private void transferFunds(com.coronacarecard.dao.entity.OrderDetail order, String chargeId)
+            throws StripeException {
+        for (OrderItem orderItem : order.getOrderItems()) {
+            String transferId = stripeCalls.transferFund(orderItem.getBusiness().getExternalRefId(),
+                    orderItem.fundsToTransfer(),
+                    order.getId(),
+                    order.getCurrency(),
+                    chargeId
+            );
+            orderItem.setPaymentState(PaymentState.Processed);
+            orderItem.setProcessingId(transferId);
         }
-    }
-
-    private Pair<String, Long> mapPerBusinessAmt(OrderItem item) {
-        return new ImmutablePair<String, Long>(item.getBusiness().getOwner().getAccount().getExternalRefId(),
-                item.getItems().stream()
-                .mapToLong(li->(li.getQuantity()*li.getUnitPrice().longValue()))
-                .sum()
-        );
+        ;
     }
 
     private OrderDetail buildOrderDetail(com.coronacarecard.dao.entity.OrderDetail order) {
         return OrderDetail.builder()
-                            .id(order.getId())
-                            .customerEmail(order.getCustomerEmail())
-                            .customerMobile(order.getCustomerMobile())
-                            .total(order.getTotal())
-                            .build();
+                .id(order.getId())
+                .customerEmail(order.getCustomerEmail())
+                .customerMobile(order.getCustomerMobile())
+                .total(order.getTotal())
+                .build();
     }
 
     private void validateSuccessPayment(com.coronacarecard.dao.entity.OrderDetail order, PaymentIntent paymentIntent) throws PaymentServiceException {
@@ -158,9 +160,9 @@ public class StripePaymentServiceImpl implements PaymentService {
             throw new PaymentServiceException("The stripe  details and the order details dont match");
         }
 
-        if(order.getTotal().longValue() != paymentIntent.getAmount()) {
+        if (order.getTotal().longValue() != paymentIntent.getAmount()) {
             log.error(String.format("The order total %s doesnt match payment total %s", order.getTotal(), paymentIntent.getAmount()));
-            throw  new PaymentServiceException("Totals dont match");
+            throw new PaymentServiceException("Totals dont match");
         }
 
     }
@@ -202,30 +204,30 @@ public class StripePaymentServiceImpl implements PaymentService {
     @Override
     public void validate(OrderDetail order) throws PaymentServiceException {
 
-        Double total=0.0;
-        for(OrderLine line: order.getOrderLine()){
-            total+=line.getTip();
-            total+=line.getItems()
+        Double total = 0.0;
+        for (OrderLine line : order.getOrderLine()) {
+            total += line.getTip();
+            total += line.getItems()
                     .stream()
-                    .map(li->li.getQuantity()*li.getUnitPrice())
-                    .reduce(0.0,(e1,e2)->e1+e2);
+                    .map(li -> li.getQuantity() * li.getUnitPrice())
+                    .reduce(0.0, (e1, e2) -> e1 + e2);
 
         }
-        total+=order.getContribution();
-        if(Math.abs(total-order.getTotal())>EQUALITY_CHECK_LIMIT) {
+        total += order.getContribution();
+        if (Math.abs(total - order.getTotal()) > EQUALITY_CHECK_LIMIT) {
             throw new PaymentServiceException(String.format("Total does not match with line items, expected:%1$s, received:%2$s"
                     , total.toString(), order.getTotal().toString()));
         }
-        if(Math.abs(order.getProcessingFee()-calculateProcessingFee(order))>EQUALITY_CHECK_LIMIT){
+        if (Math.abs(order.getProcessingFee() - calculateProcessingFee(order)) > EQUALITY_CHECK_LIMIT) {
             throw new PaymentServiceException(String.format("Processing fee does not match for the payment service, expected:%1$s, received:%2$s",
-                    calculateProcessingFee(order).toString(),order.getProcessingFee().toString()));
+                    calculateProcessingFee(order).toString(), order.getProcessingFee().toString()));
         }
     }
 
     @Override
     public Double calculateProcessingFee(OrderDetail orderDetail) {
         Double processingFee = ((orderDetail.getTotal() + STRIPE_PROCESSING_FEE_FIXED) / (Double) (1 - STRIPE_PROCESSING_FEE_VARIABLE_PERCENT));
-        Double result= (Math.round(((processingFee-orderDetail.getTotal()) * 100.0)) / 100.0) ;
+        Double result = (Math.round(((processingFee - orderDetail.getTotal()) * 100.0)) / 100.0);
         return result;
     }
 
@@ -264,7 +266,7 @@ public class StripePaymentServiceImpl implements PaymentService {
             userRepository.save(businessOwner);
             return businessEntityMapper.toModel(businessDAO.get());
 
-        } catch ( StripeException ex) {
+        } catch (StripeException ex) {
             log.error("Unable to import business", ex);
             throw new PaymentServiceException("Unable to import business. Error retrieving details from Payment Service");
         }

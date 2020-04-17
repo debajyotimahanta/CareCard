@@ -30,14 +30,20 @@ public class StripeSucessPaymentHandler implements SqsMessageHandler {
     private PaymentService paymentService;
 
     @Override
-    public boolean handle(Message message) throws JsonProcessingException, PaymentServiceException, InternalException {
+    public boolean handle(Message message) {
         log.info("Handling SQS event: " + message.getMessageId());
         SuccessPaymentNotification successPaymentNotification =
-                objectSerializer.readValue(message.getBody(), SuccessPaymentNotification.class);
+                null;
+        try {
+            successPaymentNotification = objectSerializer.readValue(message.getBody(), SuccessPaymentNotification.class);
+            paymentService.confirmTransaction(successPaymentNotification.getPaymentId(),
+                    successPaymentNotification.getOrderId());
+            return true;
+        } catch (JsonProcessingException | InternalException | PaymentServiceException e) {
+            log.error("Unable to process SQS message", e);
+            return false;
+        }
 
-        paymentService.confirmTransaction(successPaymentNotification.getPaymentId(),
-                successPaymentNotification.getOrderId());
-        return true;
     }
 
     private void validate(Optional<OrderDetail> orderDetails, PaymentIntent paymentIntent) {

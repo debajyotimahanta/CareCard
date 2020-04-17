@@ -54,9 +54,9 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         order.setId(savedOrder.getId());
 
         CheckoutResponse response= paymentService.generateCheckoutSession(order);
-        savedOrder.toBuilder().sessionId(response.getSessionId());
+        savedOrder.setSessionId(response.getSessionId());
 
-        orderDetailRepository.save(savedOrder.toBuilder().sessionId(response.getSessionId()).build());
+        orderDetailRepository.save(savedOrder);
         return response;
     }
 

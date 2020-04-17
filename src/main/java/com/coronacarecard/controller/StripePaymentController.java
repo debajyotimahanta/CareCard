@@ -4,9 +4,14 @@ import com.coronacarecard.dao.BusinessRepository;
 import com.coronacarecard.exceptions.*;
 import com.coronacarecard.model.Business;
 import com.coronacarecard.model.BusinessState;
+import com.coronacarecard.queue.QueuePublisher;
 import com.coronacarecard.service.BusinessService;
 import com.coronacarecard.service.CryptoService;
 import com.coronacarecard.service.PaymentService;
+import com.google.gson.JsonSyntaxException;
+import com.stripe.exception.SignatureVerificationException;
+import com.stripe.model.Event;
+import com.stripe.net.Webhook;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +39,9 @@ public class StripePaymentController {
     private PaymentService paymentService;
 
     @Autowired
+    private QueuePublisher queuePublisher;
+
+    @Autowired
     private CryptoService cryptoService;
 
     @Autowired
@@ -45,16 +53,35 @@ public class StripePaymentController {
     @Value("${spring.app.forntEndBaseUrl}")
     private String forntEndBaseUrl;
 
-    @GetMapping("/success/{transactionId}")
-    public void success(@PathVariable String transactionId) throws InternalException{
-        paymentService.confirmTransaction(transactionId);
+    //TODO (sandeep_hook) I think this should be post need to figure out
+    @ResponseBody
+    @RequestMapping(consumes = "application/json",
+            produces = "application/json",
+            method = RequestMethod.POST,
+            value = "webhook")
+    public String stripeWebhookEndpoint(@RequestBody String payload,
+                                        @RequestHeader("Stripe-Signature") String sigHeader)
+            throws StripeWebHookError {
+
+        Event event;
+        try {
+            String endpointSecret = "TODO_hardcode it for now";
+            event = Webhook.constructEvent(
+                    payload, sigHeader, endpointSecret
+            );
+        } catch (JsonSyntaxException e) {
+            // Invalid payload
+            log.error("Unable to parse stripe json", e);
+            throw new StripeWebHookError();
+        } catch (SignatureVerificationException e) {
+            // Invalid signature
+            log.error("Cannot validate stripe payload", e);
+            throw new StripeWebHookError();
+        }
+        queuePublisher.publishPaymentEvent(event.getData().getRawJsonObject());
+        return null;
     }
 
-
-    @GetMapping("/failure/{transactionId}")
-    public void fail(@PathVariable String transactionId) throws InternalException{
-        paymentService.confirmTransaction(transactionId);
-    }
 
     @GetMapping("/business/onboard/{id}")
     public String onboard(@PathVariable UUID id) throws BusinessNotFoundException, InternalException {
