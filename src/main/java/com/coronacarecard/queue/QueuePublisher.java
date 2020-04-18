@@ -1,7 +1,10 @@
 package com.coronacarecard.queue;
 
-import com.google.gson.JsonObject;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
-public interface QueuePublisher {
-    void publishPaymentEvent(JsonObject rawJsonObject);
+import java.io.Serializable;
+
+public interface QueuePublisher<T extends Serializable> {
+
+    void publishEvent(Serializable payload) throws JsonProcessingException;
 }

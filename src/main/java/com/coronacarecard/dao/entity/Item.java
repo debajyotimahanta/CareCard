@@ -24,7 +24,7 @@ public class Item {
     private Integer quantity;
     private Double unitPrice;
 
-    @OneToMany(fetch=FetchType.EAGER, mappedBy = "item")
+    @OneToMany(fetch=FetchType.EAGER, mappedBy = "item", cascade = CascadeType.ALL)
     @Builder.Default
     private List<GiftCard> giftCards = new ArrayList<>();
 

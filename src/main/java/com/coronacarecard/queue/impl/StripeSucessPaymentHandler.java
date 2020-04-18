@@ -32,8 +32,7 @@ public class StripeSucessPaymentHandler implements SqsMessageHandler {
     @Override
     public boolean handle(Message message) {
         log.info("Handling SQS event: " + message.getMessageId());
-        SuccessPaymentNotification successPaymentNotification =
-                null;
+        SuccessPaymentNotification successPaymentNotification;
         try {
             successPaymentNotification = objectSerializer.readValue(message.getBody(), SuccessPaymentNotification.class);
             paymentService.confirmTransaction(successPaymentNotification.getPaymentId(),

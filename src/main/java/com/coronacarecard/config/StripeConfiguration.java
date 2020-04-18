@@ -25,4 +25,9 @@ public class StripeConfiguration {
     public String getConnectUrl(){
         return "https://connect.stripe.com/express/oauth/authorize?client_id=%1$s&state=%2$s&scope=read_write&response_type=code&redirect_uri=%3$s/payment/stripe/business/confirm";
     }
+
+    public String getWebHookSecret() {
+        //TODO (sandeep_hook) inject this from secert data store
+        return "whsec_pCr7kUsxp7vu73HuVSmbhYkQCSSBnk7Z";
+    }
 }

@@ -24,7 +24,7 @@ public class OrderItem {
     private Business business;
     private Double tip;
 
-    @OneToMany(fetch=FetchType.EAGER, mappedBy = "orderItem")
+    @OneToMany(fetch=FetchType.EAGER, mappedBy = "orderItem", cascade = CascadeType.ALL)
     @Builder.Default
     private List<Item> items = new ArrayList<>();
 

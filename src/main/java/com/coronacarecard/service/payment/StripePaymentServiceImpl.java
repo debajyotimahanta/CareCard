@@ -99,7 +99,7 @@ public class StripePaymentServiceImpl implements PaymentService {
 
     @Override
     @Transactional
-    public OrderStatus confirmTransaction(String paymentIntentId, UUID orderId)
+    public OrderStatus confirmTransaction(String sessionId, UUID orderId)
             throws InternalException, PaymentServiceException {
 
         try {
@@ -109,7 +109,8 @@ public class StripePaymentServiceImpl implements PaymentService {
             }
             com.coronacarecard.dao.entity.OrderDetail order = maybeOrder.get();
 
-            PaymentIntent paymentIntent = stripeCalls.retrievePaymentIntent(paymentIntentId);
+            Session session = stripeCalls.retrieveSession(sessionId);
+            PaymentIntent paymentIntent = stripeCalls.retrievePaymentIntent(session.getPaymentIntent());
             if ("succeeded".equals(paymentIntent.getStatus().toLowerCase())) {
                 validateSuccessPayment(order, paymentIntent);
                 transferFunds(order, paymentIntent.getCharges().getData().get(0).getId());
@@ -121,7 +122,7 @@ public class StripePaymentServiceImpl implements PaymentService {
                 notificationSender.sendNotification(NotificationType.PAYMENT_COMPLETED, orderModel);
                 return OrderStatus.PAID;
             } else {
-                log.info(String.format("Ignoring intent %s of type %s", paymentIntentId, paymentIntent.getStatus()));
+                log.info(String.format("Ignoring session %s of since intent is of type %s", sessionId, paymentIntent.getStatus()));
             }
             return order.getStatus();
         } catch (StripeException ex) {
@@ -132,7 +133,8 @@ public class StripePaymentServiceImpl implements PaymentService {
     private void transferFunds(com.coronacarecard.dao.entity.OrderDetail order, String chargeId)
             throws StripeException {
         for (OrderItem orderItem : order.getOrderItems()) {
-            String transferId = stripeCalls.transferFund(orderItem.getBusiness().getExternalRefId(),
+            log.info(String.format("Will transfer funds for following items %s", orderItem.getItems().size()));
+            String transferId = stripeCalls.transferFund(orderItem.getBusiness().getOwner().getAccount().getExternalRefId(),
                     orderItem.fundsToTransfer(),
                     order.getId(),
                     order.getCurrency(),
@@ -155,16 +157,28 @@ public class StripePaymentServiceImpl implements PaymentService {
 
     private void validateSuccessPayment(com.coronacarecard.dao.entity.OrderDetail order, PaymentIntent paymentIntent) throws PaymentServiceException {
         UUID paymentOrderId = getOrderIdFromPaymentIntent(paymentIntent);
-        if (order.getId() != paymentOrderId) {
+        if (!order.getId().equals(paymentOrderId)) {
             log.error(String.format("The order id %s is not the same as payment order id %s", order.getId(), paymentOrderId));
             throw new PaymentServiceException("The stripe  details and the order details dont match");
         }
 
-        if (order.getTotal().longValue() != paymentIntent.getAmount()) {
+        if (!getTotalPaidAmountInCents(order).equals(paymentIntent.getAmount())) {
             log.error(String.format("The order total %s doesnt match payment total %s", order.getTotal(), paymentIntent.getAmount()));
             throw new PaymentServiceException("Totals dont match");
         }
 
+    }
+
+    private Long getTotalPaidAmountInCents(com.coronacarecard.dao.entity.OrderDetail order) {
+        Double totalInCents = (nullOrZero(order.getTotal())
+                + nullOrZero(order.getProcessingFee()))*100;
+
+        return totalInCents.longValue();
+    }
+
+    private Double nullOrZero(Double value) {
+        if (value == null) return 0.0;
+        return value;
     }
 
     private UUID getOrderIdFromPaymentIntent(PaymentIntent paymentIntent) {

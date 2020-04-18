@@ -1,17 +1,32 @@
 package com.coronacarecard.queue.impl;
 
+import com.amazonaws.services.sqs.AmazonSQS;
 import com.coronacarecard.queue.QueuePublisher;
-import com.google.gson.JsonObject;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+
+import java.io.Serializable;
 
 @Component
 public class QueuePublisherImpl implements QueuePublisher {
-    //TODO (sandeep_hook) This will publish the event to the sqs queue as it is i guess, ultimately it will
-    // be consumed by {@link SqsPoller}
+
+    @Autowired
+    private AmazonSQS sqs;
+
+    @Value("${sqs.url}")
+    private String queueUrl;
+
+    private final ObjectMapper objectSerializer = new ObjectMapper()
+            .registerModule(new Jdk8Module());
+
+
     @Override
-    public void publishPaymentEvent(JsonObject rawJsonObject) {
-        throw new NotImplementedException();
+    public void publishEvent(Serializable payload) throws JsonProcessingException {
+        sqs.sendMessage(queueUrl, objectSerializer.writeValueAsString(payload));
 
     }
 }
