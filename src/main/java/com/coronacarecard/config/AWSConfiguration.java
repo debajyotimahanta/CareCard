@@ -2,6 +2,7 @@ package com.coronacarecard.config;
 
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
+import com.amazonaws.auth.profile.ProfileCredentialsProvider;
 import com.amazonaws.encryptionsdk.kms.KmsMasterKeyProvider;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
@@ -14,12 +15,16 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.core.env.Environment;
 
 @Configuration
 public class AWSConfiguration {
 
     @Value("${MASTER_KEY_ID}")
     private String awsARN;
+
+    @Autowired
+    private Environment environment;
 
     @Bean
     @Autowired
@@ -31,7 +36,22 @@ public class AWSConfiguration {
 
     @Bean
     public AWSCredentialsProvider getAWSCredProvider() {
-        return DefaultAWSCredentialsProviderChain.getInstance();
+        if (isAWS()) {
+            return DefaultAWSCredentialsProviderChain.getInstance();
+        } else {
+            return new ProfileCredentialsProvider("corona_card_dev");
+        }
+    }
+
+    private boolean isAWS() {
+        String[] activeProfiles = environment.getActiveProfiles();
+        for (int i = 0; i < activeProfiles.length; i++) {
+            if (activeProfiles[i].equalsIgnoreCase("aws")) {
+                return true;
+            }
+
+        }
+        return false;
     }
 
     @Bean
