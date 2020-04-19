@@ -40,10 +40,11 @@ aws cloudformation --region $region create-stack --stack-name $stackPrefix-3-db-
 aws cloudformation --region $region create-stack --stack-name $stackPrefix-4-iam-v1 --template-body file://iam.yaml --parameters ParameterKey=InfraStackName,ParameterValue=$stackPrefix-2-infra-v1 ParameterKey=DbStackName,ParameterValue=$stackPrefix-3-db-v1 --capabilities CAPABILITY_NAMED_IAM
 
 aws cloudformation --region $region create-stack --stack-name $stackPrefix-5-secrets-v1 --template-body file://secrets.yaml --parameters ParameterKey=IamStackName,ParameterValue=$stackPrefix-4-iam-v1
+
+aws cloudformation --region $region update-stack --stack-name $stackPrefix-7-sqs-v1 --template-body file://notification.yaml --parameters ParameterKey=IamStackName,ParameterValue=$stackPrefix-4-iam-v1
 # Upload jar to S3 location created in infra stack
 aws cloudformation --region $region create-stack --stack-name $stackPrefix-6-ebs-v1 --template-body file://ebs.yaml --parameters ParameterKey=NetworkStackName,ParameterValue=$stackPrefix-1-network-v1 ParameterKey=InfraStackName,ParameterValue=$stackPrefix-2-infra-v1  ParameterKey=DbStackName,ParameterValue=$stackPrefix-3-db-v1 ParameterKey=IamStackName,ParameterValue=$stackPrefix-4-iam-v1 ParameterKey=SecretsStackName,ParameterValue=$stackPrefix-5-secrets-v1 ParameterKey=KeyName,ParameterValue=$ec2Key ParameterKey=ApiUrl,ParameterValue=https://api.dev.coronacarecard.com ParameterKey=FrontEndUrl,ParameterValue=https://localhost:3000
- 
- 
+
 ```
 
 `NOTE:` The sequence matters as the output of one stack is used in another

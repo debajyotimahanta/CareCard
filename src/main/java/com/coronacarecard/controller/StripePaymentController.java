@@ -62,7 +62,6 @@ public class StripePaymentController {
     private String forntEndBaseUrl;
 
 
-    //TODO (sandeep_hook) I think this should be post need to figure out
     @ResponseBody
     @RequestMapping(consumes = "application/json",
             produces = "application/json",

@@ -21,7 +21,6 @@ public class SqsPoller {
 
     private final AmazonSQS sqs;
 
-    //TODO (deba_hook) this is hardocded needs to come from cloudformation
     @Value("${sqs.url}")
     private String queueUrl;
 

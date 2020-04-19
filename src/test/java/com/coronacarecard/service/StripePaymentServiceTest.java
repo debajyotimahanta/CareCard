@@ -179,7 +179,6 @@ public class StripePaymentServiceTest {
         order=orderDetailRepository.save(order);
         //save an order with id 1
         String transactionId = "cs_test_lxVDYwCFz19g10Ak8q8iHlQysMvpfFYxejrqb5qwozFokIVpGGtSBULr";
-        // TODO (sandeep_hook) pass the oder id i am passing null for now
         paymentService.confirmTransaction(transactionId, order.getId());
 
        com.coronacarecard.dao.entity.OrderDetail updatedOrder= orderDetailRepository.findAll().iterator().next();

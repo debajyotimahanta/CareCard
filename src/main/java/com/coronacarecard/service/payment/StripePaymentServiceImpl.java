@@ -10,6 +10,7 @@ import com.coronacarecard.dao.entity.OrderItem;
 import com.coronacarecard.dao.entity.User;
 import com.coronacarecard.exceptions.*;
 import com.coronacarecard.mapper.BusinessEntityMapper;
+import com.coronacarecard.mapper.OrderDetailMapper;
 import com.coronacarecard.mapper.PaymentEntityMapper;
 import com.coronacarecard.model.Business;
 import com.coronacarecard.model.CheckoutResponse;
@@ -79,6 +80,9 @@ public class StripePaymentServiceImpl implements PaymentService {
     @Autowired
     private NotificationSender<OrderDetail> notificationSender;
 
+    @Autowired
+    private OrderDetailMapper orderDetailMapper;
+
     @Value("${spring.app.apiBaseUrl}")
     private String apiUrl;
 
@@ -116,9 +120,7 @@ public class StripePaymentServiceImpl implements PaymentService {
                 transferFunds(order, paymentIntent.getCharges().getData().get(0).getId());
                 order.setStatus(OrderStatus.PAID);
                 orderRepository.save(order);
-                OrderDetail orderModel = buildOrderDetail(order);
-                //TODO (sandeep_hook) Dont pass orderModel here it has too much info just pass what we need to send the email
-                // like the business email, customer email, gift card ids, and probably amount?
+                OrderDetail orderModel = orderDetailMapper.toOrder(order);
                 notificationSender.sendNotification(NotificationType.PAYMENT_COMPLETED, orderModel);
                 return OrderStatus.PAID;
             } else {
@@ -144,15 +146,6 @@ public class StripePaymentServiceImpl implements PaymentService {
             orderItem.setProcessingId(transferId);
         }
         ;
-    }
-
-    private OrderDetail buildOrderDetail(com.coronacarecard.dao.entity.OrderDetail order) {
-        return OrderDetail.builder()
-                .id(order.getId())
-                .customerEmail(order.getCustomerEmail())
-                .customerMobile(order.getCustomerMobile())
-                .total(order.getTotal())
-                .build();
     }
 
     private void validateSuccessPayment(com.coronacarecard.dao.entity.OrderDetail order, PaymentIntent paymentIntent) throws PaymentServiceException {

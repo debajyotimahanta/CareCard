@@ -4,8 +4,7 @@ import com.stripe.Stripe;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 
-import static com.coronacarecard.config.SecretKey.STRIPE_CLIENT_ID;
-import static com.coronacarecard.config.SecretKey.STRIPE_KEY;
+import static com.coronacarecard.config.SecretKey.*;
 
 @Configuration
 public class StripeConfiguration {
@@ -27,7 +26,6 @@ public class StripeConfiguration {
     }
 
     public String getWebHookSecret() {
-        //TODO (sandeep_hook) inject this from secert data store
-        return "whsec_pCr7kUsxp7vu73HuVSmbhYkQCSSBnk7Z";
+        return secretsDataStore.getValue(STRIPE_WEB_HOOK_SECRET);
     }
 }

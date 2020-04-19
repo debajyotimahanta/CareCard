@@ -1,5 +1,12 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: Different Queues and Notification topics for events
+Parameters:
+  IamStackName:
+    Description: Name of an active CloudFormation stack that contains the IAM resources
+    Type: String
+    MinLength: 1
+    MaxLength: 255
+    AllowedPattern: ^[a-zA-Z][-a-zA-Z0-9]*$
 Resources:
   BusinessEventSQS:
     Type: AWS::SQS::Queue
@@ -33,6 +40,29 @@ Resources:
                 aws:SourceArn: !Sub 'arn:aws:sns:${AWS::Region}:${AWS::AccountId}:NEW_BUSINESS*'
       Queues:
         - !Ref BusinessEventSQS
+  StripeWebHookQueue:
+    Type: AWS::SQS::Queue
+
+  StripeWebHookQueuePolicy:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      PolicyDocument:
+        Version: '2012-10-17'
+        Id: StripeWebHookQueuePolicy
+        Statement:
+          - Sid: Allow-WebProfile
+            Effect: Allow
+            Principal:
+              AWS:
+                Fn::ImportValue: !Sub '${IamStackName}:WebServerRoleArn'
+            Action:
+              - sqs:SendMessage
+              - sqs:ReceiveMessage
+              - sqs:DeleteMessage
+            Resource: !GetAtt StripeWebHookQueue.Arn
+      Queues:
+        - !Ref StripeWebHookQueue
+
 
   NewBusinessClaimedTopic:
     Type: AWS::SNS::Topic
@@ -78,8 +108,11 @@ Outputs:
   Topic:
     Description: NewBusinessClaimedTopic
     Value: !Ref NewBusinessClaimedTopic
-  Queue1:
+  BusinessEventQueue:
     Description: Events Queue
     Value: !Ref BusinessEventSQS
+  StripeWebHookQueue:
+    Description: Stripe WebHook Queue
+    Value: !Ref StripeWebHookQueue
 
 
