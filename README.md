@@ -8,6 +8,13 @@ us-east-2=live
 The entire stack should run locally without the need to setup anything. 
 Things like SNS Notification, Key encrypt/decryption might not work. But we should be able to run test and mock
 these up for Integration test
+### Local dev profile
+We need to setup a profile `corona_card_dev` so that our tests run. We have some integration tests which required AWS access. 
+
+Setup AWS profile in region `us-west-2` using the following command `aws configure --profile corona_card_dev`
+
+`Note: For creds please contact the backend dev team`
+
 ### Local dev with AWS
 * Set the following ENV variables. You can also set these in the Intellij Run Config as env variables
 ```
