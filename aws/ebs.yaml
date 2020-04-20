@@ -173,4 +173,5 @@ Resources:
           Value: !Ref ApiUrl
         - Namespace: aws:elasticbeanstalk:application:environment
           OptionName: SQS_WEB_HOOK_URL
-          Value: !Sub '${QueueStackName}:StripeWebHookQueue'
+          Value:
+            Fn::ImportValue: !Sub '${QueueStackName}:StripeWebHookQueueURL'

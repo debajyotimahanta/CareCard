@@ -155,18 +155,19 @@ public class StripePaymentServiceImpl implements PaymentService {
             throw new PaymentServiceException("The stripe  details and the order details dont match");
         }
 
-        if (!getTotalPaidAmountInCents(order).equals(paymentIntent.getAmount())) {
-            log.error(String.format("The order total %s doesnt match payment total %s", order.getTotal(), paymentIntent.getAmount()));
+        Long paymentTotal = getTotalPaidAmountInCents(order);
+
+        if (!paymentTotal.equals(paymentIntent.getAmount())) {
+            log.error(String.format("The order total %s doesnt match payment total %s", paymentTotal, paymentIntent.getAmount()));
             throw new PaymentServiceException("Totals dont match");
         }
 
     }
 
     private Long getTotalPaidAmountInCents(com.coronacarecard.dao.entity.OrderDetail order) {
-        Double totalInCents = (nullOrZero(order.getTotal())
-                + nullOrZero(order.getProcessingFee()))*100;
-
-        return totalInCents.longValue();
+        return Math.round((nullOrZero(order.getTotal())
+                + nullOrZero(order.getProcessingFee())
+        ) * 100);
     }
 
     private Double nullOrZero(Double value) {

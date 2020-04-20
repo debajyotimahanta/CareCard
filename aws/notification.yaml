@@ -38,6 +38,15 @@ Resources:
             Condition:
               ArnEquals:
                 aws:SourceArn: !Sub 'arn:aws:sns:${AWS::Region}:${AWS::AccountId}:NEW_BUSINESS*'
+          - Sid: Allow-Payment-Notification
+            Effect: Allow
+            Principal: "*"
+            Action:
+              - sqs:SendMessage
+            Resource: !GetAtt BusinessEventSQS.Arn
+            Condition:
+              ArnEquals:
+                aws:SourceArn: !Sub 'arn:aws:sns:${AWS::Region}:${AWS::AccountId}:PAYMENT*'
       Queues:
         - !Ref BusinessEventSQS
   StripeWebHookQueue:
@@ -104,6 +113,26 @@ Resources:
               - "BusinessEventSQS"
               - "Arn"
           Protocol: "sqs"
+  PaymentCompletedTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: "PAYMENT_COMPLETED"
+      Subscription:
+        - Endpoint:
+            Fn::GetAtt:
+              - "BusinessEventSQS"
+              - "Arn"
+          Protocol: "sqs"
+  PaymentFailedTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: "PAYMENT_FAILED"
+      Subscription:
+        - Endpoint:
+            Fn::GetAtt:
+              - "BusinessEventSQS"
+              - "Arn"
+          Protocol: "sqs"
 Outputs:
   Topic:
     Description: NewBusinessClaimedTopic
@@ -111,8 +140,10 @@ Outputs:
   BusinessEventQueue:
     Description: Events Queue
     Value: !Ref BusinessEventSQS
-  StripeWebHookQueue:
+  StripeWebHookQueueURL:
     Description: Stripe WebHook Queue
     Value: !Ref StripeWebHookQueue
+    Export:
+      Name: !Join [ ':', [ !Ref 'AWS::StackName', 'StripeWebHookQueueURL' ] ]
 
 
