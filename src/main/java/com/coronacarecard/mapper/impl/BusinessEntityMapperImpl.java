@@ -5,8 +5,6 @@ import com.coronacarecard.mapper.BusinessEntityMapper;
 import com.coronacarecard.model.*;
 import com.google.maps.model.PlaceDetails;
 import com.google.maps.model.PlacesSearchResult;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -14,8 +12,6 @@ import java.util.Optional;
 
 @Component
 public class BusinessEntityMapperImpl implements BusinessEntityMapper {
-    private static final Logger log = LogManager.getLogger(BusinessEntityMapperImpl.class);
-
     @Override
     public Business toDAO(com.coronacarecard.model.Business business) {
         return toDAOBuilder(business).build();

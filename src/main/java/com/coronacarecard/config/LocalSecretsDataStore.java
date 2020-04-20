@@ -1,7 +1,7 @@
 package com.coronacarecard.config;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
@@ -10,8 +10,8 @@ import java.util.HashMap;
 @Component
 @Profile("!aws")
 public class LocalSecretsDataStore implements SecretsDataStore {
-    private static final Logger                  log = LogManager.getLogger(LocalSecretsDataStore.class);
-    private              HashMap<String, String> map = new HashMap<>();
+    private static Log log = LogFactory.getLog(LocalSecretsDataStore.class);
+    private HashMap<String, String> map = new HashMap<>();
 
     public LocalSecretsDataStore() {
         log.info("Using Local Secret provider");

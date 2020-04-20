@@ -7,8 +7,6 @@ import com.coronacarecard.model.PaymentSystem;
 import com.coronacarecard.service.BusinessService;
 import com.coronacarecard.service.OwnerService;
 import com.coronacarecard.service.PaymentService;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
@@ -23,7 +21,6 @@ import java.util.UUID;
 @Controller
 @RequestMapping("admin/web")
 public class AdminWebController {
-    private static final Logger log = LogManager.getLogger(AdminWebController.class);
 
     @Autowired
     private BusinessRepository businessRepository;

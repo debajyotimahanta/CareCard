@@ -2,8 +2,8 @@ package com.coronacarecard.config;
 
 import com.coronacarecard.exceptions.*;
 import com.google.maps.errors.ApiError;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.convert.ConversionFailedException;
@@ -29,7 +29,7 @@ import java.util.Set;
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @ControllerAdvice
 public class ApiExceptionControllerAdvice extends ResponseEntityExceptionHandler {
-    private static final Logger log = LogManager.getLogger(ApiExceptionControllerAdvice.class);
+    private static Log log = LogFactory.getLog(ApiExceptionControllerAdvice.class);
 
     /**
      * Customize the response for HttpMessageNotReadableException.

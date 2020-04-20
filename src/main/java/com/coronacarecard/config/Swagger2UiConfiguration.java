@@ -1,8 +1,6 @@
 package com.coronacarecard.config;
 
 import com.google.common.base.Predicates;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,10 +14,8 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @Configuration
 @EnableSwagger2
 public class Swagger2UiConfiguration extends WebMvcConfigurerAdapter {
-
-    private static final Logger log = LogManager.getLogger(Swagger2UiConfiguration.class);
     @Value("${spring.app.forntEndBaseUrl}")
-    private              String forntEndBaseUrl;
+    private String forntEndBaseUrl;
 
     @Bean
     public Docket api() {

@@ -12,8 +12,6 @@ import com.coronacarecard.model.orders.OrderLine;
 import com.coronacarecard.service.BusinessService;
 import com.stripe.model.checkout.Session;
 import com.stripe.param.checkout.SessionCreateParams;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -24,8 +22,7 @@ import static com.coronacarecard.service.payment.StripePaymentServiceImpl.ORDER_
 
 @Component("StripeEntityMapper")
 public class StripePaymentEntityMapperImpl implements PaymentEntityMapper {
-    private static final Logger log                  = LogManager.getLogger(StripePaymentEntityMapperImpl.class);
-    private final        String PAYMENT_METHOD_TYPES = "payment_method_types";
+    private final String PAYMENT_METHOD_TYPES = "payment_method_types";
     private final String LINE_ITEMS = "line_items";
 
     private final String LINE_ITEM_NAME = "name";

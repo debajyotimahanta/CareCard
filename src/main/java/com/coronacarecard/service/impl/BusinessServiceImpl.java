@@ -14,8 +14,6 @@ import com.coronacarecard.service.BusinessService;
 import com.coronacarecard.service.CloudStorageService;
 import com.coronacarecard.service.GooglePlaceService;
 import com.google.maps.ImageResult;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -31,7 +29,6 @@ import java.util.stream.Collectors;
 
 @Service
 public class BusinessServiceImpl implements BusinessService {
-    private static final Logger log = LogManager.getLogger(BusinessServiceImpl.class);
 
     @Autowired
     private BusinessRepository businessRepository;

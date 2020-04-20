@@ -4,8 +4,6 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.*;
 import com.coronacarecard.exceptions.InternalException;
 import com.coronacarecard.service.CloudStorageService;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,10 +14,8 @@ import java.util.Optional;
 
 @Service
 public class CloudStorageServiceImpl implements CloudStorageService {
-    private static final Logger log = LogManager.getLogger(CloudStorageServiceImpl.class);
-
     @Autowired
-    private              AmazonS3 client;
+    private AmazonS3 client;
 
     @Override
     public Bucket createFolder(String bucketName) throws InternalException {

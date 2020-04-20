@@ -1,8 +1,6 @@
 package com.coronacarecard.config;
 
 import com.stripe.Stripe;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 
@@ -10,9 +8,7 @@ import static com.coronacarecard.config.SecretKey.*;
 
 @Configuration
 public class StripeConfiguration {
-
-    private static final Logger           log = LogManager.getLogger(StripeConfiguration.class);
-    private final        SecretsDataStore secretsDataStore;
+    private final SecretsDataStore secretsDataStore;
 
     @Autowired
     public StripeConfiguration(SecretsDataStore secretsDataStore) {

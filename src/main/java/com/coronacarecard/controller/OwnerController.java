@@ -8,8 +8,6 @@ import com.coronacarecard.model.BusinessRegistrationRequest;
 import com.coronacarecard.model.ClaimResult;
 import com.coronacarecard.service.CryptoService;
 import com.coronacarecard.service.OwnerService;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -24,9 +22,8 @@ import javax.validation.Valid;
 @Validated
 public class OwnerController {
 
-    private static final Logger       log = LogManager.getLogger(OwnerController.class);
     @Autowired
-    private              OwnerService ownerService;
+    private OwnerService ownerService;
 
     @Autowired
     private CryptoService cryptoService;

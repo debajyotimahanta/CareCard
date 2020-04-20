@@ -10,8 +10,6 @@ import com.stripe.net.OAuth;
 import com.stripe.net.RequestOptions;
 import com.stripe.param.TransferCreateParams;
 import com.stripe.param.checkout.SessionCreateParams;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -20,7 +18,7 @@ import java.util.UUID;
 
 @Service
 public class StripeCallsImpl implements StripeCalls {
-    private static final Logger log = LogManager.getLogger(StripeCallsImpl.class);
+
     @Override
     public TokenResponse token(String code) throws StripeException {
         Map<String, Object> params = new HashMap<>();

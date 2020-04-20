@@ -6,16 +6,12 @@ import com.coronacarecard.dao.entity.OrderItem;
 import com.coronacarecard.mapper.OrderDetailMapper;
 import com.coronacarecard.model.orders.OrderDetail;
 import com.coronacarecard.model.orders.OrderLine;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 
 import java.util.stream.Collectors;
 
 @Component
 public class OrderDetailMapperImpl implements OrderDetailMapper {
-    private static final Logger log = LogManager.getLogger(OrderDetailMapperImpl.class);
-
     @Override
     public OrderDetail toOrder(com.coronacarecard.dao.entity.OrderDetail orderDAO) {
         return OrderDetail.builder()

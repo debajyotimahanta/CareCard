@@ -17,8 +17,8 @@ import com.coronacarecard.model.orders.OrderStatus;
 import com.coronacarecard.service.PaymentService;
 import com.coronacarecard.service.ShoppingCartService;
 import com.google.common.annotations.VisibleForTesting;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -29,7 +29,7 @@ import java.util.UUID;
 
 @Service
 public class ShoppingCartServiceImpl implements ShoppingCartService {
-    private static final Logger log = LogManager.getLogger(ShoppingCartServiceImpl.class);
+    private static Log log = LogFactory.getLog(ShoppingCartServiceImpl.class);
 
     @Autowired
     private OrderDetailRepository orderDetailRepository;
