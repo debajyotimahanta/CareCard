@@ -11,7 +11,7 @@ import java.util.List;
 @lombok.AllArgsConstructor
 @lombok.Getter
 @Entity
-public class Item {
+public class Item extends BaseTimeEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

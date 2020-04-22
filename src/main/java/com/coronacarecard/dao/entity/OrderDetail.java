@@ -15,7 +15,7 @@ import java.util.UUID;
 @lombok.Getter
 @lombok.Setter
 @Entity
-public class OrderDetail {
+public class OrderDetail extends BaseTimeEntity{
 
     @Id
     @GeneratedValue(generator = "uuid2")

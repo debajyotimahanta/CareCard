@@ -10,7 +10,7 @@ import java.util.UUID;
 @lombok.AllArgsConstructor
 @lombok.Getter
 @Entity
-public class GiftCard {
+public class GiftCard extends BaseTimeEntity{
 
     @Id
     @GeneratedValue(generator = "uuid2")

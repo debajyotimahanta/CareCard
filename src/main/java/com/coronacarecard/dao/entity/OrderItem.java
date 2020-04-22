@@ -13,7 +13,7 @@ import java.util.List;
 @lombok.Getter
 @lombok.Setter
 @Entity
-public class OrderItem {
+public class OrderItem extends BaseTimeEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

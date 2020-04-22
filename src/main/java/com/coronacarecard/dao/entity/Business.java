@@ -27,7 +27,7 @@ import java.util.UUID;
                 )
         }
 )
-public class Business {
+public class Business extends BaseTimeEntity{
 
     @Id
     @GeneratedValue(generator = "uuid2")

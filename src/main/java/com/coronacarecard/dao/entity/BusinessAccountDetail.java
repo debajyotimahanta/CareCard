@@ -16,7 +16,7 @@ import javax.persistence.*;
                 )
         }
 )
-public class BusinessAccountDetail {
+public class BusinessAccountDetail extends BaseTimeEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name="id")
