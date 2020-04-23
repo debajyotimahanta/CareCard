@@ -47,7 +47,7 @@ public class StripeCallsImpl implements StripeCalls {
                                String sourceTransactionId) throws StripeException {
         TransferCreateParams transferParams =
                 TransferCreateParams.builder()
-                        .setAmount(dollarAmount.longValue() * 100)
+                        .setAmount((long) (dollarAmount * 100))
                         .setCurrency(currency.name())
                         .setDestination(stripeBusinessId)
                         .setTransferGroup(orderId.toString())
