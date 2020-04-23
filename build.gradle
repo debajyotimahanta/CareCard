@@ -9,6 +9,7 @@ version '1.0-SNAPSHOT'
 
 sourceCompatibility = 1.8
 
+
 repositories {
     mavenCentral()
 }
@@ -43,6 +44,7 @@ dependencies {
 
     implementation platform('software.amazon.awssdk:bom:2.5.29')
     implementation 'software.amazon.awssdk:kinesis'
+    implementation 'org.springframework.cloud:spring-cloud-starter-sleuth:2.1.5.RELEASE'
 
     // https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk-s3
     compile group: 'com.amazonaws', name: 'aws-java-sdk-s3', version: '1.11.747'
