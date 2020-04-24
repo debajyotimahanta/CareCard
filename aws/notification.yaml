@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: Different Queues and Notification topics for events
+Description: Queue to process payment notifications
 Parameters:
   IamStackName:
     Description: Name of an active CloudFormation stack that contains the IAM resources
@@ -8,47 +8,6 @@ Parameters:
     MaxLength: 255
     AllowedPattern: ^[a-zA-Z][-a-zA-Z0-9]*$
 Resources:
-  BusinessEventSQS:
-    Type: AWS::SQS::Queue
-    Properties:
-      QueueName: BusinessEventQueue
-  # Queue Policy to give Topic permission to write to Queues
-  BusinessEventSQSPolicy:
-    Type: AWS::SQS::QueuePolicy
-    Properties:
-      PolicyDocument:
-        Version: '2012-10-17'
-        Id: MyQueuePolicy
-        Statement:
-          - Sid: Allow-Business
-            Effect: Allow
-            Principal: "*"
-            Action:
-              - sqs:SendMessage
-            Resource: !GetAtt BusinessEventSQS.Arn
-            Condition:
-              ArnEquals:
-                aws:SourceArn: !Sub 'arn:aws:sns:${AWS::Region}:${AWS::AccountId}:BUSINESS*'
-          - Sid: Allow-New-Business
-            Effect: Allow
-            Principal: "*"
-            Action:
-              - sqs:SendMessage
-            Resource: !GetAtt BusinessEventSQS.Arn
-            Condition:
-              ArnEquals:
-                aws:SourceArn: !Sub 'arn:aws:sns:${AWS::Region}:${AWS::AccountId}:NEW_BUSINESS*'
-          - Sid: Allow-Payment-Notification
-            Effect: Allow
-            Principal: "*"
-            Action:
-              - sqs:SendMessage
-            Resource: !GetAtt BusinessEventSQS.Arn
-            Condition:
-              ArnEquals:
-                aws:SourceArn: !Sub 'arn:aws:sns:${AWS::Region}:${AWS::AccountId}:PAYMENT*'
-      Queues:
-        - !Ref BusinessEventSQS
   StripeWebHookQueue:
     Type: AWS::SQS::Queue
 
@@ -72,74 +31,7 @@ Resources:
       Queues:
         - !Ref StripeWebHookQueue
 
-
-  NewBusinessClaimedTopic:
-    Type: AWS::SNS::Topic
-    Properties:
-      TopicName: "NEW_BUSINESS_REGISTERED"
-      Subscription:
-        - Endpoint:
-            Fn::GetAtt:
-              - "BusinessEventSQS"
-              - "Arn"
-          Protocol: "sqs"
-  BusinessClaimedTopic:
-    Type: AWS::SNS::Topic
-    Properties:
-      TopicName: "BUSINESS_CLAIMED"
-      Subscription:
-        - Endpoint:
-            Fn::GetAtt:
-              - "BusinessEventSQS"
-              - "Arn"
-          Protocol: "sqs"
-  BusinessApprovedTopic:
-    Type: AWS::SNS::Topic
-    Properties:
-      TopicName: "BUSINESS_APPROVED"
-      Subscription:
-        - Endpoint:
-            Fn::GetAtt:
-              - "BusinessEventSQS"
-              - "Arn"
-          Protocol: "sqs"
-  BusinessDeclinedTopic:
-    Type: AWS::SNS::Topic
-    Properties:
-      TopicName: "BUSINESS_DECLINED"
-      Subscription:
-        - Endpoint:
-            Fn::GetAtt:
-              - "BusinessEventSQS"
-              - "Arn"
-          Protocol: "sqs"
-  PaymentCompletedTopic:
-    Type: AWS::SNS::Topic
-    Properties:
-      TopicName: "PAYMENT_COMPLETED"
-      Subscription:
-        - Endpoint:
-            Fn::GetAtt:
-              - "BusinessEventSQS"
-              - "Arn"
-          Protocol: "sqs"
-  PaymentFailedTopic:
-    Type: AWS::SNS::Topic
-    Properties:
-      TopicName: "PAYMENT_FAILED"
-      Subscription:
-        - Endpoint:
-            Fn::GetAtt:
-              - "BusinessEventSQS"
-              - "Arn"
-          Protocol: "sqs"
 Outputs:
-  Topic:
-    Description: NewBusinessClaimedTopic
-    Value: !Ref NewBusinessClaimedTopic
-  BusinessEventQueue:
-    Description: Events Queue
-    Value: !Ref BusinessEventSQS
   StripeWebHookQueueURL:
     Description: Stripe WebHook Queue
     Value: !Ref StripeWebHookQueue
