@@ -85,7 +85,7 @@ public class StripePaymentEntityMapperImpl implements PaymentEntityMapper {
                 .addPaymentMethodType(SessionCreateParams.PaymentMethodType.CARD)
                 .addAllLineItem(allLineItems)
                 .setSuccessUrl(forntEndBaseUrl + "/payment/confirm?orderId=" + orderDetail.getId())
-                .setCancelUrl(forntEndBaseUrl + "/business/" + business.getId() + "?alert=cancelled-payment")
+                .setCancelUrl(forntEndBaseUrl + "/business/" + business.getExternalRefId() + "?alert=cancelled-payment")
                 .putAllMetadata(getMetaDataForOrder(orderDetail))
                 .build();
     }
