@@ -9,7 +9,6 @@ version '1.0-SNAPSHOT'
 
 sourceCompatibility = 1.8
 
-
 repositories {
     mavenCentral()
 }
@@ -20,6 +19,7 @@ test {
 
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
+    //compile group: 'org.liquibase', name: 'liquibase-core', version: "3.4.0"
 
     implementation 'org.apache.logging.log4j:log4j:2.13.0'
     implementation 'org.apache.directory.studio:org.apache.commons.io:2.4'
@@ -47,6 +47,7 @@ dependencies {
     implementation 'software.amazon.awssdk:kinesis'
     implementation 'org.springframework.cloud:spring-cloud-starter-sleuth:2.1.5.RELEASE'
 
+
     // https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk-s3
     compile group: 'com.amazonaws', name: 'aws-java-sdk-s3', version: '1.11.747'
     // https://mvnrepository.com/artifact/com.amazonaws/aws-encryption-sdk-java
@@ -72,3 +73,4 @@ dependencies {
 
 apply plugin: SpringBootPlugin
 apply from: rootProject.file('gradle/install-git-hooks.gradle')
+//apply from: 'liquibase.gradle'
