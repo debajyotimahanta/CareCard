@@ -6,6 +6,7 @@ import com.coronacarecard.model.BusinessState;
 import com.coronacarecard.model.Photo;
 import com.google.maps.model.Geometry;
 import com.google.maps.model.LatLng;
+import com.google.maps.model.PlaceDetails;
 import com.google.maps.model.PlacesSearchResult;
 import org.junit.Test;
 import org.junit.jupiter.api.AfterEach;
@@ -145,6 +146,82 @@ public class BusinessEntityMapperImplTest {
     }
 
     @Test
+    @DisplayName("Test values of PlaceDetails mapped to model")
+    public  void checkMappingPlaceDetailsToModel(){
+        // Arrange
+        LatLng mockLocation = new LatLng(0.0, 0.0);
+
+        Geometry mockGeometry = new Geometry();
+        mockGeometry.location = mockLocation;
+
+        com.google.maps.model.Photo mockPhoto = new com.google.maps.model.Photo();
+        mockPhoto.width = 12;
+        mockPhoto.height = 45;
+        mockPhoto.photoReference = "jkdnvkljanfdl";
+        mockPhoto.htmlAttributions = new String[] {
+                "ljkvandjklfvnadkvfdpjfkm"
+        };
+
+        PlaceDetails mockPlace = new PlaceDetails();
+        mockPlace.photos = new com.google.maps.model.Photo[] {
+                mockPhoto
+        };
+        mockPlace.geometry = mockGeometry;
+        mockPlace.placeId = "17291872918720189";
+        mockPlace.name = "Mock Place";
+        mockPlace.formattedAddress = "123 Main St.";
+        mockPlace.internationalPhoneNumber = "+1 (234) 567-8910";
+        mockPlace.formattedPhoneNumber = "+1 (234) 567-8910";
+        BusinessEntityMapperImpl target = new BusinessEntityMapperImpl();
+
+        // Act
+        Business result = target.toModel(mockPlace);
+
+        // Assert
+        assertAll("Value matches",
+                () -> assertTrue(result.getPhoto().getHeight() == mockPhoto.height),
+                () -> assertTrue(result.getPhoto().getWidth() == mockPhoto.width),
+                () -> assertTrue(result.getPhoto().getPhotoReference() == mockPhoto.photoReference),
+                () -> assertTrue(result.getPhoto().getPhotoAttributions()[0].equals(mockPhoto.htmlAttributions[0])),
+                () -> assertTrue(result.getExternalRefId().equals(mockPlace.placeId)),
+                () -> assertTrue(result.getName().equals(mockPlace.name)),
+                () -> assertTrue(result.getAddress().equals(mockPlace.formattedAddress)),
+                () -> assertTrue(result.getInternationalPhoneNumber().equals(mockPlace.internationalPhoneNumber)),
+                () -> assertTrue(result.getFormattedPhoneNumber().equals(mockPlace.formattedPhoneNumber)),
+                () -> assertTrue(result.getLatitude() == mockPlace.geometry.location.lat),
+                () -> assertTrue(result.getLongitude() == mockPlace.geometry.location.lng)
+        );
+    }
+
+    @Test
+    @DisplayName("Test values of PlaceDetails mapped to model when no photos are available")
+    public  void checkMappingPlaceDetailsToModelForNullPhoto(){
+        // Arrange
+        LatLng mockLocation = new LatLng(0.0, 0.0);
+
+        Geometry mockGeometry = new Geometry();
+        mockGeometry.location = mockLocation;
+
+        PlaceDetails mockPlace = new PlaceDetails();
+        mockPlace.photos = null;
+        mockPlace.geometry = mockGeometry;
+        mockPlace.placeId = "17291872918720189";
+        mockPlace.name = "Mock Place";
+        mockPlace.formattedAddress = "123 Main St.";
+        mockPlace.internationalPhoneNumber = "+1 (234) 567-8910";
+        mockPlace.formattedPhoneNumber = "+1 (234) 567-8910";
+        BusinessEntityMapperImpl target = new BusinessEntityMapperImpl();
+
+        // Act
+        Business result = target.toModel(mockPlace);
+
+        // Assert
+        assertAll("Value matches",
+                () -> assertNull(result.getPhoto())
+        );
+    }
+
+    @Test
     @DisplayName("Test values of Business DAO mapped to model inactive business")
     public  void checkMappingBusinessDAOToModelInactiveBusiness(){
         // Arrange
@@ -268,4 +345,4 @@ public class BusinessEntityMapperImplTest {
                 () -> assertNull(result.getAddress())
         );
     }
-}
+ }

@@ -87,16 +87,24 @@ public class BusinessEntityMapperImpl implements BusinessEntityMapper {
                 .latitude(place.geometry.location.lat)
                 .name(place.name)
                 .address(place.formattedAddress)
-                .photo(Photo.builder()
-                        .photoReference(place.photos[0].photoReference)
-                        .photoAttributions(place.photos[0].htmlAttributions)
-                        .height(place.photos[0].height)
-                        .width(place.photos[0].width)
-                        .build())
+                .photo(getPhoto(place.photos))
                 .internationalPhoneNumber(place.internationalPhoneNumber)
                 .formattedPhoneNumber(place.formattedPhoneNumber)
                 .build();
 
+    }
+
+    private Photo getPhoto(com.google.maps.model.Photo[] photos) {
+        if(photos != null) {
+            return Photo.builder()
+                    .photoReference(photos[0].photoReference)
+                    .photoAttributions(photos[0].htmlAttributions)
+                    .height(photos[0].height)
+                    .width(photos[0].width)
+                    .build();
+        }
+
+        return null;
     }
 
     @Override

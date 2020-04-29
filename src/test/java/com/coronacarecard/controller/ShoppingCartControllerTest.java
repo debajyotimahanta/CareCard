@@ -94,7 +94,8 @@ public class ShoppingCartControllerTest {
                 .andExpect(status().isBadRequest())
                 .andReturn();
 
-        assertTrue(result.getResponse().getContentAsString().contains("must not be null"));
+        assertTrue(result.getResponse().getContentAsString().contains("must not be empty")
+                || result.getResponse().getContentAsString().contains("must not be null"));
 
     }
 
@@ -112,7 +113,7 @@ public class ShoppingCartControllerTest {
                 .andReturn();
 
         assertTrue(result.getResponse().getContentAsString().contains("must not be empty")
-        || result.getResponse().getContentAsString().contains("must not be empty"));
+        || result.getResponse().getContentAsString().contains("must not be null"));
     }
 
     @Test
