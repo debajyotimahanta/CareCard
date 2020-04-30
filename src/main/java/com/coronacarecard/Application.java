@@ -8,7 +8,8 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
-@SpringBootApplication(exclude = {LiquibaseAutoConfiguration.class})
+//@SpringBootApplication(exclude = {LiquibaseAutoConfiguration.class})
+@SpringBootApplication
 @ComponentScan("com.coronacarecard")
 @EnableScheduling
 @EnableJpaAuditing

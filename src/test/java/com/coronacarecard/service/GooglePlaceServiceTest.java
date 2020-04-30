@@ -12,6 +12,8 @@ import com.google.maps.ImageResult;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.liquibase.LiquibaseAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -23,6 +25,7 @@ import static org.junit.Assert.*;
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = {BusinessEntityMapperImpl.class, GooglePlaceServiceImpl.class,
         GoogleConfiguration.class, LocalSecretsDataStore.class})
+@EnableAutoConfiguration(exclude={LiquibaseAutoConfiguration.class})
 public class GooglePlaceServiceTest {
     public static final String ID = "ChIJicMwN4lskFQR9brCQh07Xyo";
     @Autowired
