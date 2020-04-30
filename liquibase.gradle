@@ -3,33 +3,27 @@ configurations {
 }
 
 dependencies {
-    liquibase group: 'org.liquibase.ext', name: 'liquibase-hibernate5', version: 3.6
+    liquibase group: 'org.liquibase.ext', name: 'liquibase-hibernate5', version: 3.8
+    liquibase "org.liquibase:liquibase-core:3.8.6"
 }
 
-//loading properties file.
-Properties liquibaseProps = new Properties()
-liquibaseProps.load(new FileInputStream("src/main/resources/liquibase.properties"))
-
-Properties applicationProps = new Properties()
-applicationProps.load(new FileInputStream("src/main/resources/application.properties"))
-
-task liquibaseDiffChangelog(type: JavaExec) {
+task liquibaseDiffChangelog(dependsOn: compileJava, type: JavaExec) {
     group = "liquibase"
-
 
     classpath sourceSets.main.runtimeClasspath
     classpath configurations.liquibase
+
     main = "liquibase.integration.commandline.Main"
 
-    args "--changeLogFile=src/main/resources/db/changelog/" + buildTimestamp() +"_changelog.mysql.sql"
+    args "--changeLogFile=src/main/resources/db/changelog/" + buildTimestamp() +"_changelog.xml"
     args "--username=sa"
     args "--password="
     args "--url=jdbc:h2:mem:testdb?dialect=org.hibernate.dialect.H2Dialect"
     args "--driver=org.h2.Driver"
     args "--logLevel=debug"
-    args "--logFile=logused.log"
-    args "generateChangeLog"
-
+    args "--referenceUrl=hibernate:spring:com.coronacarecard.dao.entity?dialect=org.hibernate.dialect.H2Dialect&hibernate.physical_naming_strategy=org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy&hibernate.implicit_naming_strategy=org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy"
+    args "--referenceDriver=liquibase.ext.hibernate.database.connection.HibernateDriver"
+    args "diffChangeLog"
 }
 
 def buildTimestamp() {
