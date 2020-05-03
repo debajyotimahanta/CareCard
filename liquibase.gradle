@@ -15,15 +15,14 @@ task liquibaseDiffChangelog(dependsOn: compileJava, type: JavaExec) {
 
     main = "liquibase.integration.commandline.Main"
 
-    args "--changeLogFile=src/main/resources/db/changelog/" + buildTimestamp() +"_changelog.xml"
+    args "--changeLogFile=src/main/resources/db/changelog/" + buildTimestamp() +"_changelog.oracle.sql"
     args "--username=sa"
     args "--password="
-    args "--url=jdbc:h2:mem:testdb?dialect=org.hibernate.dialect.H2Dialect"
-    args "--driver=org.h2.Driver"
     args "--logLevel=debug"
-    args "--referenceUrl=hibernate:spring:com.coronacarecard.dao.entity?dialect=org.hibernate.dialect.H2Dialect&hibernate.physical_naming_strategy=org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy&hibernate.implicit_naming_strategy=org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy"
-    args "--referenceDriver=liquibase.ext.hibernate.database.connection.HibernateDriver"
-    args "diffChangeLog"
+    args "--logFile=logused.log"
+    args "--url=hibernate:spring:com.coronacarecard.dao.entity?dialect=org.hibernate.dialect.H2Dialect&hibernate.physical_naming_strategy=org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy&hibernate.implicit_naming_strategy=org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy"
+    args "--driver=liquibase.ext.hibernate.database.connection.HibernateDriver"
+    args "generateChangeLog"
 }
 
 def buildTimestamp() {
