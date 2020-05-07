@@ -27,7 +27,7 @@ import java.util.UUID;
                 )
         }
 )
-public class Business extends BaseTimeEntity{
+public class Business extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(generator = "uuid2")
@@ -38,6 +38,7 @@ public class Business extends BaseTimeEntity{
     private Double longitude;
     private String name;
     private String address;
+    @Column(length = 850)
     private String description;
     private String photoUrl;
     private String photoReference;
