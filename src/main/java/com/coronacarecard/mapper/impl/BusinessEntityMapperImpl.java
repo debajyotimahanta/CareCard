@@ -7,8 +7,7 @@ import com.google.maps.model.PlaceDetails;
 import com.google.maps.model.PlacesSearchResult;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Component
 public class BusinessEntityMapperImpl implements BusinessEntityMapper {
@@ -119,6 +118,19 @@ public class BusinessEntityMapperImpl implements BusinessEntityMapper {
     }
 
     @Override
+    public List<BusinessSearchResult> toPagedExternalSearchResult(List<BusinessSearchResult> items,
+                                                                 int pageNumber, int pageSize, int totalPages) {
+         List<List<BusinessSearchResult>> pagedResults = getPages(items, pageSize);
+         if (pageNumber <= pagedResults.size()) {
+             return pagedResults.get(pageNumber - 1);
+         }
+         else
+         {
+             return null;
+         }
+    }
+
+    @Override
     public BusinessSearchResult toSearchResult(Business item) {
         return BusinessSearchResult.builder()
                 .address(item.getAddress())
@@ -128,6 +140,20 @@ public class BusinessEntityMapperImpl implements BusinessEntityMapper {
                 .latitude(item.getLatitude())
                 .longitude(item.getLongitude())
                 .build();
+    }
+
+
+    public static <T> List<List<T>> getPages(Collection<T> c, Integer pageSize) {
+        if (c == null)
+            return Collections.emptyList();
+        List<T> list = new ArrayList<T>(c);
+        if (pageSize == null || pageSize <= 0 || pageSize > list.size())
+            pageSize = list.size();
+        int numPages = (int) Math.ceil((double)list.size() / (double)pageSize);
+        List<List<T>> pages = new ArrayList<List<T>>(numPages);
+        for (int pageNum = 0; pageNum < numPages;)
+            pages.add(list.subList(pageNum * pageSize, Math.min(++pageNum * pageSize, list.size())));
+        return pages;
     }
 
     private String getPhotoReferenceIfNotNull(com.google.maps.model.Photo[] photos) {

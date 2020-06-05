@@ -59,4 +59,16 @@ public class BusinessController {
         return businessService.search(searchText, page, count);
     }
 
+    @GetMapping("/searchonradius")
+    public List<BusinessSearchResult> searchonradius(@NotNull @NotEmpty @RequestParam(value = "searchtext") String searchText,
+                                                     @RequestParam(value = "latitude") Optional<Double> latitude,
+                                                     @RequestParam(value = "longitude") Optional<Double> longitude,
+                                                     @RequestParam(value = "radius", defaultValue = "2000") Integer radius,
+                                                     @RequestParam(value = "page", defaultValue = "1") Integer page,
+                                                     @RequestParam(value = "count", defaultValue = "10") Integer count
+                                                   ) throws InternalException  {
+        return businessService.searchonradius(searchText, latitude, longitude, radius, page, count);
+    }
+
+
 }

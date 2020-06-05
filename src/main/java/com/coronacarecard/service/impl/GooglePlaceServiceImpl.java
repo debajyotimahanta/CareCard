@@ -12,6 +12,7 @@ import com.google.maps.errors.NotFoundException;
 import com.google.maps.model.LatLng;
 import com.google.maps.model.PlaceDetails;
 import com.google.maps.model.PlacesSearchResponse;
+import com.google.maps.model.PlacesSearchResult;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -77,6 +78,49 @@ public class GooglePlaceServiceImpl implements GooglePlaceService {
             throw new InternalException("Unable to search place");
         }
         return Arrays.stream(result.results).map(t -> mapper.toSearchResult(t)).collect(Collectors.toList());
+
+    }
+
+
+    @Override
+    public List<BusinessSearchResult> search(String searchText, Optional<Double> lat, Optional<Double> lng, int radius) throws InternalException {
+
+        /*NearbySearchRequest request;
+
+
+        if (lat.isPresent() && lng.isPresent()) {
+            request = PlacesApi.nearbySearchQuery(context, new LatLng(lat.get(), lng.get()));
+        } else {
+            request = PlacesApi.nearbySearchQuery(context, new LatLng(0, 0));
+        }*/
+
+      TextSearchRequest request;
+
+
+        if (lat.isPresent() && lng.isPresent()) {
+            request = PlacesApi.textSearchQuery(context, searchText, new LatLng(lat.get(), lng.get()));
+        } else {
+            request = PlacesApi.textSearchQuery(context, searchText);
+        }
+
+        //TODO make this async
+        PlacesSearchResponse result;
+        try {
+            if(radius>0) {
+               // result = request.keyword(searchText).radius(radius).await();
+                result = request.radius(radius).await();
+            }else{
+                result = request.await();
+            }
+
+
+            // Handle successful request.
+        } catch (Exception e) {
+            log.error(e);
+            throw new InternalException("Unable to search place");
+        }
+
+         return Arrays.stream(result.results).map(t -> mapper.toSearchResult(t)).collect(Collectors.toList());
 
     }
 

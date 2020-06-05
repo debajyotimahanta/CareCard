@@ -16,10 +16,7 @@ import com.coronacarecard.service.GooglePlaceService;
 import com.google.maps.ImageResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -121,6 +118,21 @@ public class BusinessServiceImpl implements BusinessService {
                 response.getPageable().getPageSize(),
                 response.getTotalPages()
         );
+    }
+
+    @Override
+    public List<BusinessSearchResult> searchonradius(String searchText,  Optional<Double> lat, Optional<Double> lng, int radius, int pageNumber, int pageSize) throws InternalException {
+        //Pageable pageable = PageRequ.of(pageNumber - 1, pageSize, Sort.by(Sort.Direction.DESC, "id"));
+
+        List<BusinessSearchResult> businesses = googlePlaceService.search(searchText, lat, lng, radius);
+        List<com.coronacarecard.dao.entity.Business> response = (List<com.coronacarecard.dao.entity.Business>) businessRepository.findOnRadius(lat, lng, Optional.of(new Double(radius)));
+
+        return businessEntityMapper.toPagedExternalSearchResult(
+                businesses,
+                pageNumber,
+                pageSize,
+                 (int) Math.ceil(new Double(businesses.stream().count())/new Double(pageSize))
+         );
     }
 
     private Business storeDefaultBusinessImage(Business business) throws InternalException {

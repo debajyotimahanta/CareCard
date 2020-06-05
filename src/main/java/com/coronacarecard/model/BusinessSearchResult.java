@@ -13,4 +13,5 @@ public class BusinessSearchResult {
     private String externalRefId;
     private Double latitude;
     private Double longitude;
+    private boolean alreadyClaimed;
 }

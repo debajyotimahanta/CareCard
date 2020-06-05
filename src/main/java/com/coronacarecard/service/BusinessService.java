@@ -23,4 +23,6 @@ public interface BusinessService {
     List<BusinessSearchResult> externalSearch(String searchText, Optional<Double> lat, Optional<Double> lng) throws InternalException;
 
     PagedBusinessSearchResult search(String searchText, int pageNumber, int pageSize);
+
+    List<BusinessSearchResult> searchonradius(String searchText, Optional<Double> lat, Optional<Double> lng, int radius, int pageNumber, int pageSize) throws InternalException;
 }

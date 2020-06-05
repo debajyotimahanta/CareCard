@@ -24,5 +24,8 @@ public interface BusinessEntityMapper {
     PagedBusinessSearchResult toPagedSearchResult(List<BusinessSearchResult> collect,
                                                   int pageNumber, int pageSize, int totalPages);
 
+    List<BusinessSearchResult> toPagedExternalSearchResult(List<BusinessSearchResult> collect,
+                                                  int pageNumber, int pageSize, int totalPages);
+
     BusinessSearchResult toSearchResult(Business p);
 }
