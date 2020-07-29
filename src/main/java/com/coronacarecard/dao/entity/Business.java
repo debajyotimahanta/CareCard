@@ -1,6 +1,7 @@
 package com.coronacarecard.dao.entity;
 
 import com.coronacarecard.model.BusinessState;
+import com.coronacarecard.dao.entity.Nominator;
 
 import javax.persistence.*;
 import java.util.List;
