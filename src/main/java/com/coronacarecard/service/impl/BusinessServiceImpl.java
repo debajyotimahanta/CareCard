@@ -102,6 +102,21 @@ public class BusinessServiceImpl implements BusinessService {
         com.coronacarecard.dao.entity.Business savedBusinessDAO = businessRepository.save(businessDAO);
         return business.toBuilder().id(savedBusinessDAO.getId()).build();
     }
+    
+    @Override
+    void Nominate(String id, String email) throws BusinessNotFoundException, InternalException{
+        Business business = getOrCreate(id);
+        business.nominations++;
+        business.nominators.add( new Nominator(email) );
+        business.save();
+    }
+    
+    @Override
+    void Nominate(String id) throws BusinessNotFoundException, InternalException{
+        Business business = getOrCreate(id);
+        business.nominations++;
+        business.save();
+    }
 
     @Override
     public List<BusinessSearchResult> externalSearch(String searchText, Optional<Double> lat, Optional<Double> lng)
