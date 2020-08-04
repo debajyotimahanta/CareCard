@@ -47,8 +47,17 @@ public class Business extends BaseTimeEntity {
     private String formattedPhoneNumber;
     private String internationalPhoneNumber;
     private String Website;
-    public Integer nominations;
+    private Integer nominations;
     private List<Nominator> nominators;
+        
+    public void incrementNominations(){
+            this.nominations++;
+    }
+        
+    public void addNominator(String email){
+            nominations.add( new Nominator(email) );
+    }
+            
     @Column(length = 32, columnDefinition = "varchar(32) default 'DRAFT'")
     @Enumerated(EnumType.STRING)
     private BusinessState state;
