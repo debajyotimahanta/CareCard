@@ -106,15 +106,15 @@ public class BusinessServiceImpl implements BusinessService {
     @Override
     void Nominate(String id, String email) throws BusinessNotFoundException, InternalException{
         Business business = getOrCreate(id);
-        business.nominations++;
-        business.nominators.add( new Nominator(email) );
+        business.incrementNominations();
+        business.addNominator(email);
         business.save();
     }
     
     @Override
     void Nominate(String id) throws BusinessNotFoundException, InternalException{
         Business business = getOrCreate(id);
-        business.nominations++;
+        business.incrementNominations();
         business.save();
     }
 
