@@ -47,7 +47,7 @@ public class Business extends BaseTimeEntity {
     private String formattedPhoneNumber;
     private String internationalPhoneNumber;
     private String Website;
-    private Integer nominations;
+    public Integer nominations;
     private List<Nominator> nominators;
     @Column(length = 32, columnDefinition = "varchar(32) default 'DRAFT'")
     @Enumerated(EnumType.STRING)
