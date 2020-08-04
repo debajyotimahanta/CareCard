@@ -55,7 +55,7 @@ public class Business extends BaseTimeEntity {
     }
         
     public void addNominator(String email){
-            nominations.add( new Nominator(email) );
+            nominators.add( new Nominator(email) );
     }
             
     @Column(length = 32, columnDefinition = "varchar(32) default 'DRAFT'")
