@@ -104,18 +104,20 @@ public class BusinessServiceImpl implements BusinessService {
     }
     
     @Override
-    void Nominate(String id, String email) throws BusinessNotFoundException, InternalException{
+    public void Nominate(String id, String email) throws BusinessNotFoundException, InternalException{
         Business business = getOrCreate(id);
-        business.incrementNominations();
-        business.addNominator(email);
-        business.save();
+        com.coronacarecard.dao.entity.Business businessDAO = businessEntityMapper.toDAO(business);
+        businessDAO.incrementNominations();
+        businessDAO.addNominator(email);
+        businessRepository.save(businessDAO);
     }
-    
+
     @Override
-    void Nominate(String id) throws BusinessNotFoundException, InternalException{
+    public void Nominate(String id) throws BusinessNotFoundException, InternalException{
         Business business = getOrCreate(id);
-        business.incrementNominations();
-        business.save();
+        com.coronacarecard.dao.entity.Business businessDAO = businessEntityMapper.toDAO(business);
+        businessDAO.incrementNominations();
+        businessRepository.save(businessDAO);
     }
 
     @Override
