@@ -162,6 +162,28 @@ public class RepositoryTest {
         assertEquals(2, storedOrder.getOrderItems().get(0).getItems().get(1).getGiftCards().size());
         assertEquals(10.0, storedOrder.getOrderItems().get(0).getItems().get(1).getGiftCards().get(0).getAmount().doubleValue(), 0.0);
     }
+    
+    @Test
+    public void nominateBusiness() {
+        String id = "78255b5db1ca027c669ca49e9576d7a26b40f7f9";
+        Business createdBusiness = TestHelper.createEntry(businessRepository, INTERNATIONAL_PHONE_NUMBER, id, "Food for Friends");
+        assertEquals(0.0, createdBusiness.getNominations(), 0.0);
+        createdBusiness.incrementNominations();
+        businessRepository.save(createdBusiness);
 
+        Business updatedBusiness = businessRepository.findByExternalId(id).get();
+        assertEquals(1.0, updatedBusiness.getNominations(), 0.0);
+    }
 
+    @Test
+    public void createNominator(){
+        String email = "q.tucker@icloud.com";
+        String id = "78255b5db1ca027c669ca49e9576d7a26b40f7f9";
+        Business createdBusiness = TestHelper.createEntry(businessRepository, INTERNATIONAL_PHONE_NUMBER, id, "Food for Friends");
+        createdBusiness.addNominator(email);
+        businessRepository.save(createdBusiness);
+
+        Business updatedBusiness = businessRepository.findByExternalId(id).get();
+        assertTrue("q.tucker@icloud.com".equals(updatedBusiness.getNominators().get(0).getEmail()));
+    }
 }
