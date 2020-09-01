@@ -1,11 +1,12 @@
 package com.coronacarecard.dao.entity;
 
 import com.coronacarecard.model.BusinessState;
-import com.coronacarecard.dao.entity.Nominator;
 
+import java.util.ArrayList;
 import javax.persistence.*;
 import java.util.List;
 import java.util.UUID;
+import lombok.Builder;
 
 @lombok.Builder(toBuilder = true)
 @lombok.NoArgsConstructor
@@ -47,15 +48,17 @@ public class Business extends BaseTimeEntity {
     private String formattedPhoneNumber;
     private String internationalPhoneNumber;
     private String Website;
-    private Integer nominations;
-    private List<Nominator> nominators;
+    private int nominations;
+    @OneToMany(mappedBy = "business", cascade = CascadeType.ALL)
+    @Builder.Default
+    private List<Nominator> nominators = new ArrayList<>();
         
     public void incrementNominations(){
             this.nominations++;
     }
         
     public void addNominator(String email){
-            nominators.add( new Nominator(email) );
+            nominators.add( new Nominator() );
     }
             
     @Column(length = 32, columnDefinition = "varchar(32) default 'DRAFT'")

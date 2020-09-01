@@ -1,5 +1,10 @@
 package com.coronacarecard.service;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+
 import com.coronacarecard.exceptions.BusinessNotFoundException;
 import com.coronacarecard.exceptions.InternalException;
 import com.coronacarecard.model.Business;
@@ -12,11 +17,6 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringRunner;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
 
 @RunWith(SpringRunner.class)
 @AutoConfigureTestDatabase
@@ -40,7 +40,7 @@ public class BusinessServiceTest {
     @Test
     public void create() throws BusinessNotFoundException, InternalException {
         Business result = businessService.getOrCreate("ChIJKV8LiAcPkFQRgaK8WZdjnuY");
-        assertEquals("What the Pho!", result.getName());
+        assertEquals("What the Pho - Canyon Park", result.getName());
         assertNotNull(result.getPhoto());
         assertNotNull(result.getPhoto().getPhotoReference());
         assertNotNull(result.getPhoto().getPhotoAttributions());

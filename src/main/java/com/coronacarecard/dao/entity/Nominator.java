@@ -1,7 +1,7 @@
 package com.coronacarecard.dao.entity;
 
 import javax.persistence.*;
-import java.util.List;
+import java.util.UUID;
 
 @lombok.Builder(toBuilder = true)
 @lombok.NoArgsConstructor
@@ -10,7 +10,7 @@ import java.util.List;
 @lombok.Setter
 @Entity
 public class Nominator {
-@Id
+    @Id
     @GeneratedValue(generator = "uuid2")
     @Column(name = "id", columnDefinition = "binary(16)")
     private UUID id;

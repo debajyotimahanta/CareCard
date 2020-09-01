@@ -1,11 +1,19 @@
 package com.coronacarecard.controller;
 
+import static com.coronacarecard.util.TestHelper.parseResponse;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import com.coronacarecard.dao.BusinessRepository;
 import com.coronacarecard.dao.entity.Business;
 import com.coronacarecard.model.BusinessSearchResult;
 import com.coronacarecard.model.PagedBusinessSearchResult;
 import com.coronacarecard.service.CloudStorageService;
 import com.coronacarecard.util.TestHelper;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -19,13 +27,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-
-import java.util.Optional;
-
-import static com.coronacarecard.util.TestHelper.parseResponse;
-import static org.junit.Assert.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -88,7 +89,7 @@ public class BusinessControllerTest {
                 .andExpect(status().isOk())
                 .andReturn();
         BusinessSearchResult[] result = parseResponse(response, BusinessSearchResult[].class);
-        assertEquals("What the Pho!", result[0].getName());
+        assertEquals("What the Pho - Canyon Park", result[0].getName());
         assertEquals("ChIJKV8LiAcPkFQRgaK8WZdjnuY", result[0].getExternalRefId());
 
     }
