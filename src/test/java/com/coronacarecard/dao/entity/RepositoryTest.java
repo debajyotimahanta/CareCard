@@ -177,7 +177,7 @@ public class RepositoryTest {
     }
 
     @Test
-    public void createNominator(){
+    public void createNominator() {
         String email = "q.tucker@icloud.com";
         String id = "78255b5db1ca027c669ca49e9576d7a26b40f7f9";
         Business createdBusiness = TestHelper.createEntry(businessRepository, INTERNATIONAL_PHONE_NUMBER, id, "Food for Friends");
