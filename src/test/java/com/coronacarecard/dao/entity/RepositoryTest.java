@@ -185,7 +185,6 @@ public class RepositoryTest {
         businessRepository.save(createdBusiness);
 
         Business updatedBusiness = businessRepository.findByExternalId(id).get();
-        //TODO Fix this since its broken
-        //assertTrue("q.tucker@icloud.com".equals(updatedBusiness.getNominators().get(0).getEmail()));
+        assertTrue("q.tucker@icloud.com".equals(updatedBusiness.getNominators().get(0).getEmail()));
     }
 }
