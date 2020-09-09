@@ -17,4 +17,8 @@ public class Nominator {
     private String email;
     @ManyToOne(cascade = CascadeType.ALL)
     private Business business;
+    
+    public Nominator(String email) {
+        this.email = email;
+    }
 }
